@@ -4,7 +4,7 @@ import { useApp } from '../../../context/AppContext';
 import bgMembre from '../../../assets/images/bg_membre.jpg';
 
 export const MembreDetailDrawer = ({ membreId, onClose }) => {
-  const { membres, kourels, kamilCycle, seances, deleteMembre } = useApp();
+  const { membres, zones, kourels, kamilCycle, seances, deleteMembre, updateMembreZone } = useApp();
 
   if (!membreId) return null;
 
@@ -12,6 +12,7 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
   if (!membre) return null;
 
   const kourel = kourels.find((k) => k.id === membre.kourel_id);
+  const zoneAssigned = zones ? zones.find((z) => z.id === membre.zone_id) : null;
 
   // Kamil Juki assignment for this member
   const juzAssigned = kamilCycle.assignations.find((a) => a.membre_id === membreId);
@@ -123,6 +124,38 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
                 <Calendar className="w-4 h-4 text-ht-sage flex-shrink-0" />
                 <span>Inscrit le : {membre.date_adhesion}</span>
               </div>
+            </div>
+          </div>
+
+          {/* SECTION ZONE GÉOGRAPHIQUE & SUPERVISEUR */}
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border border-ht-line shadow-soft space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 font-display font-bold text-xs text-ht-ink uppercase tracking-wider">
+                <MapPin className="w-4 h-4 text-ht-emerald" />
+                <span>Zone Géographique Affectée</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between gap-3 p-3 bg-ht-page/80 rounded-xl border border-ht-line text-xs">
+              <div>
+                <span className="font-bold text-ht-emerald text-sm block">
+                  {zoneAssigned ? zoneAssigned.nom : 'Non affecté'}
+                </span>
+                <span className="text-[11px] text-ht-sage font-medium">
+                  {zoneAssigned ? `Superviseur : ${zoneAssigned.responsable}` : 'Veuillez affecter une zone à ce membre'}
+                </span>
+              </div>
+              <select
+                value={membre.zone_id || ''}
+                onChange={(e) => updateMembreZone(membre.id, e.target.value)}
+                className="px-3 py-1.5 bg-white border border-ht-line rounded-xl font-semibold text-ht-ink focus:outline-none focus:border-ht-fern text-xs cursor-pointer"
+              >
+                <option value="">Sélectionner une Zone...</option>
+                {zones.map((z) => (
+                  <option key={z.id} value={z.id}>
+                    {z.nom}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

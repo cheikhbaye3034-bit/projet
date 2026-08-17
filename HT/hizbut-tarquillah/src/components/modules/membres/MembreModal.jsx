@@ -3,7 +3,7 @@ import { X, User, Phone, MapPin, Briefcase, Calendar, Users } from 'lucide-react
 import { useApp } from '../../../context/AppContext';
 
 export const MembreModal = ({ isOpen, onClose }) => {
-  const { kourels, addMembre } = useApp();
+  const { kourels, zones, addMembre } = useApp();
 
   const [formData, setFormData] = useState({
     nom: '',
@@ -13,6 +13,7 @@ export const MembreModal = ({ isOpen, onClose }) => {
     profession: 'Salarié',
     date_adhesion: new Date().toISOString().split('T')[0],
     kourel_id: kourels[0]?.id || 'k1',
+    zone_id: zones[0]?.id || 'z1',
     statut: 'Actif'
   });
 
@@ -138,6 +139,23 @@ export const MembreModal = ({ isOpen, onClose }) => {
                 {kourels.map((k) => (
                   <option key={k.id} value={k.id}>
                     {k.nom}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-ht-ink uppercase tracking-wider mb-1.5">
+                Zone Géographique
+              </label>
+              <select
+                value={formData.zone_id}
+                onChange={(e) => setFormData({ ...formData, zone_id: e.target.value })}
+                className="w-full px-3.5 py-2.5 bg-ht-page border border-ht-line rounded-xl text-sm text-ht-ink focus:outline-none focus:border-ht-fern"
+              >
+                {zones.map((z) => (
+                  <option key={z.id} value={z.id}>
+                    {z.nom}
                   </option>
                 ))}
               </select>

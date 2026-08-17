@@ -10,10 +10,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- React & Babel -->
+  <!-- React & ReactDOM (Pure JS, no Babel needed) -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <script>
     tailwind.config = {
@@ -67,9 +66,38 @@
 <body>
   <div id="root"></div>
 
-  <script type="text/babel">
+  <script>
+    const e = React.createElement;
     const { useState, useEffect } = React;
 
+    // SVG Icon Helper
+    const Icon = ({ path, className = "w-5 h-5" }) => e('svg', {
+      className,
+      fill: 'none',
+      stroke: 'currentColor',
+      viewBox: '0 0 24 24',
+      strokeWidth: 2,
+      strokeLinecap: 'round',
+      strokeLinejoin: 'round'
+    }, e('path', { d: path }));
+
+    // Icons Paths
+    const PATHS = {
+      home: "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+      dashboard: "M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z",
+      users: "M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5 5 0 009.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z",
+      mic: "M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z",
+      book: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+      info: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M9 9h6m-6 4h6m-6 4h4",
+      check: "M5 13l4 4L19 7",
+      search: "M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z",
+      bell: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9",
+      plus: "M12 4v16m8-8H4",
+      arrowRight: "M14 5l7 7m0 0l-7 7m7-7H3",
+      x: "M6 18L18 6M6 6l12 12"
+    };
+
+    // Initial Datasets
     const INITIAL_KOURELS = [
       { id: 'k1', nom: 'Kourel 1 — Miftahoul Mouna', description: 'Groupe principal des chanteurs de khassidas', superviseurs: ['Serigne Modou Kara', 'Cheikh Ahmadou Ndiaye'] },
       { id: 'k2', nom: 'Kourel 2 — Fathou Rahmane', description: 'Section récitation et mémorisation', superviseurs: ['Serigne Fallou Seck'] },
@@ -78,33 +106,18 @@
     ];
 
     const INITIAL_MEMBRES = [
-      { id: 'm1', nom: 'MBACKE', prenom: 'Serigne Cheikh', telephone: '+221 77 123 45 67', adresse: 'Touba Mosquée, Quartier Darou Minam', profession: 'Salarié', date_adhesion: '2021-02-10', statut: 'Actif', kourel_id: 'k1', cotisation_statut: 'À jour', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Août 2026' },
-      { id: 'm2', nom: 'NDIAYE', prenom: 'Cheikh Ahmadou', telephone: '+221 78 234 56 78', adresse: 'Dakar, Mermoz Pyrotechnie', profession: 'Étudiant', date_adhesion: '2020-05-12', statut: 'Actif', kourel_id: 'k1', cotisation_statut: 'À jour', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Août 2026' },
-      { id: 'm3', nom: 'DIOP', prenom: 'Moustapha', telephone: '+221 70 345 67 89', adresse: 'Thiès, Quartier Dixième', profession: 'Salarié', date_adhesion: '2022-01-20', statut: 'Actif', kourel_id: 'k1', cotisation_statut: 'En retard', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Juin 2026' },
-      { id: 'm4', nom: 'FALL', prenom: 'Ibrahima', telephone: '+221 76 456 78 90', adresse: 'Saint-Louis, Balacos', profession: 'Élève', date_adhesion: '2023-04-15', statut: 'Actif', kourel_id: 'k2', cotisation_statut: 'À jour', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Août 2026' },
-      { id: 'm5', nom: 'SOW', prenom: 'Mouhamadou Bamba', telephone: '+221 77 567 89 01', adresse: 'Touba, Guédé Bousso', profession: 'Salarié', date_adhesion: '2019-11-03', statut: 'Actif', kourel_id: 'k2', cotisation_statut: 'À jour', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Juillet 2026' },
-      { id: 'm6', nom: 'GUEYE', prenom: 'Khadim', telephone: '+221 78 678 90 12', adresse: 'Dakar, Sacré-Cœur 3', profession: 'Étudiant', date_adhesion: '2021-08-25', statut: 'Actif', kourel_id: 'k2', cotisation_statut: 'En retard', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Mai 2026' },
-      { id: 'm7', nom: 'SECK', prenom: 'Abdoulaye', telephone: '+221 70 789 01 23', adresse: 'Kaolack, Medina Baye', profession: 'Sans emploi', date_adhesion: '2022-09-14', statut: 'Inactif', kourel_id: 'k3', cotisation_statut: 'En retard', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Avril 2026' },
-      { id: 'm8', nom: 'SY', prenom: 'Serigne Fallou', telephone: '+221 76 890 12 34', adresse: 'Touba, Dianatoul Mahwa', profession: 'Autre', date_adhesion: '2020-03-30', statut: 'Actif', kourel_id: 'k3', cotisation_statut: 'À jour', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Août 2026' },
-      { id: 'm9', nom: 'LO', prenom: 'Ousmane', telephone: '+221 77 901 23 45', adresse: 'Dakar, Yoff APECSY', profession: 'Salarié', date_adhesion: '2021-12-01', statut: 'Actif', kourel_id: 'k3', cotisation_statut: 'À jour', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Août 2026' },
-      { id: 'm10', nom: 'CISSE', prenom: 'Mame Diarra', telephone: '+221 78 012 34 56', adresse: 'Rufisque, HLM 2', profession: 'Étudiant', date_adhesion: '2023-01-10', statut: 'Actif', kourel_id: 'k4', cotisation_statut: 'À jour', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Août 2026' },
-      { id: 'm11', nom: 'SARR', prenom: 'Fatou Bintou', telephone: '+221 70 123 45 67', adresse: 'Dakar, Liberté 6 Extension', profession: 'Salarié', date_adhesion: '2022-05-18', statut: 'Actif', kourel_id: 'k4', cotisation_statut: 'À jour', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Août 2026' },
-      { id: 'm12', nom: 'KANE', prenom: 'Babacar', telephone: '+221 76 234 56 78', adresse: 'Diourbel, Thierno Kandji', profession: 'Élève', date_adhesion: '2023-09-02', statut: 'Suspendu', kourel_id: 'k1', cotisation_statut: 'En retard', cotisation_montant: '5 000 FCFA', dernier_paiement: 'Février 2026' },
-    ];
-
-    const INITIAL_KHASSIDAS = [
-      { id: 'kh1', titre: 'Mawahibou Nafi', subtitle: 'Les Dons du Profit', auteur: 'Cheikh Ahmadou Bamba', versets_count: 144, duree_estimee: '25 min' },
-      { id: 'kh2', titre: 'Jalibatul Maratib', subtitle: 'L’Attirante des Degrés', auteur: 'Cheikh Ahmadou Bamba', versets_count: 98, duree_estimee: '18 min' },
-      { id: 'kh3', titre: 'Assirou', subtitle: 'Le Secret', auteur: 'Cheikh Ahmadou Bamba', versets_count: 54, duree_estimee: '12 min' },
-      { id: 'kh4', titre: 'Matlabul Fawzayni', subtitle: 'La Quête du Bonheur', auteur: 'Cheikh Ahmadou Bamba', versets_count: 180, duree_estimee: '30 min' },
-      { id: 'kh5', titre: 'Silkul Jawahir', subtitle: 'Le Collier de Perles', auteur: 'Cheikh Ahmadou Bamba', versets_count: 110, duree_estimee: '20 min' },
-    ];
-
-    const INITIAL_SONS_AUDIO = [
-      { id: 'son1', titre: 'Mawahibou Nafi — Version Officielle Kourel 1', recitateur: 'Kourel Miftahoul Mouna', duree: '24:15', qualite: 'HQ 320 kbps', taille: '18.4 Mo' },
-      { id: 'son2', titre: 'Jalibatul Maratib — Rythme Apprentissage', recitateur: 'Serigne Modou Kara', duree: '17:40', qualite: 'HQ 256 kbps', taille: '12.8 Mo' },
-      { id: 'son3', titre: 'Assirou — Récitation Lente Débutants', recitateur: 'Cheikh Ahmadou Ndiaye', duree: '12:10', qualite: 'HQ 192 kbps', taille: '8.9 Mo' },
-      { id: 'son4', titre: 'Matlabul Fawzayni — Récitation Complète', recitateur: 'Kourel Nurou Darayni', duree: '29:50', qualite: 'HQ 320 kbps', taille: '22.1 Mo' }
+      { id: 'm1', nom: 'MBACKE', prenom: 'Serigne Cheikh', telephone: '+221 77 123 45 67', adresse: 'Touba Mosquée, Quartier Darou Minam', profession: 'Salarié', date_adhesion: '2021-02-10', statut: 'Actif', kourel_id: 'k1' },
+      { id: 'm2', nom: 'NDIAYE', prenom: 'Cheikh Ahmadou', telephone: '+221 78 234 56 78', adresse: 'Dakar, Mermoz Pyrotechnie', profession: 'Étudiant', date_adhesion: '2020-05-12', statut: 'Actif', kourel_id: 'k1' },
+      { id: 'm3', nom: 'DIOP', prenom: 'Moustapha', telephone: '+221 70 345 67 89', adresse: 'Thiès, Quartier Dixième', profession: 'Salarié', date_adhesion: '2022-01-20', statut: 'Actif', kourel_id: 'k1' },
+      { id: 'm4', nom: 'FALL', prenom: 'Ibrahima', telephone: '+221 76 456 78 90', adresse: 'Saint-Louis, Balacos', profession: 'Élève', date_adhesion: '2023-04-15', statut: 'Actif', kourel_id: 'k2' },
+      { id: 'm5', nom: 'SOW', prenom: 'Mouhamadou Bamba', telephone: '+221 77 567 89 01', adresse: 'Touba, Guédé Bousso', profession: 'Salarié', date_adhesion: '2019-11-03', statut: 'Actif', kourel_id: 'k2' },
+      { id: 'm6', nom: 'GUEYE', prenom: 'Khadim', telephone: '+221 78 678 90 12', adresse: 'Dakar, Sacré-Cœur 3', profession: 'Étudiant', date_adhesion: '2021-08-25', statut: 'Actif', kourel_id: 'k2' },
+      { id: 'm7', nom: 'SECK', prenom: 'Abdoulaye', telephone: '+221 70 789 01 23', adresse: 'Kaolack, Medina Baye', profession: 'Sans emploi', date_adhesion: '2022-09-14', statut: 'Inactif', kourel_id: 'k3' },
+      { id: 'm8', nom: 'SY', prenom: 'Serigne Fallou', telephone: '+221 76 890 12 34', adresse: 'Touba, Dianatoul Mahwa', profession: 'Autre', date_adhesion: '2020-03-30', statut: 'Actif', kourel_id: 'k3' },
+      { id: 'm9', nom: 'LO', prenom: 'Ousmane', telephone: '+221 77 901 23 45', adresse: 'Dakar, Yoff APECSY', profession: 'Salarié', date_adhesion: '2021-12-01', statut: 'Actif', kourel_id: 'k3' },
+      { id: 'm10', nom: 'CISSE', prenom: 'Mame Diarra', telephone: '+221 78 012 34 56', adresse: 'Rufisque, HLM 2', profession: 'Étudiant', date_adhesion: '2023-01-10', statut: 'Actif', kourel_id: 'k4' },
+      { id: 'm11', nom: 'SARR', prenom: 'Fatou Bintou', telephone: '+221 70 123 45 67', adresse: 'Dakar, Liberté 6 Extension', profession: 'Salarié', date_adhesion: '2022-05-18', statut: 'Actif', kourel_id: 'k4' },
+      { id: 'm12', nom: 'KANE', prenom: 'Babacar', telephone: '+221 76 234 56 78', adresse: 'Diourbel, Thierno Kandji', profession: 'Élève', date_adhesion: '2023-09-02', statut: 'Suspendu', kourel_id: 'k1' },
     ];
 
     const INITIAL_SEANCES = [
@@ -114,15 +127,14 @@
         date: '2026-08-12',
         heure_debut: '20:00',
         heure_fin: '22:00',
-        khassida_id: 'kh1',
+        khassida: 'Mawahibou Nafi',
         superviseur: 'Serigne Modou Kara',
         statut: 'Terminée',
-        notes: 'Excellente maîtrise du rythme sur les versets 4 à 12.',
         presences: [
-          { membre_id: 'm1', statut: 'Présent', heure_arrivee: '20:00' },
-          { membre_id: 'm2', statut: 'Présent', heure_arrivee: '20:05' },
-          { membre_id: 'm3', statut: 'En retard', heure_arrivee: '20:25' },
-          { membre_id: 'm12', statut: 'Absent', heure_arrivee: '' }
+          { membre_id: 'm1', statut: 'Présent' },
+          { membre_id: 'm2', statut: 'Présent' },
+          { membre_id: 'm3', statut: 'En retard' },
+          { membre_id: 'm12', statut: 'Absent' }
         ]
       }
     ];
@@ -146,7 +158,7 @@
       {
         id: 'inf1',
         titre: 'Grand Magal de Touba 2026 : Organisation des convois',
-        contenu: 'Chers membres, les préparatifs du Magal s’intensifient. La réunion d’organisation aura lieu ce dimanche à 16h00 au siège général.',
+        contenu: 'Chers membres, les préparatifs du Grand Magal s’intensifient. La réunion générale d’organisation aura lieu ce dimanche à 16h00 au siège de Hizbut-Tarqiyyah.',
         categorie: 'Événement',
         date_publication: '2026-08-15',
         auteur: 'Super Admin',
@@ -154,101 +166,50 @@
       },
       {
         id: 'inf2',
-        titre: 'Programme spécial répétitions des Khassidas',
-        contenu: 'Un accent particulier sera mis sur le Khassida Matlabul Fawzayni lors des deux prochaines séances. Présence obligatoire de tous les Kourels.',
+        titre: 'Nouveau programme des répétitions de Khassida',
+        contenu: 'Les séances du Kourel 1 se tiendront désormais les mardis et vendredis à 20h30 précises. Merci de respecter l’horaire.',
         categorie: 'Répétition',
-        date_publication: '2026-08-14',
-        auteur: 'Commission Spirituelle',
-        epingle: false
-      },
-      {
-        id: 'inf3',
-        titre: 'Appel aux cotisations du mois d’Août',
-        contenu: 'Rappel à l’ensemble des membres de se rapprocher de la trésorerie pour régulariser les cotisations mensuelles.',
-        categorie: 'Finances',
-        date_publication: '2026-08-10',
-        auteur: 'Trésorerie',
+        date_publication: '2026-08-11',
+        auteur: 'Serigne Modou Kara',
         epingle: false
       }
     ];
 
     function App() {
       const [activeTab, setActiveTab] = useState('accueil');
-      const [repetitionSubTab, setRepetitionSubTab] = useState('khassidas');
-
       const [membres, setMembres] = useState(INITIAL_MEMBRES);
       const [kourels] = useState(INITIAL_KOURELS);
-      const [khassidas] = useState(INITIAL_KHASSIDAS);
-      const [sonsAudio] = useState(INITIAL_SONS_AUDIO);
       const [seances, setSeances] = useState(INITIAL_SEANCES);
       const [kamilCycle, setKamilCycle] = useState(INITIAL_KAMIL_CYCLE);
-      const [informations] = useState(INITIAL_INFORMATIONS);
+      const [informations, setInformations] = useState(INITIAL_INFORMATIONS);
       const [toast, setToast] = useState(null);
 
       const [selectedKourelId, setSelectedKourelId] = useState('k1');
       const [searchQuery, setSearchQuery] = useState('');
-      const [khassidaSearchQuery, setKhassidaSearchQuery] = useState('');
-      const [attributionSearchQuery, setAttributionSearchQuery] = useState('');
-
-      // State for inline member search popover per Juki
-      const [activeSearchJuz, setActiveSearchJuz] = useState(null);
-      const [inlineMemberQuery, setInlineMemberQuery] = useState('');
-      
-      // Modals State
       const [isAddMembreOpen, setIsAddMembreOpen] = useState(false);
-      const [isDeleteMembreOpen, setIsDeleteMembreOpen] = useState(false);
-      const [isAttributionModalOpen, setIsAttributionModalOpen] = useState(false);
-      const [membreToDeleteId, setMembreToDeleteId] = useState('');
-      const [deleteJustification, setDeleteJustification] = useState('');
-      const [selectedMembreId, setSelectedMembreId] = useState(null);
 
       const showToast = (msg) => {
         setToast(msg);
         setTimeout(() => setToast(null), 3500);
       };
 
-      const handleAddMembre = (e) => {
-        e.preventDefault();
-        const fd = new FormData(e.target);
+      const handleAddMembre = (ev) => {
+        ev.preventDefault();
+        const fd = new FormData(ev.target);
         const newM = {
           id: 'm_' + Date.now(),
           nom: fd.get('nom'),
           prenom: fd.get('prenom'),
           telephone: fd.get('telephone'),
           adresse: fd.get('adresse'),
-          profession: fd.get('profession'),
+          profession: fd.get('profession') || 'Salarié',
           date_adhesion: new Date().toISOString().split('T')[0],
           statut: 'Actif',
-          kourel_id: fd.get('kourel_id'),
-          cotisation_statut: 'À jour',
-          cotisation_montant: '5 000 FCFA',
-          dernier_paiement: 'Août 2026'
+          kourel_id: fd.get('kourel_id') || 'k1'
         };
         setMembres([newM, ...membres]);
         setIsAddMembreOpen(false);
-        showToast(`Membre ${newM.prenom} ${newM.nom} ajouté !`);
-      };
-
-      const openDeleteModalForMembre = (id = '') => {
-        setMembreToDeleteId(id || (membres.length > 0 ? membres[0].id : ''));
-        setDeleteJustification('');
-        setIsDeleteMembreOpen(true);
-      };
-
-      const handleConfirmDeleteWithJustification = (e) => {
-        e.preventDefault();
-        if (!membreToDeleteId) return;
-        if (!deleteJustification.trim()) {
-          alert('Veuillez saisir une justification / un motif obligatoire.');
-          return;
-        }
-        const target = membres.find(m => m.id === membreToDeleteId);
-        const name = target ? `${target.prenom} ${target.nom}` : '';
-
-        setMembres(prev => prev.filter(m => m.id !== membreToDeleteId));
-        if (selectedMembreId === membreToDeleteId) setSelectedMembreId(null);
-        setIsDeleteMembreOpen(false);
-        showToast(`Membre ${name} supprimé. Motif: "${deleteJustification}"`);
+        showToast(`Membre ${newM.prenom} ${newM.nom} ajouté avec succès !`);
       };
 
       const updatePointage = (seanceId, membreId, newStatut) => {
@@ -271,1093 +232,329 @@
           ...prev,
           assignations: prev.assignations.map(a => a.juz === juzNum ? { ...a, statut: newStatut } : a)
         }));
-        showToast(`Juki ${juzNum} marqué comme ${newStatut}`);
+        showToast(`Juki #${juzNum} marqué comme ${newStatut}`);
       };
 
-      const assignJuzToMembre = (juzNum, newMembreId) => {
-        setKamilCycle(prev => ({
-          ...prev,
-          assignations: prev.assignations.map(a => a.juz === juzNum ? { ...a, membre_id: newMembreId } : a)
-        }));
-        const target = membres.find(m => m.id === newMembreId);
-        const name = target ? `${target.prenom} ${target.nom}` : 'Membre';
-        showToast(`Juki ${juzNum} attribué à ${name}`);
-      };
-
-      const autoDistributeJuki = () => {
-        const activeM = membres.filter(m => m.statut === 'Actif');
-        if (activeM.length === 0) return;
-        setKamilCycle(prev => ({
-          ...prev,
-          assignations: prev.assignations.map((a, i) => ({
-            ...a,
-            membre_id: activeM[i % activeM.length].id
-          }))
-        }));
-        showToast('✨ Répartition automatique équitable des 30 Juki effectuée !');
-      };
-
-      const activeSeance = seances[0];
-      const membersOfKourel = membres.filter(m => m.kourel_id === selectedKourelId);
       const terminesKamil = kamilCycle.assignations.filter(a => a.statut === 'Terminé').length;
       const enCoursKamil = kamilCycle.assignations.filter(a => a.statut === 'En cours').length;
       const aFaireKamil = kamilCycle.assignations.filter(a => a.statut === 'À faire').length;
-      const totalEnRegle = membres.filter(m => m.cotisation_statut === 'À jour').length;
-
-      const selectedMembre = membres.find(m => m.id === selectedMembreId);
-      const selectedMembreJuz = selectedMembre ? kamilCycle.assignations.find(a => a.membre_id === selectedMembre.id) : null;
-
-      let memberPresences = [];
-      let totalAbsencesCount = 0;
-      let totalPresentsCount = 0;
-      if (selectedMembre) {
-        seances.forEach(s => {
-          const p = s.presences.find(item => item.membre_id === selectedMembre.id);
-          if (p) {
-            memberPresences.push({ date: s.date, statut: p.statut });
-            if (p.statut === 'Absent') totalAbsencesCount++;
-            if (p.statut === 'Présent') totalPresentsCount++;
-          }
-        });
-      }
-
-      return (
-        <div className="min-h-screen flex flex-col md:flex-row bg-ht-page text-ht-ink select-none">
-          {/* Toast */}
-          {toast && (
-            <div className="fixed bottom-6 right-6 z-50 bg-white border border-ht-mint px-4 py-3 rounded-2xl shadow-soft-lg text-sm font-semibold text-ht-emerald animate-fade-in">
-              ✓ {toast}
-            </div>
-          )}
-
-          {/* Sidebar */}
-          <aside className="w-full md:w-64 bg-white border-r border-ht-line p-5 flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-3 mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-white border border-ht-mint p-1 flex items-center justify-center shadow-soft overflow-hidden flex-shrink-0">
-                  <img src="./1786985436277.png" alt="Hizbut-Tarqiyyah Logo" className="w-full h-full object-contain" />
-                </div>
-                <div>
-                  <h1 className="font-extrabold text-base text-ht-ink leading-tight">Hizbut-Tarqiyyah</h1>
-                  <p className="text-[11px] text-ht-emerald font-bold">SaaS Officiel Association</p>
-                </div>
-              </div>
-
-              <nav className="space-y-1.5">
-                {[
-                  { id: 'accueil', label: '🏠 Accueil' },
-                  { id: 'dashboard', label: '📊 Tableau de bord' },
-                  { id: 'membres', label: '👥 Membres' },
-                  { id: 'repetition', label: '🎙️ Répétition' },
-                  { id: 'kamil', label: '📖 Suivi Kamil' },
-                  { id: 'info', label: '📢 Informations' },
-                ].map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => setActiveTab(item.id)}
-                    className={`btn-anim w-full text-left px-4 py-3 rounded-xl font-medium text-sm transition-all ${
-                      activeTab === item.id ? 'bg-ht-mist text-ht-emerald font-bold border border-ht-mint shadow-sm' : 'text-ht-inkSoft hover:bg-ht-page'
-                    }`}
-                  >
-                    {item.label}
-                  </button>
-                ))}
-              </nav>
-            </div>
-
-            <div className="p-3 bg-ht-page rounded-xl border border-ht-line text-xs">
-              <div className="font-bold text-ht-ink">Serigne Modou Kara</div>
-              <div className="text-ht-emerald font-semibold text-[11px]">Super Admin</div>
-            </div>
-          </aside>
-
-          {/* Main Content Area */}
-          <main className="flex-1 p-6 md:p-8 max-w-6xl mx-auto space-y-8">
-            
-            {/* 1. ACCUEIL VIEW */}
-            {activeTab === 'accueil' && (
-              <div className="space-y-8">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-ht-line">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url('./1778921437624.jpg')` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-ht-ink/95 via-ht-ink/80 to-ht-emerald/40 backdrop-blur-[1px]" />
-
-                  <div className="relative z-10 p-8 sm:p-12 text-white max-w-2xl space-y-6">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-ht-mint">
-                      ✨ Plateforme Officielle Hizbut-Tarqiyyah
-                    </div>
-
-                    <h1 className="font-display font-extrabold text-3xl sm:text-4xl leading-tight">
-                      Bienvenue sur la Gestion Spirituelle & Organisationnelle
-                    </h1>
-
-                    <p className="text-sm text-gray-200 leading-relaxed">
-                      Suivi des répétitions de Khassida, coordination du Kamil collectif, assiduité et cotisations des membres au service de la Khadimiya.
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-4 pt-2">
-                      <button
-                        onClick={() => setActiveTab('repetition')}
-                        className="btn-anim px-6 py-3 gradient-emerald text-white font-bold text-sm rounded-2xl shadow-lg"
-                      >
-                        🎙️ Accéder aux Répétitions →
-                      </button>
-
-                      <button
-                        onClick={() => setActiveTab('kamil')}
-                        className="btn-anim px-6 py-3 bg-white/15 backdrop-blur-md border border-white/30 text-white font-semibold text-sm rounded-2xl hover:bg-white/25"
-                      >
-                        📖 Suivi Kamil
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div onClick={() => setActiveTab('membres')} className="btn-anim bg-white rounded-3xl p-5 border border-ht-line shadow-soft">
-                    <div className="text-xs text-ht-sage font-semibold uppercase">Membres Actifs</div>
-                    <div className="font-display font-extrabold text-3xl text-ht-ink mt-1">{membres.length}</div>
-                    <div className="text-xs text-ht-emerald font-semibold mt-1">👥 {membres.filter(m => m.statut === 'Actif').length} inscrits actifs</div>
-                  </div>
-
-                  <div onClick={() => setActiveTab('repetition')} className="btn-anim bg-white rounded-3xl p-5 border border-ht-line shadow-soft">
-                    <div className="text-xs text-ht-sage font-semibold uppercase">Kourels</div>
-                    <div className="font-display font-extrabold text-3xl text-ht-ink mt-1">{kourels.length}</div>
-                    <div className="text-xs text-ht-amber font-semibold mt-1">🎙️ Sections de répétition</div>
-                  </div>
-
-                  <div onClick={() => setActiveTab('kamil')} className="btn-anim bg-white rounded-3xl p-5 border border-ht-line shadow-soft">
-                    <div className="text-xs text-ht-sage font-semibold uppercase">Kamil Collectif</div>
-                    <div className="font-display font-extrabold text-3xl text-ht-ink mt-1">Cycle #{kamilCycle.numero_cycle}</div>
-                    <div className="text-xs text-blue-600 font-semibold mt-1">📖 {terminesKamil}/30 Juki complétés</div>
-                  </div>
-
-                  <div onClick={() => setActiveTab('membres')} className="btn-anim bg-white rounded-3xl p-5 border border-ht-line shadow-soft">
-                    <div className="text-xs text-ht-sage font-semibold uppercase">Cotisations</div>
-                    <div className="font-display font-extrabold text-3xl text-ht-ink mt-1">{totalEnRegle}/{membres.length}</div>
-                    <div className="text-xs text-emerald-600 font-semibold mt-1">✓ {Math.round((totalEnRegle/membres.length)*100)}% En règle</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 2. DASHBOARD VIEW */}
-            {activeTab === 'dashboard' && (
-              <div className="space-y-8 animate-fade-in">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-ht-line">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url('./1779033727608.jpg')` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-ht-ink/95 via-ht-ink/80 to-ht-emerald/50 backdrop-blur-[1px]" />
-
-                  <div className="relative z-10 p-8 sm:p-12 text-white max-w-2xl space-y-5">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-ht-mint">
-                      🏆 Synthèse Globale & Pilotage des Activités
-                    </div>
-
-                    <h1 className="font-display font-extrabold text-3xl sm:text-4xl leading-tight">
-                      Tableau de Bord Hizbut-Tarqiyyah
-                    </h1>
-
-                    <p className="text-sm text-gray-200 leading-relaxed">
-                      Vue d'ensemble complète sur les répétitions de Khassidas, la progression de la lecture du Coran (Juki) et l'assiduité des Kourels.
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-3 pt-2">
-                      <button onClick={() => setActiveTab('repetition')} className="btn-anim px-5 py-2.5 gradient-emerald text-white text-xs font-bold rounded-2xl shadow-md">
-                        🎙️ Répétitions
-                      </button>
-                      <button onClick={() => setActiveTab('kamil')} className="btn-anim px-5 py-2.5 bg-white/15 backdrop-blur-md border border-white/30 text-white text-xs font-bold rounded-2xl hover:bg-white/25">
-                        📖 Kamil Juki
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-semibold text-ht-sage uppercase">Assiduité</span>
-                      <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">↗ +4%</span>
-                    </div>
-                    <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">87%</div>
-                    <div className="text-xs text-ht-sage font-medium">Taux de présence global</div>
-                  </div>
-
-                  <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-semibold text-ht-sage uppercase">Kamil Juki</span>
-                      <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">Cycle #{kamilCycle.numero_cycle}</span>
-                    </div>
-                    <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">{terminesKamil}/30</div>
-                    <div className="text-xs text-ht-sage font-medium">Juki terminés ce mois</div>
-                  </div>
-
-                  <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-semibold text-ht-sage uppercase">Membres</span>
-                      <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">4 Kourels</span>
-                    </div>
-                    <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">{membres.length}</div>
-                    <div className="text-xs text-ht-sage font-medium">Inscrits dans les groupes</div>
-                  </div>
-
-                  <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-semibold text-ht-sage uppercase">Cotisations</span>
-                      <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full">✓ En règle</span>
-                    </div>
-                    <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">{totalEnRegle}/{membres.length}</div>
-                    <div className="text-xs text-ht-sage font-medium">Règlements à jour</div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-ht-line shadow-soft space-y-6">
-                  <div className="flex justify-between items-center border-b pb-4">
-                    <div>
-                      <div className="text-xs font-bold text-ht-emerald uppercase tracking-wider mb-1">PROGRAMMES & MAÎTRISE</div>
-                      <h3 className="font-bold text-xl text-ht-ink">Avancement des Différentes Activités</h3>
-                    </div>
-                    <span className="text-xs text-ht-sage font-medium">Progression mensuelle</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <h4 className="font-bold text-sm text-ht-ink">📖 Apprentissage des Khassidas</h4>
-                      <div className="space-y-3">
-                        <div className="p-3.5 bg-ht-page rounded-2xl border space-y-1.5">
-                          <div className="flex justify-between text-xs font-bold">
-                            <span>Mawahibou Nafi</span>
-                            <span className="text-ht-emerald">85%</span>
-                          </div>
-                          <div className="w-full bg-ht-line h-2 rounded-full overflow-hidden">
-                            <div className="bg-ht-emerald h-full rounded-full" style={{ width: '85%' }}></div>
-                          </div>
-                        </div>
-
-                        <div className="p-3.5 bg-ht-page rounded-2xl border space-y-1.5">
-                          <div className="flex justify-between text-xs font-bold">
-                            <span>Jalibatul Maratib</span>
-                            <span className="text-ht-fern">65%</span>
-                          </div>
-                          <div className="w-full bg-ht-line h-2 rounded-full overflow-hidden">
-                            <div className="bg-ht-fern h-full rounded-full" style={{ width: '65%' }}></div>
-                          </div>
-                        </div>
-
-                        <div className="p-3.5 bg-ht-page rounded-2xl border space-y-1.5">
-                          <div className="flex justify-between text-xs font-bold">
-                            <span>Assirou</span>
-                            <span className="text-emerald-600">92%</span>
-                          </div>
-                          <div className="w-full bg-ht-line h-2 rounded-full overflow-hidden">
-                            <div className="bg-emerald-600 h-full rounded-full" style={{ width: '92%' }}></div>
-                          </div>
-                        </div>
-
-                        <div className="p-3.5 bg-ht-page rounded-2xl border space-y-1.5">
-                          <div className="flex justify-between text-xs font-bold">
-                            <span>Matlabul Fawzayni</span>
-                            <span className="text-ht-amber">45%</span>
-                          </div>
-                          <div className="w-full bg-ht-line h-2 rounded-full overflow-hidden">
-                            <div className="bg-ht-amber h-full rounded-full" style={{ width: '45%' }}></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h4 className="font-bold text-sm text-ht-ink">👥 Assiduité par Kourel</h4>
-                      <div className="space-y-3">
-                        {kourels.map(k => {
-                          const p = k.id === 'k1' ? 92 : (k.id === 'k2' ? 85 : (k.id === 'k3' ? 78 : 88));
-                          return (
-                            <div key={k.id} className="p-3.5 bg-ht-page rounded-2xl border flex justify-between items-center">
-                              <div>
-                                <div className="font-bold text-xs text-ht-ink">{k.nom}</div>
-                                <div className="text-[11px] text-ht-sage">Supervisé par {k.superviseurs[0]}</div>
-                              </div>
-                              <span className="px-3 py-1 bg-ht-mist text-ht-emerald font-extrabold text-xs rounded-full border border-ht-mint">
-                                {p}% Présence
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 3. SECTION RÉPÉTITION */}
-            {activeTab === 'repetition' && (
-              <div className="space-y-6">
-                <div className="bg-white rounded-3xl p-3 border border-ht-line shadow-soft flex flex-wrap gap-2">
-                  {[
-                    { id: 'khassidas', label: '📖 Khassida à répéter' },
-                    { id: 'sons', label: '🎵 Sons (Audios de référence)' },
-                    { id: 'enregistrements', label: '🎙️ Enregistrements des séances' },
-                    { id: 'pointage', label: '📅 Pointage & Direct' },
-                  ].map(tab => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setRepetitionSubTab(tab.id)}
-                      className={`btn-anim px-4 py-2.5 rounded-2xl font-bold text-xs sm:text-sm ${
-                        repetitionSubTab === tab.id ? 'gradient-emerald text-white shadow-md' : 'bg-ht-page text-ht-inkSoft border border-ht-line'
-                      }`}
-                    >
-                      {tab.label}
-                    </button>
-                  ))}
-                </div>
-
-                {repetitionSubTab === 'khassidas' && (
-                  <div className="space-y-6 animate-fade-in">
-                    <div className="bg-white rounded-3xl p-4 border border-ht-line shadow-soft flex justify-between items-center gap-4">
-                      <input
-                        type="text"
-                        placeholder="Rechercher une Khassida au programme..."
-                        value={khassidaSearchQuery}
-                        onChange={(e) => setKhassidaSearchQuery(e.target.value)}
-                        className="w-full max-w-md px-4 py-2 bg-ht-page border border-ht-line rounded-2xl text-xs"
-                      />
-                      <span className="text-xs text-ht-sage font-medium hidden sm:inline">
-                        <strong className="text-ht-ink">{khassidas.length}</strong> Khassidas répertoriées
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-                      {khassidas.filter(kh => kh.titre.toLowerCase().includes(khassidaSearchQuery.toLowerCase())).map(kh => (
-                        <div key={kh.id} className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft hover:shadow-lg hover:border-ht-mint transition-all flex flex-col justify-between space-y-4 group">
-                          <div className="flex justify-between items-center">
-                            <div className="w-10 h-10 rounded-2xl bg-ht-mist text-ht-emerald font-extrabold flex items-center justify-center border border-ht-mint shadow-xs">
-                              📖
-                            </div>
-                            <span className="text-xs text-ht-sage font-semibold bg-ht-page px-3 py-1 rounded-full border border-ht-line">
-                              ⏱️ {kh.duree_estimee} • {kh.versets_count} versets
-                            </span>
-                          </div>
-
-                          <div>
-                            <h4 className="font-extrabold text-xl text-ht-ink group-hover:text-ht-emerald transition-colors">{kh.titre}</h4>
-                            <p className="text-xs text-ht-sage font-semibold mt-0.5">{kh.subtitle || 'Poème Sacré'}</p>
-                            <p className="text-xs text-ht-emerald font-semibold mt-1">Auteur : {kh.auteur}</p>
-                          </div>
-
-                          <div className="pt-2 border-t border-ht-line">
-                            <button onClick={() => showToast(`Ouverture des versets de : ${kh.titre}`)} className="btn-anim w-full py-2.5 gradient-emerald text-white text-xs font-bold rounded-2xl shadow-md flex items-center justify-center gap-2">
-                              <span>Ouvrir & Répéter</span>
-                              <span>→</span>
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {repetitionSubTab === 'sons' && (
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-lg text-ht-ink">Audios et Sons de Référence</h3>
-                    <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3">
-                      {sonsAudio.map(son => (
-                        <div key={son.id} className="p-4 bg-ht-page rounded-2xl border border-ht-line flex justify-between items-center">
-                          <div>
-                            <div className="font-bold text-sm text-ht-ink">{son.titre}</div>
-                            <div className="text-xs text-ht-sage">Récitateur : {son.recitateur} • Durée : {son.duree}</div>
-                          </div>
-                          <button onClick={() => showToast(`Lecture audio : ${son.titre}`)} className="btn-anim px-4 py-2 gradient-emerald text-white text-xs font-bold rounded-xl shadow">
-                            ▶ Écouter
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {repetitionSubTab === 'enregistrements' && (
-                  <div className="space-y-4">
-                    <h3 className="font-bold text-lg text-ht-ink">Enregistrements de chaque séance</h3>
-                    <div className="space-y-4">
-                      {seances.map(s => (
-                        <div key={s.id} className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3">
-                          <div className="flex justify-between items-center">
-                            <span className="font-bold text-base text-ht-ink">Séance du {s.date}</span>
-                            <span className="px-3 py-1 bg-ht-mist text-ht-emerald text-xs font-bold rounded-full">{s.statut}</span>
-                          </div>
-                          <p className="text-xs text-ht-inkSoft">Superviseur : {s.superviseur}</p>
-                          <button onClick={() => showToast(`Réécoute de l'enregistrement du ${s.date}`)} className="btn-anim px-4 py-2 bg-ht-mist text-ht-emerald text-xs font-bold rounded-xl border border-ht-mint">
-                            🎙️ Écouter l'enregistrement
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {repetitionSubTab === 'pointage' && (
-                  <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-4">
-                    <h4 className="font-bold text-base text-ht-ink">Pointage direct du Kourel 1</h4>
-                    <table className="w-full text-left">
-                      <thead>
-                        <tr className="border-b border-ht-line text-xs text-ht-sage uppercase">
-                          <th className="py-3 px-4">Membre</th>
-                          <th className="py-3 px-4">Statut</th>
-                          <th className="py-3 px-4 text-right">Actions 1-Clic</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-ht-line text-sm">
-                        {membersOfKourel.map(m => {
-                          const presence = activeSeance.presences.find(p => p.membre_id === m.id);
-                          const statut = presence?.statut || 'Non pointé';
-                          return (
-                            <tr key={m.id}>
-                              <td className="py-3.5 px-4 font-medium">{m.prenom} {m.nom}</td>
-                              <td className="py-3.5 px-4">
-                                <span className={statut === 'Présent' ? 'badge-present' : statut === 'En retard' ? 'badge-retard' : 'badge-absent'}>{statut}</span>
-                              </td>
-                              <td className="py-3.5 px-4 text-right space-x-2">
-                                <button onClick={() => updatePointage(activeSeance.id, m.id, 'Présent')} className="btn-anim px-3 py-1 bg-ht-mist text-ht-emerald rounded-lg text-xs font-bold">Présent</button>
-                                <button onClick={() => updatePointage(activeSeance.id, m.id, 'En retard')} className="btn-anim px-3 py-1 bg-amber-50 text-ht-amber rounded-lg text-xs font-bold">En retard</button>
-                                <button onClick={() => updatePointage(activeSeance.id, m.id, 'Absent')} className="btn-anim px-3 py-1 bg-red-50 text-ht-clay rounded-lg text-xs font-bold">Absent</button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 4. SECTION MEMBRES */}
-            {activeTab === 'membres' && (
-              <div className="space-y-6">
-                <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <input
-                    type="text"
-                    placeholder="Rechercher par nom, prénom..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full sm:w-80 px-4 py-2.5 bg-white border border-ht-line rounded-2xl text-sm"
-                  />
-                  
-                  <div className="flex items-center gap-2.5 w-full sm:w-auto">
-                    <button onClick={() => setIsAddMembreOpen(true)} className="btn-anim px-5 py-2.5 gradient-emerald text-white rounded-2xl text-xs font-bold shadow-md flex-1 sm:flex-initial">
-                      + Ajouter un membre
-                    </button>
-                    <button onClick={() => openDeleteModalForMembre('')} className="btn-anim px-4 py-2.5 bg-red-50 text-ht-clay border border-red-200 rounded-2xl text-xs font-bold hover:bg-red-100 flex-1 sm:flex-initial">
-                      🗑️ Supprimer un membre
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-3xl border border-ht-line shadow-soft-lg overflow-hidden">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-ht-page/90 border-b border-ht-line text-[11px] font-extrabold text-ht-sage uppercase tracking-wider">
-                        <th className="py-4 px-6">Prénom</th>
-                        <th className="py-4 px-6">Nom</th>
-                        <th className="py-4 px-6 whitespace-nowrap">Téléphone</th>
-                        <th className="py-4 px-6">Kourel</th>
-                        <th className="py-4 px-6">Cotisation</th>
-                        <th className="py-4 px-6">Statut</th>
-                        <th className="py-4 px-6 text-right">Fiche</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-ht-line text-sm text-ht-ink font-medium">
-                      {membres.filter(m => m.nom.toLowerCase().includes(searchQuery.toLowerCase()) || m.prenom.toLowerCase().includes(searchQuery.toLowerCase())).map(m => {
-                        const isEnRegle = m.cotisation_statut === 'À jour';
-                        const kourel = kourels.find(k => k.id === m.kourel_id);
-
-                        return (
-                          <tr 
-                            key={m.id} 
-                            onClick={() => setSelectedMembreId(m.id)} 
-                            className="hover:bg-ht-mist/60 cursor-pointer transition-all duration-150 group"
-                          >
-                            <td className="py-4 px-6 font-semibold text-ht-ink">
-                              <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-xl gradient-emerald text-white flex items-center justify-center font-display font-extrabold text-xs shadow-xs border border-ht-mint flex-shrink-0">
-                                  {m.prenom[0]}
-                                </div>
-                                <span className="font-bold">{m.prenom}</span>
-                              </div>
-                            </td>
-                            <td className="py-4 px-6 font-extrabold text-ht-ink uppercase tracking-wide">{m.nom}</td>
-                            <td className="py-4 px-6 text-xs text-ht-ink font-mono whitespace-nowrap">
-                              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-ht-page rounded-lg border border-ht-line font-semibold">
-                                📞 {m.telephone}
-                              </div>
-                            </td>
-                            <td className="py-4 px-6 text-xs whitespace-nowrap">
-                              <span className="px-3 py-1 bg-ht-mist text-ht-emerald font-bold rounded-xl border border-ht-mint inline-block">
-                                {kourel ? kourel.nom.split('—')[1] || kourel.nom : '-'}
-                              </span>
-                            </td>
-                            <td className="py-4 px-6 whitespace-nowrap">
-                              <span className={`px-3.5 py-1 text-xs font-extrabold rounded-full inline-flex items-center gap-1.5 ${isEnRegle ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                                {isEnRegle ? '✓ En règle' : '⚠️ En retard'}
-                              </span>
-                            </td>
-                            <td className="py-4 px-6 whitespace-nowrap">
-                              <span className="badge-present">{m.statut}</span>
-                            </td>
-                            <td className="py-4 px-6 text-right whitespace-nowrap">
-                              <button onClick={(e) => { e.stopPropagation(); setSelectedMembreId(m.id); }} className="btn-anim px-3.5 py-1.5 bg-ht-mist text-ht-emerald rounded-xl text-xs font-bold hover:bg-ht-emerald hover:text-white transition-colors">
-                                Fiche →
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* 5. SECTION KAMIL */}
-            {activeTab === 'kamil' && (
-              <div className="space-y-8 animate-fade-in">
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                  <div>
-                    <div className="text-xs font-bold text-ht-emerald uppercase tracking-widest mb-1">
-                      CYCLE EN COURS · ÉCHÉANCE LE 18 AOÛT
-                    </div>
-                    <h2 className="font-display font-extrabold text-3xl text-ht-ink">
-                      Kamil — Lecture collective du Coran
-                    </h2>
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => setIsAttributionModalOpen(true)}
-                      className="btn-anim px-5 py-3 bg-ht-mist text-ht-emerald border border-ht-mint rounded-2xl text-xs font-bold shadow-xs hover:bg-ht-mint flex items-center gap-2"
-                    >
-                      👤 Assigner les 30 Juki
-                    </button>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="bg-white rounded-3xl p-5 border border-ht-line shadow-soft space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="w-10 h-10 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint">✓</div>
-                      <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">↗ En avance</span>
-                    </div>
-                    <div className="font-display font-extrabold text-3xl text-ht-ink">{terminesKamil}/30</div>
-                    <div className="text-xs text-ht-sage font-medium">Parties terminées</div>
-                  </div>
-
-                  <div className="bg-white rounded-3xl p-5 border border-ht-line shadow-soft space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="w-10 h-10 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint">👥</div>
-                      <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">↗ Tous kourels</span>
-                    </div>
-                    <div className="font-display font-extrabold text-3xl text-ht-ink">10</div>
-                    <div className="text-xs text-ht-sage font-medium">Membres impliqués</div>
-                  </div>
-
-                  <div className="bg-white rounded-3xl p-5 border border-ht-line shadow-soft space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="w-10 h-10 rounded-2xl bg-amber-50 text-ht-amber flex items-center justify-center font-bold border border-amber-200">⏰</div>
-                      <span className="px-2.5 py-0.5 bg-red-50 text-red-700 text-xs font-bold rounded-full border border-red-200">↘ Échéance proche</span>
-                    </div>
-                    <div className="font-display font-extrabold text-3xl text-ht-ink">6</div>
-                    <div className="text-xs text-ht-sage font-medium">Jours restants</div>
-                  </div>
-
-                  <div className="bg-white rounded-3xl p-5 border border-ht-line shadow-soft space-y-3">
-                    <div className="flex justify-between items-center">
-                      <div className="w-10 h-10 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint">📖</div>
-                      <span className="px-2.5 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">↗ +1 ce mois</span>
-                    </div>
-                    <div className="font-display font-extrabold text-3xl text-ht-ink">14</div>
-                    <div className="text-xs text-ht-sage font-medium">Cycles terminés</div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-3xl p-6 sm:p-8 border border-ht-line shadow-soft space-y-6">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-4">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-bold text-xl text-ht-ink">Les 30 Juki</h3>
-                      <button onClick={() => setIsAttributionModalOpen(true)} className="btn-anim px-3 py-1 bg-ht-mist text-ht-emerald rounded-xl border border-ht-mint text-xs font-bold">
-                        ⚙️ Gérer les attributions
-                      </button>
-                    </div>
-                    <div className="flex gap-4 text-xs font-semibold">
-                      <span className="flex items-center gap-1.5 text-ht-emerald">
-                        <span className="w-3 h-3 rounded-full bg-ht-emerald"></span> Terminé ({terminesKamil})
-                      </span>
-                      <span className="flex items-center gap-1.5 text-ht-fern">
-                        <span className="w-3 h-3 rounded-full bg-ht-mint border border-ht-sage"></span> En cours ({enCoursKamil})
-                      </span>
-                      <span className="flex items-center gap-1.5 text-slate-400">
-                        <span className="w-3 h-3 rounded-full border-2 border-dashed border-slate-300"></span> À faire ({aFaireKamil})
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-y-6 gap-x-4">
-                    {kamilCycle.assignations.map(item => {
-                      const m = membres.find(mem => mem.id === item.membre_id);
-                      const isTermine = item.statut === 'Terminé';
-                      const isInProgress = item.statut === 'En cours';
-                      let shortName = m ? `${m.prenom.split(' ')[0]} ${m.nom[0]}.` : 'Attribué';
-
-                      return (
-                        <div 
-                          key={item.juz} 
-                          onClick={() => {
-                            const nxt = item.statut === 'À faire' ? 'En cours' : (item.statut === 'En cours' ? 'Terminé' : 'À faire');
-                            updateJuzStatut(item.juz, nxt);
-                          }}
-                          className="btn-anim flex flex-col items-center gap-1.5 group"
-                          title={`Attribué à ${m ? m.prenom + ' ' + m.nom : 'Non attribué'} — Cliquer pour changer le statut`}
-                        >
-                          <div className={`w-full max-w-[90px] py-1.5 rounded-full font-extrabold text-sm text-center shadow-xs transition-all ${
-                            isTermine ? 'bg-ht-emerald text-white' : (isInProgress ? 'bg-ht-mint text-ht-emerald font-bold border border-ht-sage/40' : 'border-2 border-dashed border-slate-300 text-slate-400 font-bold bg-slate-50/50')
-                          }`}>
-                            {item.juz}
-                          </div>
-                          <div className="text-xs font-semibold text-ht-inkSoft truncate max-w-[100px] text-center">
-                            {shortName}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* 6. SECTION INFORMATIONS */}
-            {activeTab === 'info' && (
-              <div className="space-y-8 animate-fade-in">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-ht-line">
-                  <div 
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{ backgroundImage: `url('./1771881788502.jpg')` }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-r from-ht-ink/95 via-ht-ink/80 to-ht-emerald/50 backdrop-blur-[1px]" />
-
-                  <div className="relative z-10 p-8 sm:p-12 text-white max-w-2xl space-y-4">
-                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-ht-mint">
-                      📢 Communiqués & Actualités Hizbut-Tarqiyyah
-                    </div>
-
-                    <h1 className="font-display font-extrabold text-3xl sm:text-4xl leading-tight">
-                      Informations & Annonces Générales
-                    </h1>
-
-                    <p className="text-sm text-gray-200 leading-relaxed">
-                      Retrouvez l’ensemble des convocations officielles, programmes d’activités, notes d’organisation et annonces importantes pour l’association.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-4 max-w-5xl">
-                  <h3 className="font-display font-bold text-xl text-ht-ink flex items-center gap-2">
-                    <span>Publications Récentes</span>
-                    <span className="text-xs text-ht-sage font-normal">({informations.length} annonces disponibles)</span>
-                  </h3>
-
-                  <div className="grid grid-cols-1 gap-4">
-                    {informations.map(inf => (
-                      <div key={inf.id} className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-4 hover:border-ht-mint transition-all">
-                        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-ht-line pb-3">
-                          <div className="flex items-center gap-2">
-                            <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">
-                              {inf.categorie}
-                            </span>
-                            {inf.epingle && (
-                              <span className="px-2.5 py-0.5 bg-amber-50 text-amber-700 text-[11px] font-bold rounded-full border border-amber-200">
-                                📌 Épinglé
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-xs text-ht-sage font-medium">Publié le {inf.date_publication} par {inf.auteur}</span>
-                        </div>
-
-                        <div>
-                          <h4 className="font-bold text-xl text-ht-ink mb-2">{inf.titre}</h4>
-                          <p className="text-sm text-ht-inkSoft leading-relaxed">{inf.contenu}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </main>
-
-          {/* POPUP / MODAL ATTRIBUTION ET AFFECTATION DES 30 JUKI (AVEC BARRE DE RECHERCHE INTERACTIVE AU CLIC SUR L'ICÔNE 🔍) */}
-          {isAttributionModalOpen && (
-            <div className="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-              <div className="bg-white rounded-3xl w-full max-w-3xl max-h-[90vh] shadow-2xl border border-ht-line flex flex-col overflow-hidden relative">
-                
-                {/* Header */}
-                <div className="p-6 border-b border-ht-line flex justify-between items-center bg-ht-page/80">
-                  <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl gradient-emerald text-white font-extrabold flex items-center justify-center border border-ht-mint shadow-md">
-                      👤
-                    </div>
-                    <div>
-                      <h3 className="font-extrabold text-xl text-ht-ink">Gestion & Attribution des 30 Juki</h3>
-                      <p className="text-xs text-ht-emerald font-semibold">Affectez chaque portion du Coran au membre responsable</p>
-                    </div>
-                  </div>
-                  <button onClick={() => setIsAttributionModalOpen(false)} className="btn-anim w-10 h-10 rounded-2xl bg-white hover:bg-ht-mist text-gray-500 font-bold flex items-center justify-center border">✕</button>
-                </div>
-
-                {/* Toolbar Search & Auto Distribute */}
-                <div className="p-4 border-b border-ht-line bg-white flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-                  <input
-                    type="text"
-                    placeholder="Filtrer la liste des 30 Juki..."
-                    value={attributionSearchQuery}
-                    onChange={(e) => setAttributionSearchQuery(e.target.value)}
-                    className="w-full max-w-md px-4 py-2.5 bg-ht-page border border-ht-line rounded-2xl text-xs font-medium"
-                  />
-                  <button onClick={autoDistributeJuki} className="btn-anim px-4 py-2.5 bg-ht-mist text-ht-emerald border border-ht-mint rounded-2xl text-xs font-bold hover:bg-ht-mint flex items-center justify-center gap-1.5">
-                    <span>✨ Répartir Automatiquement</span>
-                  </button>
-                </div>
-
-                {/* Table list of 30 Juki */}
-                <div className="flex-1 overflow-y-auto p-6">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="border-b border-ht-line text-[11px] font-extrabold text-ht-sage uppercase">
-                        <th className="py-3 px-4">Portion Coran</th>
-                        <th className="py-3 px-4">Membre Responsable</th>
-                        <th className="py-3 px-4">Statut</th>
-                        <th className="py-3 px-4 text-right">Confirmation</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-ht-line text-sm">
-                      {kamilCycle.assignations.filter(item => {
-                        const m = membres.find(mem => mem.id === item.membre_id);
-                        const name = m ? `${m.prenom} ${m.nom}` : '';
-                        const q = attributionSearchQuery.toLowerCase();
-                        return `juki ${item.juz}`.includes(q) || `${item.juz}`.includes(q) || name.toLowerCase().includes(q);
-                      }).map(item => {
-                        const isTermine = item.statut === 'Terminé';
-                        const isInProgress = item.statut === 'En cours';
-                        const currentMembre = membres.find(m => m.id === item.membre_id);
-                        const isSearchActive = activeSearchJuz === item.juz;
-
-                        const searchedMembers = membres.filter(m => {
-                          const fullName = `${m.prenom} ${m.nom}`.toLowerCase();
-                          return fullName.includes(inlineMemberQuery.toLowerCase());
-                        });
-
-                        return (
-                          <tr key={item.juz} className="hover:bg-ht-mist/40 transition-colors">
-                            <td className="py-3.5 px-4 font-bold text-ht-ink">
-                              <div className="flex items-center gap-3">
-                                <div className={`w-9 h-9 rounded-full font-extrabold text-xs flex items-center justify-center border shadow-xs ${
-                                  isTermine ? 'bg-ht-emerald text-white border-ht-emerald' : isInProgress ? 'bg-ht-mint text-ht-emerald border-ht-sage' : 'bg-slate-100 text-slate-500 border-slate-300'
-                                }`}>
-                                  {item.juz}
-                                </div>
-                                <span className="font-extrabold text-sm">Juki {item.juz}</span>
-                              </div>
-                            </td>
-
-                            {/* Member Selector Button with Live Interactive Search Bar Popover */}
-                            <td className="py-3.5 px-4 relative">
-                              <div className="relative w-full max-w-xs">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (isSearchActive) {
-                                      setActiveSearchJuz(null);
-                                    } else {
-                                      setActiveSearchJuz(item.juz);
-                                      setInlineMemberQuery('');
-                                    }
-                                  }}
-                                  className="w-full p-2.5 bg-ht-page hover:bg-ht-mist border border-ht-line hover:border-ht-mint rounded-xl text-xs font-semibold text-ht-ink flex items-center justify-between shadow-xs transition-colors"
-                                >
-                                  <span className="truncate">
-                                    {currentMembre ? `${currentMembre.prenom} ${currentMembre.nom}` : 'Sélectionner un membre'}
-                                  </span>
-                                  <div className="flex items-center gap-1 text-ht-emerald font-bold bg-ht-mist p-1 rounded-lg border border-ht-mint ml-2 flex-shrink-0">
-                                    <span>🔍</span>
-                                  </div>
-                                </button>
-
-                                {/* Live Interactive Search Input Dropdown */}
-                                {isSearchActive && (
-                                  <div className="absolute top-full left-0 mt-1 w-full bg-white rounded-2xl border border-ht-mint shadow-2xl p-3 z-30 space-y-2 animate-fade-in">
-                                    <div className="relative">
-                                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs">🔍</span>
-                                      <input
-                                        type="text"
-                                        autoFocus
-                                        placeholder="Taper un prénom ou nom..."
-                                        value={inlineMemberQuery}
-                                        onChange={(e) => setInlineMemberQuery(e.target.value)}
-                                        className="w-full pl-8 pr-6 py-2 bg-ht-page border border-ht-mint rounded-xl text-xs text-ht-ink font-semibold focus:outline-none focus:border-ht-emerald"
-                                      />
-                                      {inlineMemberQuery && (
-                                        <button
-                                          type="button"
-                                          onClick={() => setInlineMemberQuery('')}
-                                          className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs"
-                                        >
-                                          ✕
-                                        </button>
-                                      )}
-                                    </div>
-
-                                    <div className="max-h-48 overflow-y-auto space-y-1 text-xs">
-                                      {searchedMembers.length > 0 ? (
-                                        searchedMembers.map(m => {
-                                          const k = kourels.find(k => k.id === m.kourel_id);
-                                          const kName = k ? k.nom.split('—')[1] || k.nom : 'Kourel';
-                                          const isSelected = item.membre_id === m.id;
-
-                                          return (
-                                            <div
-                                              key={m.id}
-                                              onClick={() => {
-                                                assignJuzToMembre(item.juz, m.id);
-                                                setActiveSearchJuz(null);
-                                              }}
-                                              className={`p-2 rounded-xl cursor-pointer flex items-center justify-between transition-colors ${
-                                                isSelected ? 'bg-ht-mist text-ht-emerald font-bold border border-ht-mint' : 'hover:bg-ht-page text-ht-ink'
-                                              }`}
-                                            >
-                                              <div>
-                                                <div className="font-bold">{m.prenom} {m.nom}</div>
-                                                <div className="text-[10px] text-ht-sage">{kName} • {m.telephone}</div>
-                                              </div>
-                                              {isSelected && <span className="text-ht-emerald font-bold">✓</span>}
-                                            </div>
-                                          );
-                                        })
-                                      ) : (
-                                        <div className="p-3 text-center text-xs text-ht-sage italic">
-                                          Aucun membre trouvé pour "{inlineMemberQuery}"
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                            </td>
-
-                            <td className="py-3.5 px-4 whitespace-nowrap">
-                              <span className={`px-3 py-1 rounded-full text-xs font-extrabold ${
-                                isTermine ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : isInProgress ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'
-                              }`}>
-                                {item.statut}
-                              </span>
-                            </td>
-
-                            <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                              <span className="text-xs font-bold text-ht-emerald inline-flex items-center gap-1">
-                                ✓ Confirmé
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-
-                <div className="p-4 border-t border-ht-line bg-ht-page/90 flex justify-between items-center text-xs">
-                  <span className="text-ht-sage font-medium">💡 Cliquez sur l'icône de recherche (🔍) pour ouvrir la barre de recherche du membre.</span>
-                  <button onClick={() => setIsAttributionModalOpen(false)} className="btn-anim px-6 py-2.5 gradient-emerald text-white rounded-2xl font-bold shadow-md">
-                    Fermer & Appliquer
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* POPUP / MODAL DETAIL DU MEMBRE CENTRÉE */}
-          {selectedMembre && (
-            <div className="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-              <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl p-6 sm:p-8 space-y-6 max-h-[90vh] overflow-y-auto border border-ht-line">
-                <div 
-                  className="absolute inset-0 bg-cover bg-center pointer-events-none rounded-3xl opacity-20"
-                  style={{ backgroundImage: `url('./1779138262345.jpg')` }}
-                />
-
-                <div className="relative z-10 flex justify-between items-center border-b pb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-2xl gradient-emerald text-white flex items-center justify-center font-extrabold text-xl border border-ht-mint shadow-md">
-                      {selectedMembre.prenom[0]}{selectedMembre.nom[0]}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-xl text-ht-ink">{selectedMembre.prenom} {selectedMembre.nom}</h3>
-                      <p className="text-xs text-ht-emerald font-bold mt-0.5">{kourels.find(k => k.id === selectedMembre.kourel_id)?.nom || 'Kourel'}</p>
-                    </div>
-                  </div>
-                  <button onClick={() => setSelectedMembreId(null)} className="btn-anim w-10 h-10 rounded-2xl bg-ht-page hover:bg-ht-mist flex items-center justify-center text-gray-500 font-bold text-lg">✕</button>
-                </div>
-
-                <div className="relative z-10 bg-white/90 backdrop-blur-md rounded-2xl p-4 border border-ht-line shadow-soft space-y-2">
-                  <div className="flex justify-between items-center">
-                    <span className="font-bold text-sm text-ht-ink">Statut des Cotisations</span>
-                    <span className={`px-3.5 py-1 text-xs font-extrabold rounded-full ${selectedMembre.cotisation_statut === 'À jour' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
-                      {selectedMembre.cotisation_statut === 'À jour' ? '✓ EN RÈGLE' : '⚠️ NON EN RÈGLE'}
-                    </span>
-                  </div>
-                  <div className="text-xs text-ht-inkSoft pt-1 space-y-1">
-                    <div>Montant mensuel : <span className="font-bold text-ht-ink">{selectedMembre.cotisation_montant}</span></div>
-                    <div>Dernier paiement : <span className="font-semibold text-ht-emerald">{selectedMembre.dernier_paiement}</span></div>
-                  </div>
-                </div>
-
-                <div className="relative z-10 bg-white/90 backdrop-blur-md rounded-2xl p-4 border border-ht-line shadow-soft space-y-2">
-                  <span className="font-bold text-sm text-ht-ink block">Numéro du Coran Pris (Juki)</span>
-                  {selectedMembreJuz ? (
-                    <div className="p-3.5 bg-ht-mist rounded-xl border border-ht-mint flex justify-between items-center">
-                      <div>
-                        <div className="font-extrabold text-base text-ht-emerald">Juki {selectedMembreJuz.juz} (Coran n°{selectedMembreJuz.juz})</div>
-                        <div className="text-xs text-ht-inkSoft">{selectedMembreJuz.nom_juz}</div>
-                      </div>
-                      <span className="px-3 py-1 text-xs font-bold rounded-full bg-ht-emerald text-white">{selectedMembreJuz.statut}</span>
-                    </div>
-                  ) : (
-                    <div className="text-xs text-ht-sage italic">Aucun Juki (portion du Coran) attribué sur ce cycle.</div>
-                  )}
-                </div>
-
-                <div className="relative z-10 bg-white/90 backdrop-blur-md rounded-2xl p-4 border border-ht-line shadow-soft space-y-3">
-                  <span className="font-bold text-sm text-ht-ink block">Nombre d'Absences & Présences</span>
-                  <div className="grid grid-cols-3 gap-2 text-center text-xs">
-                    <div className="p-3 bg-ht-mist rounded-xl font-bold text-ht-emerald">
-                      <div className="text-base">{totalPresentsCount}</div>
-                      <div className="text-[10px] text-ht-sage font-medium">Présences</div>
-                    </div>
-                    <div className="p-3 bg-red-50 rounded-xl font-bold text-ht-clay border border-red-200">
-                      <div className="text-base">{totalAbsencesCount}</div>
-                      <div className="text-[10px] text-red-600 font-bold">Absences ({totalAbsencesCount})</div>
-                    </div>
-                    <div className="p-3 bg-amber-50 rounded-xl font-bold text-ht-amber">
-                      <div className="text-base">{memberPresences.filter(p => p.statut === 'En retard').length}</div>
-                      <div className="text-[10px] text-amber-700 font-medium">Retards</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="relative z-10 bg-ht-page/90 rounded-2xl p-4 border space-y-2 text-xs">
-                  <div>Téléphone : <span className="font-semibold">{selectedMembre.telephone}</span></div>
-                  <div>Adresse : <span className="font-semibold">{selectedMembre.adresse}</span></div>
-                  <div>Profession : <span className="font-semibold">{selectedMembre.profession}</span></div>
-                  <div>Date d'adhésion : <span className="font-semibold">{selectedMembre.date_adhesion}</span></div>
-                </div>
-
-                <div className="relative z-10 pt-2 flex justify-end">
-                  <button
-                    onClick={() => openDeleteModalForMembre(selectedMembre.id)}
-                    className="btn-anim px-4 py-2.5 bg-red-50 text-ht-clay hover:bg-red-100 border border-red-200 rounded-xl text-xs font-bold flex items-center gap-2"
-                  >
-                    🗑️ Supprimer le membre
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* MODAL JUSTIFICATION OBLIGATOIRE DE SUPPRESSION DE MEMBRE */}
-          {isDeleteMembreOpen && (
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
-              <div className="bg-white rounded-3xl p-6 sm:p-8 w-full max-w-md space-y-5 border border-ht-line shadow-2xl">
-                <div className="flex justify-between items-center border-b pb-3">
-                  <h3 className="font-bold text-lg text-ht-clay flex items-center gap-2">
-                    <span>🗑️ Suppression d'un membre</span>
-                  </h3>
-                  <button onClick={() => setIsDeleteMembreOpen(false)} className="text-gray-400 font-bold hover:text-gray-600">✕</button>
-                </div>
-
-                <form onSubmit={handleConfirmDeleteWithJustification} className="space-y-4">
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-ht-sage uppercase tracking-wider block">Membre à supprimer</label>
-                    <select
-                      value={membreToDeleteId}
-                      onChange={(e) => setMembreToDeleteId(e.target.value)}
-                      className="w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold text-ht-ink"
-                    >
-                      {membres.map(m => (
-                        <option key={m.id} value={m.id}>{m.prenom} {m.nom} ({m.telephone})</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-ht-clay uppercase tracking-wider block">
-                      Justification / Motif de suppression <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      required
-                      rows="3"
-                      placeholder="Ex: Déménagement, inactivité prolongée, demande du membre..."
-                      value={deleteJustification}
-                      onChange={(e) => setDeleteJustification(e.target.value)}
-                      className="w-full p-3 bg-ht-page border border-red-200 rounded-xl text-xs text-ht-ink placeholder:text-gray-400 focus:outline-none focus:border-ht-clay focus:ring-1 focus:ring-ht-clay"
-                    ></textarea>
-                  </div>
-
-                  <div className="flex justify-end gap-3 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setIsDeleteMembreOpen(false)}
-                      className="btn-anim px-4 py-2.5 border border-ht-line rounded-xl text-xs font-semibold text-ht-inkSoft"
-                    >
-                      Annuler
-                    </button>
-                    <button
-                      type="submit"
-                      className="btn-anim px-5 py-2.5 bg-red-600 text-white rounded-xl text-xs font-bold shadow-md hover:bg-red-700"
-                    >
-                      Confirmer la suppression
-                    </button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {/* Modal Ajouter Membre */}
-          {isAddMembreOpen && (
-            <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-              <div className="bg-white rounded-3xl p-6 w-full max-w-md space-y-4">
-                <h3 className="font-bold text-lg text-ht-ink">Ajouter un nouveau membre</h3>
-                <form onSubmit={handleAddMembre} className="space-y-3">
-                  <input name="nom" required placeholder="Nom" className="w-full p-2.5 bg-ht-page border rounded-xl text-xs" />
-                  <input name="prenom" required placeholder="Prénom" className="w-full p-2.5 bg-ht-page border rounded-xl text-xs" />
-                  <input name="telephone" required placeholder="Téléphone" className="w-full p-2.5 bg-ht-page border rounded-xl text-xs" />
-                  <input name="profession" placeholder="Profession" className="w-full p-2.5 bg-ht-page border rounded-xl text-xs" />
-                  <select name="kourel_id" className="w-full p-2.5 bg-ht-page border rounded-xl text-xs">
-                    {kourels.map(k => <option key={k.id} value={k.id}>{k.nom}</option>)}
-                  </select>
-                  <div className="flex justify-end gap-2 pt-2">
-                    <button type="button" onClick={() => setIsAddMembreOpen(false)} className="btn-anim px-4 py-2 border rounded-xl text-xs">Annuler</button>
-                    <button type="submit" className="btn-anim px-4 py-2 gradient-emerald text-white rounded-xl text-xs font-bold">Enregistrer</button>
-                  </div>
-                </form>
-              </div>
-            </div>
-          )}
-        </div>
+      const activeSeance = seances[0];
+      const membersOfKourel = membres.filter(m => m.kourel_id === selectedKourelId);
+
+      const navItems = [
+        { id: 'accueil', label: 'Accueil', path: PATHS.home },
+        { id: 'dashboard', label: 'Tableau de bord', path: PATHS.dashboard },
+        { id: 'membres', label: 'Membres', path: PATHS.users },
+        { id: 'repetition', label: 'Répétition', path: PATHS.mic },
+        { id: 'kamil', label: 'Suivi Kamil', path: PATHS.book },
+        { id: 'info', label: 'Informations', path: PATHS.info },
+      ];
+
+      return e('div', { className: 'min-h-screen flex flex-col md:flex-row bg-ht-page text-ht-ink antialiased' },
+        // Toast Notification
+        toast && e('div', {
+          className: 'fixed bottom-6 right-6 z-50 bg-white border border-ht-mint px-5 py-3.5 rounded-2xl shadow-soft-lg text-sm font-bold text-ht-emerald flex items-center gap-2 animate-bounce'
+        }, e(Icon, { path: PATHS.check, className: 'w-5 h-5 text-ht-emerald' }), toast),
+
+        // Sidebar
+        e('aside', { className: 'w-full md:w-64 bg-white border-r border-ht-line p-6 flex flex-col justify-between select-none' },
+          e('div', null,
+            e('div', { className: 'flex items-center gap-3 mb-8' },
+              e('div', { className: 'w-11 h-11 rounded-2xl gradient-emerald text-white font-extrabold flex items-center justify-center font-display text-lg shadow-md' }, 'HT'),
+              e('div', null,
+                e('h1', { className: 'font-display font-bold text-base text-ht-ink leading-tight' }, 'Hizbut-Tarqiyyah'),
+                e('p', { className: 'text-[11px] text-ht-emerald font-bold' }, 'SaaS Association')
+              )
+            ),
+            e('nav', { className: 'space-y-1.5' },
+              navItems.map(item => e('button', {
+                key: item.id,
+                onClick: () => setActiveTab(item.id),
+                className: `w-full flex items-center gap-3 px-4 py-3 rounded-2xl font-semibold text-xs transition-all ${
+                  activeTab === item.id ? 'bg-ht-mist text-ht-emerald border border-ht-mint font-bold shadow-xs' : 'text-ht-inkSoft hover:bg-ht-page hover:text-ht-ink'
+                }`
+              }, e(Icon, { path: item.path, className: `w-4 h-4 ${activeTab === item.id ? 'text-ht-emerald' : 'text-ht-sage'}` }), item.label))
+            )
+          ),
+          e('div', { className: 'p-3 bg-ht-page rounded-2xl border border-ht-line text-xs mt-6' },
+            e('div', { className: 'font-bold text-ht-ink' }, 'Serigne Modou Kara'),
+            e('div', { className: 'text-ht-emerald font-semibold text-[11px]' }, 'Super Admin')
+          )
+        ),
+
+        // Main Content Area
+        e('main', { className: 'flex-1 p-6 md:p-8 max-w-6xl mx-auto space-y-8 w-full' },
+          // Header Bar
+          e('div', { className: 'flex items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-ht-line shadow-soft' },
+            e('div', { className: 'relative flex-1 max-w-md' },
+              e(Icon, { path: PATHS.search, className: 'w-4 h-4 text-ht-sage absolute left-3.5 top-1/2 -translate-y-1/2' }),
+              e('input', {
+                type: 'text',
+                placeholder: 'Rechercher un membre, une activité...',
+                className: 'w-full pl-10 pr-4 py-2 bg-ht-page border border-ht-line rounded-xl text-xs text-ht-ink focus:outline-none focus:border-ht-fern'
+              })
+            ),
+            e('div', { className: 'flex items-center gap-3' },
+              e('div', { className: 'text-xs text-ht-sage font-medium hidden sm:block' }, 'Lundi 17 Août 2026'),
+              e('div', { className: 'p-2 bg-ht-page border border-ht-line rounded-xl text-ht-inkSoft relative' },
+                e(Icon, { path: PATHS.bell, className: 'w-4 h-4' }),
+                e('span', { className: 'absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500' })
+              )
+            )
+          ),
+
+          // TAB: ACCUEIL
+          activeTab === 'accueil' && e('div', { className: 'space-y-8' },
+            e('div', { className: 'relative rounded-3xl p-8 sm:p-12 gradient-emerald text-white shadow-2xl space-y-4' },
+              e('div', { className: 'inline-flex items-center gap-2 px-3 py-1 bg-white/10 rounded-full text-xs font-semibold' }, '✨ Plateforme Officielle Hizbut-Tarqiyyah'),
+              e('h1', { className: 'font-display font-extrabold text-3xl sm:text-4xl leading-tight' }, 'Bienvenue sur la Gestion Spirituelle & Organisationnelle'),
+              e('p', { className: 'text-sm text-emerald-100 max-w-2xl' }, 'Suivi des répétitions de Khassida, coordination des cycles de Kamil collectif, gestion de l’assiduité et des membres au service de la Khadimiya.'),
+              e('div', { className: 'flex flex-wrap gap-3 pt-2' },
+                e('button', { onClick: () => setActiveTab('repetition'), className: 'px-5 py-2.5 bg-white text-ht-emerald rounded-xl font-bold text-xs shadow-md hover:bg-ht-mist' }, 'Voir les Répétitions →'),
+                e('button', { onClick: () => setActiveTab('kamil'), className: 'px-5 py-2.5 bg-white/20 text-white rounded-xl font-bold text-xs border border-white/30' }, 'Suivi Kamil Juki')
+              )
+            ),
+            e('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4' },
+              [
+                { title: 'Membres Inscrits', val: membres.length, sub: '89% Actifs', icon: PATHS.users },
+                { title: 'Kourels', val: kourels.length, sub: 'Sections répétitions', icon: PATHS.mic },
+                { title: 'Parties Kamil (Juki)', val: `${terminesKamil}/30`, sub: 'Cycle #42 en cours', icon: PATHS.book },
+                { title: 'Communiqués', val: informations.length, sub: 'Dernières annonces', icon: PATHS.info }
+              ].map((st, i) => e('div', { key: i, className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-2' },
+                e('div', { className: 'flex justify-between items-center' },
+                  e('div', { className: 'w-10 h-10 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center border border-ht-mint' }, e(Icon, { path: st.icon })),
+                  e('span', { className: 'text-xs font-bold text-ht-emerald bg-ht-mist px-2.5 py-1 rounded-full' }, st.sub)
+                ),
+                e('div', { className: 'font-display font-extrabold text-3xl text-ht-ink' }, st.val),
+                e('div', { className: 'text-xs text-ht-sage font-medium' }, st.title)
+              ))
+            )
+          ),
+
+          // TAB: DASHBOARD
+          activeTab === 'dashboard' && e('div', { className: 'space-y-8' },
+            e('div', null,
+              e('div', { className: 'text-xs font-bold text-ht-sage uppercase tracking-wider mb-1' }, 'SYNTHÈSE GÉNÉRALE'),
+              e('h1', { className: 'font-display font-extrabold text-3xl text-ht-ink' }, 'Tableau de bord')
+            ),
+            e('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4' },
+              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft' },
+                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink mb-1' }, '87%'),
+                e('div', { className: 'text-xs text-ht-inkSoft font-medium' }, 'Taux de présence global')
+              ),
+              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft' },
+                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink mb-1' }, `${terminesKamil}/30`),
+                e('div', { className: 'text-xs text-ht-inkSoft font-medium' }, 'Juki complétés (Kamil)')
+              ),
+              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft' },
+                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink mb-1' }, membres.length),
+                e('div', { className: 'text-xs text-ht-inkSoft font-medium' }, 'Membres actifs')
+              ),
+              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft' },
+                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink mb-1' }, '12'),
+                e('div', { className: 'text-xs text-ht-inkSoft font-medium' }, 'Retards ce mois')
+              )
+            ),
+            e('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-6' },
+              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-4' },
+                e('h3', { className: 'font-bold text-lg text-ht-ink' }, 'Évolution de la présence'),
+                e('div', { className: 'h-48 flex items-end justify-between gap-2 border-b border-ht-line pb-2 px-2' },
+                  ['S1', 'S2', 'S3', 'S4', 'S5', 'S6', 'S7', 'S8'].map((s, idx) => {
+                    const heights = [65, 70, 60, 80, 85, 80, 92, 87];
+                    return e('div', { key: s, className: 'flex-1 flex flex-col items-center gap-2' },
+                      e('div', { className: 'w-full bg-ht-mist rounded-t-lg relative', style: { height: `${heights[idx]}px` } },
+                        e('div', { className: 'w-full h-1 bg-ht-emerald rounded-full' })
+                      ),
+                      e('span', { className: 'text-[10px] text-ht-sage font-medium' }, s)
+                    );
+                  })
+                )
+              ),
+              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex flex-col justify-between' },
+                e('div', null,
+                  e('h3', { className: 'font-bold text-lg text-ht-ink mb-4' }, 'Répartition des 30 Juki (Kamil)'),
+                  e('div', { className: 'w-40 h-40 mx-auto rounded-full border-[12px] border-slate-200 border-t-[#1F6B4B] border-r-[#D97706] flex flex-col items-center justify-center' },
+                    e('span', { className: 'font-display font-extrabold text-2xl text-ht-ink' }, `${terminesKamil}/30`),
+                    e('span', { className: 'text-xs text-ht-sage' }, 'parties')
+                  )
+                ),
+                e('div', { className: 'pt-4 space-y-2 text-xs font-medium' },
+                  e('div', { className: 'flex justify-between p-2 bg-emerald-50 rounded-xl' }, e('span', null, '🟢 Terminé'), e('span', { className: 'font-bold' }, terminesKamil)),
+                  e('div', { className: 'flex justify-between p-2 bg-amber-50 rounded-xl' }, e('span', null, '🟠 En cours'), e('span', { className: 'font-bold' }, enCoursKamil)),
+                  e('div', { className: 'flex justify-between p-2 bg-slate-50 rounded-xl' }, e('span', null, '⚪ À faire'), e('span', { className: 'font-bold' }, aFaireKamil))
+                )
+              )
+            )
+          ),
+
+          // TAB: MEMBRES
+          activeTab === 'membres' && e('div', { className: 'space-y-6' },
+            e('div', { className: 'flex flex-col sm:flex-row justify-between items-center gap-4' },
+              e('div', { className: 'relative flex-1 max-w-sm' },
+                e(Icon, { path: PATHS.search, className: 'w-4 h-4 text-ht-sage absolute left-3.5 top-1/2 -translate-y-1/2' }),
+                e('input', {
+                  type: 'text',
+                  placeholder: 'Rechercher membre par nom...',
+                  value: searchQuery,
+                  onChange: (ev) => setSearchQuery(ev.target.value),
+                  className: 'w-full pl-10 pr-4 py-2.5 bg-white border border-ht-line rounded-xl text-xs'
+                })
+              ),
+              e('button', {
+                onClick: () => setIsAddMembreOpen(true),
+                className: 'px-5 py-2.5 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2'
+              }, e(Icon, { path: PATHS.plus, className: 'w-4 h-4' }), 'Ajouter un membre')
+            ),
+            e('div', { className: 'bg-white rounded-3xl border border-ht-line shadow-soft overflow-hidden' },
+              e('table', { className: 'w-full text-left border-collapse' },
+                e('thead', null,
+                  e('tr', { className: 'bg-ht-page border-b border-ht-line text-xs font-semibold text-ht-sage uppercase' },
+                    e('th', { className: 'py-4 px-6' }, 'Membre'),
+                    e('th', { className: 'py-4 px-6' }, 'Téléphone'),
+                    e('th', { className: 'py-4 px-6' }, 'Profession'),
+                    e('th', { className: 'py-4 px-6' }, 'Kourel'),
+                    e('th', { className: 'py-4 px-6' }, 'Statut')
+                  )
+                ),
+                e('tbody', { className: 'divide-y divide-ht-line text-sm' },
+                  membres.filter(m => `${m.prenom} ${m.nom}`.toLowerCase().includes(searchQuery.toLowerCase())).map(m => {
+                    const k = kourels.find(k => k.id === m.kourel_id);
+                    return e('tr', { key: m.id, className: 'hover:bg-ht-mist/50 transition-colors' },
+                      e('td', { className: 'py-4 px-6 font-semibold' }, `${m.prenom} ${m.nom}`),
+                      e('td', { className: 'py-4 px-6 text-xs text-ht-inkSoft' }, m.telephone),
+                      e('td', { className: 'py-4 px-6 text-xs' }, m.profession),
+                      e('td', { className: 'py-4 px-6 text-xs font-semibold text-ht-emerald' }, k ? k.nom.split('—')[1] || k.nom : '-'),
+                      e('td', { className: 'py-4 px-6' }, e('span', { className: 'badge-present' }, m.statut))
+                    );
+                  })
+                )
+              )
+            )
+          ),
+
+          // TAB: REPETITION
+          activeTab === 'repetition' && e('div', { className: 'space-y-6' },
+            e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4' },
+              e('div', null,
+                e('h3', { className: 'font-bold text-xl text-ht-ink' }, 'Séances de Répétition & Pointage'),
+                e('p', { className: 'text-xs text-ht-inkSoft' }, 'Superviseur : Serigne Modou Kara')
+              ),
+              e('div', { className: 'flex flex-wrap gap-2' },
+                kourels.map(k => e('button', {
+                  key: k.id,
+                  onClick: () => setSelectedKourelId(k.id),
+                  className: `px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    selectedKourelId === k.id ? 'gradient-emerald text-white shadow-sm' : 'bg-ht-page text-ht-inkSoft hover:bg-ht-mist'
+                  }`
+                }, k.nom.split('—')[1] || k.nom))
+              )
+            ),
+            e('div', { className: 'bg-white rounded-3xl border border-ht-line shadow-soft overflow-hidden p-6' },
+              e('h4', { className: 'font-bold text-base text-ht-ink mb-4' }, 'Pointage des membres'),
+              e('table', { className: 'w-full text-left border-collapse' },
+                e('thead', null,
+                  e('tr', { className: 'border-b border-ht-line text-xs text-ht-sage uppercase' },
+                    e('th', { className: 'py-3 px-4' }, 'Membre'),
+                    e('th', { className: 'py-3 px-4' }, 'Statut actuel'),
+                    e('th', { className: 'py-3 px-4 text-right' }, 'Action 1-Clic')
+                  )
+                ),
+                e('tbody', { className: 'divide-y divide-ht-line text-sm' },
+                  membersOfKourel.map(m => {
+                    const pres = activeSeance.presences.find(p => p.membre_id === m.id);
+                    const st = pres ? pres.statut : 'Non pointé';
+                    return e('tr', { key: m.id },
+                      e('td', { className: 'py-3.5 px-4 font-medium' }, `${m.prenom} ${m.nom}`),
+                      e('td', { className: 'py-3.5 px-4' },
+                        e('span', { className: st === 'Présent' ? 'badge-present' : st === 'En retard' ? 'badge-retard' : 'badge-absent' }, st)
+                      ),
+                      e('td', { className: 'py-3.5 px-4 text-right space-x-2' },
+                        e('button', { onClick: () => updatePointage(activeSeance.id, m.id, 'Présent'), className: 'px-3 py-1 bg-ht-mist text-ht-emerald rounded-lg text-xs font-bold hover:bg-ht-mint' }, 'Présent'),
+                        e('button', { onClick: () => updatePointage(activeSeance.id, m.id, 'En retard'), className: 'px-3 py-1 bg-amber-50 text-ht-amber rounded-lg text-xs font-bold hover:bg-amber-100' }, 'En retard'),
+                        e('button', { onClick: () => updatePointage(activeSeance.id, m.id, 'Absent'), className: 'px-3 py-1 bg-red-50 text-ht-clay rounded-lg text-xs font-bold hover:bg-red-100' }, 'Absent')
+                      )
+                    );
+                  })
+                )
+              )
+            )
+          ),
+
+          // TAB: KAMIL
+          activeTab === 'kamil' && e('div', { className: 'space-y-6' },
+            e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex justify-between items-center' },
+              e('div', null,
+                e('h2', { className: 'font-bold text-2xl text-ht-ink' }, `Cycle Kamil #${kamilCycle.numero_cycle} en cours`),
+                e('p', { className: 'text-xs text-ht-inkSoft' }, 'Lecture globale du Coran en 30 parties (Juki)')
+              ),
+              e('div', { className: 'px-4 py-2 gradient-emerald text-white rounded-xl font-bold text-xs shadow-md' }, `${terminesKamil}/30 Complétés`)
+            ),
+            e('div', { className: 'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3' },
+              kamilCycle.assignations.map(a => {
+                const m = membres.find(mem => mem.id === a.membre_id);
+                const isTermine = a.statut === 'Terminé';
+                const isInProgress = a.statut === 'En cours';
+
+                return e('div', {
+                  key: a.juz,
+                  className: `p-4 rounded-2xl border transition-all ${
+                    isTermine ? 'bg-emerald-50/70 border-emerald-300' : isInProgress ? 'bg-amber-50/80 border-amber-300' : 'bg-white border-slate-200'
+                  }`
+                },
+                  e('div', { className: 'font-extrabold text-lg text-ht-ink' }, `Juki #${a.juz}`),
+                  e('div', { className: 'text-xs text-ht-sage truncate mt-1' }, m ? `${m.prenom} ${m.nom}` : 'Attribué'),
+                  e('div', { className: 'mt-3 pt-2 border-t border-ht-line flex justify-between items-center text-xs' },
+                    e('span', { className: `font-bold px-2 py-0.5 rounded-md ${
+                      isTermine ? 'bg-[#1F6B4B] text-white' : isInProgress ? 'bg-[#D97706] text-white' : 'bg-slate-200 text-slate-700'
+                    }` }, a.statut),
+                    !isTermine && e('button', {
+                      onClick: () => updateJuzStatut(a.juz, 'Terminé'),
+                      className: 'text-[10px] bg-ht-emerald text-white px-2 py-1 rounded-lg hover:bg-ht-fern'
+                    }, 'Valider')
+                  )
+                );
+              })
+            )
+          ),
+
+          // TAB: INFO
+          activeTab === 'info' && e('div', { className: 'space-y-6 max-w-4xl' },
+            e('h2', { className: 'font-bold text-2xl text-ht-ink' }, 'Informations & Actualités'),
+            informations.map(inf => e('div', { key: inf.id, className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3' },
+              e('span', { className: 'badge-present' }, inf.categorie),
+              e('h3', { className: 'font-bold text-xl text-ht-ink' }, inf.titre),
+              e('p', { className: 'text-xs text-ht-inkSoft leading-relaxed' }, inf.contenu),
+              e('div', { className: 'text-[11px] text-ht-sage font-medium pt-2 border-t border-ht-line' }, `Publié le ${inf.date_publication} par ${inf.auteur}`)
+            ))
+          )
+        ),
+
+        // Add Member Modal
+        isAddMembreOpen && e('div', { className: 'fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50' },
+          e('div', { className: 'bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl' },
+            e('div', { className: 'flex justify-between items-center' },
+              e('h3', { className: 'font-bold text-lg text-ht-ink' }, 'Ajouter un nouveau membre'),
+              e('button', { onClick: () => setIsAddMembreOpen(false), className: 'text-gray-400 hover:text-gray-600 font-bold' }, '✕')
+            ),
+            e('form', { onSubmit: handleAddMembre, className: 'space-y-3' },
+              e('input', { name: 'nom', required: true, placeholder: 'Nom (ex: MBACKE)', className: 'w-full p-2.5 bg-ht-page border border-ht-line rounded-xl text-xs' }),
+              e('input', { name: 'prenom', required: true, placeholder: 'Prénom (ex: Serigne Cheikh)', className: 'w-full p-2.5 bg-ht-page border border-ht-line rounded-xl text-xs' }),
+              e('input', { name: 'telephone', required: true, placeholder: 'Téléphone (ex: +221 77 123 45 67)', className: 'w-full p-2.5 bg-ht-page border border-ht-line rounded-xl text-xs' }),
+              e('input', { name: 'adresse', placeholder: 'Adresse (ex: Touba Mosquée)', className: 'w-full p-2.5 bg-ht-page border border-ht-line rounded-xl text-xs' }),
+              e('select', { name: 'kourel_id', className: 'w-full p-2.5 bg-ht-page border border-ht-line rounded-xl text-xs' },
+                kourels.map(k => e('option', { key: k.id, value: k.id }, k.nom))
+              ),
+              e('div', { className: 'flex justify-end gap-2 pt-2' },
+                e('button', { type: 'button', onClick: () => setIsAddMembreOpen(false), className: 'px-4 py-2 border rounded-xl text-xs font-semibold' }, 'Annuler'),
+                e('button', { type: 'submit', className: 'px-4 py-2 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md' }, 'Enregistrer')
+              )
+            )
+          )
+        )
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(e(App));
   </script>
 </body>
 </html>

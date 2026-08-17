@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
+  INITIAL_ZONES,
   INITIAL_KOURELS,
   INITIAL_MEMBRES,
   INITIAL_KHASSIDAS,
@@ -25,6 +26,7 @@ export const AppProvider = ({ children }) => {
   const [activeTab, setActiveTab] = useState('accueil'); // accueil, dashboard, membres, repetition, kamil, info, login
 
   // State Entities
+  const [zones, setZones] = useState(INITIAL_ZONES);
   const [kourels, setKourels] = useState(INITIAL_KOURELS);
   const [membres, setMembres] = useState(INITIAL_MEMBRES);
   const [khassidas] = useState(INITIAL_KHASSIDAS);
@@ -188,6 +190,50 @@ export const AppProvider = ({ children }) => {
     showToast('Statut d\'épinglage modifié.');
   };
 
+  // Zone Actions
+  const updateMembreZone = (membreId, newZoneId) => {
+    setMembres((prev) =>
+      prev.map((m) => (m.id === membreId ? { ...m, zone_id: newZoneId } : m))
+    );
+    const z = zones.find((z) => z.id === newZoneId);
+    showToast(`Membre réaffecté à : ${z ? z.nom : 'Non affecté'}`);
+  };
+
+  const bulkUpdateMembreZone = (membreIds, newZoneId) => {
+    setMembres((prev) =>
+      prev.map((m) => (membreIds.includes(m.id) ? { ...m, zone_id: newZoneId } : m))
+    );
+    const z = zones.find((z) => z.id === newZoneId);
+    showToast(`${membreIds.length} membre(s) réaffecté(s) à : ${z ? z.nom : 'Non affecté'}`);
+  };
+
+  const updateZoneResponsable = (zoneId, newResponsable) => {
+    setZones((prev) =>
+      prev.map((z) => (z.id === zoneId ? { ...z, responsable: newResponsable } : z))
+    );
+    showToast('Superviseur de la zone mis à jour avec succès.');
+  };
+
+  const addZone = (zoneData) => {
+    const newZone = {
+      ...zoneData,
+      id: 'z_' + Date.now(),
+      code: zoneData.code || `Z-CUSTOM-${zones.length + 1}`,
+      couleur: zoneData.couleur || 'emerald'
+    };
+    setZones((prev) => [...prev, newZone]);
+    showToast(`Zone "${newZone.nom}" créée avec succès !`);
+  };
+
+  const deleteZone = (zoneId) => {
+    const target = zones.find((z) => z.id === zoneId);
+    setZones((prev) => prev.filter((z) => z.id !== zoneId));
+    setMembres((prev) =>
+      prev.map((m) => (m.zone_id === zoneId ? { ...m, zone_id: '' } : m))
+    );
+    showToast(`Zone "${target ? target.nom : ''}" supprimée.`, 'info');
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -195,6 +241,7 @@ export const AppProvider = ({ children }) => {
         currentUser,
         activeTab,
         setActiveTab,
+        zones,
         kourels,
         membres,
         khassidas,
@@ -216,7 +263,12 @@ export const AppProvider = ({ children }) => {
         assignJuzToMembre,
         lancerNouveauCycle,
         addInformation,
-        togglePinInformation
+        togglePinInformation,
+        updateMembreZone,
+        bulkUpdateMembreZone,
+        updateZoneResponsable,
+        addZone,
+        deleteZone
       }}
     >
       {children}

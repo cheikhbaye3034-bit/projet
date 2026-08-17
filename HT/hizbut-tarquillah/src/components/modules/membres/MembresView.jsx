@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
-import { Search, Plus, Filter, User, Phone, MapPin, ChevronRight, CheckCircle2, Clock, XCircle, Wallet, Trash2, ArrowRight } from 'lucide-react';
+import { Search, Plus, Filter, User, Phone, MapPin, ChevronRight, CheckCircle2, Clock, XCircle, Wallet, Trash2, ArrowRight, LayoutGrid, Map } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { MembreModal } from './MembreModal';
 import { MembreDetailDrawer } from './MembreDetailDrawer';
+import { MembreZoneView } from './MembreZoneView';
 
 export const MembresView = () => {
-  const { membres, kourels, selectedMembreId, setSelectedMembreId, deleteMembre } = useApp();
+  const { membres, zones, kourels, selectedMembreId, setSelectedMembreId, deleteMembre } = useApp();
 
+  const [activeSubTab, setActiveSubTab] = useState('liste'); // 'liste' | 'zones'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedKourelFilter, setSelectedKourelFilter] = useState('all');
   const [selectedCotisationFilter, setSelectedCotisationFilter] = useState('all');
@@ -49,7 +51,55 @@ export const MembresView = () => {
 
   return (
     <div className="space-y-6 pb-8 animate-fade-in select-none">
-      {/* Top Action Bar */}
+      {/* Module Navigation Sub-Tabs Bar */}
+      <div className="bg-white rounded-3xl p-2 border border-ht-line shadow-soft flex flex-col sm:flex-row items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5 w-full sm:w-auto">
+          <button
+            onClick={() => setActiveSubTab('liste')}
+            className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeSubTab === 'liste'
+                ? 'gradient-emerald text-white shadow-md'
+                : 'text-ht-inkSoft hover:bg-ht-mist hover:text-ht-ink'
+            }`}
+          >
+            <LayoutGrid className="w-4 h-4" />
+            <span>Liste des Membres ({membres.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('zones')}
+            className={`flex-1 sm:flex-initial px-5 py-2.5 rounded-2xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              activeSubTab === 'zones'
+                ? 'gradient-emerald text-white shadow-md'
+                : 'text-ht-inkSoft hover:bg-ht-mist hover:text-ht-ink'
+            }`}
+          >
+            <Map className="w-4 h-4" />
+            <span>Répartition par Zones</span>
+            <span className={`px-2 py-0.5 text-[10px] font-extrabold rounded-full ${activeSubTab === 'zones' ? 'bg-white/20 text-white' : 'bg-ht-mist text-ht-emerald'}`}>
+              {zones ? zones.length : 0}
+            </span>
+          </button>
+        </div>
+
+        {/* Global CTA */}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-end px-2">
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-4 py-2 bg-ht-mist text-ht-emerald hover:bg-ht-mint/30 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Inscrire un membre</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main View Switching Logic */}
+      {activeSubTab === 'zones' ? (
+        <MembreZoneView />
+      ) : (
+        <>
+          {/* Top Action Bar for Member List */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
         {/* Search Input */}
         <div className="relative flex-1 max-w-md">
@@ -321,6 +371,8 @@ export const MembresView = () => {
             </form>
           </div>
         </div>
+      )}
+        </>
       )}
 
       {/* Member Detail Drawer */}
