@@ -14,7 +14,7 @@ import {
   Heart
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
-import bgHero from '../../../assets/images/bg_hero.jpg';
+import bgHero from '../../../assets/images/bg_hero.png';
 
 export const AccueilView = () => {
   const { membres, kourels, kamilCycle, seances, informations, setActiveTab } = useApp();
