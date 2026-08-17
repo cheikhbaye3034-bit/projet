@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, User, Phone, MapPin, Briefcase, Calendar, BookOpen, CheckCircle2, Clock, XCircle, ShieldCheck, Wallet, AlertCircle, Trash2 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
-import bgMembre from '../../../assets/images/bg_membre.jpg';
+import bgModal from '../../../assets/images/bg_modal.jpg';
 
 export const MembreDetailDrawer = ({ membreId, onClose }) => {
   const { membres, zones, kourels, kamilCycle, seances, deleteMembre, updateMembreZone } = useApp();
@@ -52,7 +52,7 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
       {/* Backdrop with dark blur */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-ht-ink/75 backdrop-blur-md transition-opacity"
+        className="fixed inset-0 bg-ht-ink/80 backdrop-blur-md transition-opacity"
       ></div>
 
       {/* Centered Modal Card with Background Image 1779138262345.jpg */}
@@ -60,8 +60,8 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
         
         {/* Background Image & Overlay */}
         <div 
-          className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-20"
-          style={{ backgroundImage: `url(${bgMembre})` }}
+          className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-25"
+          style={{ backgroundImage: `url(${bgModal})` }}
         />
 
         {/* Top Header */}
