@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #F7FBF8;
+    color: #16241C;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7FBF8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C3E3D0;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7FAE94;
+}
+
+/* Custom Utilities */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border: 1px solid #E6EFEA;
+}
+
+.gradient-emerald {
+  background: linear-gradient(135deg, #1F6B4B 0%, #1F5E43 100%);
+}
+
+.gradient-mint-soft {
+  background: linear-gradient(135deg, #EFF6F1 0%, #DCEEE2 100%);
+}
+
+.badge-present {
+  @apply bg-ht-mist text-ht-emerald border border-ht-mint font-medium rounded-full px-2.5 py-0.5 text-xs inline-flex items-center gap-1;
+}
+
+.badge-retard {
+  @apply bg-ht-amberLight text-ht-amber border border-amber-200 font-medium rounded-full px-2.5 py-0.5 text-xs inline-flex items-center gap-1;
+}
+
+.badge-absent {
+  @apply bg-ht-clayLight text-ht-clay border border-red-200 font-medium rounded-full px-2.5 py-0.5 text-xs inline-flex items-center gap-1;
+}
