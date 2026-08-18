@@ -90,12 +90,17 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
 
         {/* Content body */}
         <div className="p-6 space-y-5 overflow-y-auto flex-1 relative z-10">
-          {/* Status & Contact details */}
-          <div className="bg-white/85 backdrop-blur-md rounded-2xl p-4 border border-ht-line space-y-3 shadow-soft">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-ht-sage uppercase tracking-wider">Statut Membre</span>
+        {/* Content body */}
+        <div className="p-6 space-y-5 overflow-y-auto flex-1 relative z-10">
+          {/* High-End Refined Personal Info Section */}
+          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-5 border border-ht-line space-y-4 shadow-soft">
+            <div className="flex items-center justify-between border-b border-ht-line pb-3">
+              <div className="flex items-center gap-2">
+                <User className="w-4 h-4 text-ht-emerald" />
+                <span className="text-xs font-bold text-ht-ink uppercase tracking-wider">Informations Personnelles</span>
+              </div>
               <span
-                className={`px-3 py-1 text-xs font-extrabold rounded-full ${
+                className={`px-3 py-1 text-xs font-extrabold rounded-full flex items-center gap-1.5 ${
                   membre.statut === 'Actif'
                     ? 'bg-ht-mist text-ht-emerald border border-ht-mint'
                     : membre.statut === 'Suspendu'
@@ -103,26 +108,52 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
                     : 'bg-gray-100 text-gray-600'
                 }`}
               >
-                {membre.statut}
+                <span className={`w-2 h-2 rounded-full ${membre.statut === 'Actif' ? 'bg-ht-emerald' : 'bg-ht-clay'}`}></span>
+                <span>{membre.statut}</span>
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1 text-ht-ink font-medium">
-              <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-ht-sage flex-shrink-0" />
-                <span>{membre.telephone}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1">
+                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Prénom</span>
+                <span className="font-bold text-sm text-ht-ink block">{membre.prenom}</span>
               </div>
-              <div className="flex items-center gap-2.5">
-                <Briefcase className="w-4 h-4 text-ht-sage flex-shrink-0" />
-                <span>Profession : {membre.profession}</span>
+
+              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1">
+                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Nom</span>
+                <span className="font-extrabold text-sm text-ht-ink uppercase tracking-wide block">{membre.nom}</span>
               </div>
-              <div className="flex items-center gap-2.5 col-span-1 sm:col-span-2">
-                <MapPin className="w-4 h-4 text-ht-sage flex-shrink-0" />
-                <span>{membre.adresse || 'Adresse non renseignée'}</span>
+
+              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1">
+                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Téléphone</span>
+                <div className="flex items-center gap-2 font-mono font-bold text-ht-emerald">
+                  <Phone className="w-3.5 h-3.5 text-ht-sage" />
+                  <span>{membre.telephone}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2.5">
-                <Calendar className="w-4 h-4 text-ht-sage flex-shrink-0" />
-                <span>Inscrit le : {membre.date_adhesion}</span>
+
+              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1">
+                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Profession</span>
+                <div className="flex items-center gap-2 font-semibold text-ht-ink">
+                  <Briefcase className="w-3.5 h-3.5 text-ht-sage" />
+                  <span>{membre.profession || 'Non spécifié'}</span>
+                </div>
+              </div>
+
+              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1 col-span-1 sm:col-span-2">
+                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Adresse Résidence</span>
+                <div className="flex items-center gap-2 font-medium text-ht-ink">
+                  <MapPin className="w-3.5 h-3.5 text-ht-sage" />
+                  <span>{membre.adresse || 'Touba Mosquée, Quartier Darou Minam'}</span>
+                </div>
+              </div>
+
+              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1 col-span-1 sm:col-span-2">
+                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Date d'Adhésion</span>
+                <div className="flex items-center gap-2 font-medium text-ht-ink">
+                  <Calendar className="w-3.5 h-3.5 text-ht-sage" />
+                  <span>Inscrit depuis le {membre.date_adhesion}</span>
+                </div>
               </div>
             </div>
           </div>

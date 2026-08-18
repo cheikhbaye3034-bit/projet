@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
-import { BookOpen, Plus, Calendar, Clock, CheckCircle2, Award, Users, TrendingUp, ArrowUpRight, ArrowDownRight, UserCheck } from 'lucide-react';
+import { BookOpen, Plus, Calendar, Clock, CheckCircle2, Award, Users, TrendingUp, ArrowUpRight, ArrowDownRight, UserCheck, Eye } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { JuzGrid } from './JuzGrid';
 import { NouveauCycleModal } from './NouveauCycleModal';
 import { AttributionJukiModal } from './AttributionJukiModal';
+import { KamilDetailsModal } from './KamilDetailsModal';
 import { KamilHistoryChart } from './KamilHistoryChart';
 
 export const KamilView = () => {
   const { kamilCycle, membres, pastKamilCycles } = useApp();
   const [isNouveauCycleModalOpen, setIsNouveauCycleModalOpen] = useState(false);
   const [isAttributionModalOpen, setIsAttributionModalOpen] = useState(false);
+  
+  // Details Modal state
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [detailsTab, setDetailsTab] = useState('membres'); // 'membres' | 'termines'
 
   const termines = kamilCycle.assignations.filter((a) => a.statut === 'Terminé').length;
   const enCours = kamilCycle.assignations.filter((a) => a.statut === 'En cours').length;
@@ -21,6 +26,11 @@ export const KamilView = () => {
   const endDate = new Date(kamilCycle.date_fin_prevue);
   const diffTime = endDate - today;
   const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+
+  const handleOpenDetails = (tab = 'membres') => {
+    setDetailsTab(tab);
+    setIsDetailsModalOpen(true);
+  };
 
   return (
     <div className="space-y-8 pb-10 animate-fade-in select-none">
@@ -35,66 +45,87 @@ export const KamilView = () => {
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setIsAttributionModalOpen(true)}
-            className="btn-anim px-5 py-3 bg-ht-mist text-ht-emerald border border-ht-mint rounded-2xl text-xs font-bold shadow-xs hover:bg-ht-mint flex items-center gap-2"
+            className="btn-anim px-5 py-3 bg-ht-mist text-ht-emerald border border-ht-mint rounded-2xl text-xs font-extrabold shadow-sm hover:bg-ht-mint flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
           >
-            <UserCheck className="w-4 h-4" />
+            <UserCheck className="w-4 h-4 text-ht-emerald" />
             <span>👤 Assigner les 30 Juki</span>
           </button>
 
           <button
             onClick={() => setIsNouveauCycleModalOpen(true)}
-            className="btn-anim px-5 py-3 gradient-emerald text-white rounded-2xl text-xs font-semibold shadow-md hover:shadow-lg flex items-center gap-2"
+            className="btn-anim px-5 py-3 gradient-emerald text-white rounded-2xl text-xs font-bold shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 text-white" />
             <span>Lancer un Nouveau Cycle</span>
           </button>
         </div>
       </div>
 
-      {/* 4 Professional KPI Stat Cards */}
+      {/* 4 Professional Clickable KPI Stat Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3">
+        
+        {/* Stat Card 1: Parties terminées (Clickable) */}
+        <div
+          onClick={() => handleOpenDetails('termines')}
+          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-ht-mint hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+          title="Cliquer pour voir le détail des Juki terminés"
+        >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint">
+            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint group-hover:scale-105 transition-transform">
               <CheckCircle2 className="w-6 h-6 text-ht-emerald" />
             </div>
             <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 flex items-center gap-1">
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              <span>En avance</span>
+              <Eye className="w-3.5 h-3.5" />
+              <span>Voir détail</span>
             </span>
           </div>
           <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">
+            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-ht-emerald transition-colors">
               {termines}/30
             </div>
-            <div className="text-xs text-ht-sage font-medium mt-1">Parties terminées</div>
+            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
+              <span>Parties terminées</span>
+              <span className="text-[10px] text-ht-emerald font-bold underline">Cliquez pour voir ➔</span>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3">
+        {/* Stat Card 2: Membres impliqués (Clickable) */}
+        <div
+          onClick={() => handleOpenDetails('membres')}
+          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-ht-mint hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+          title="Cliquer pour voir la liste des membres impliqués et leurs Juki"
+        >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint">
+            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint group-hover:scale-105 transition-transform">
               <Users className="w-6 h-6 text-ht-emerald" />
             </div>
             <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 flex items-center gap-1">
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              <span>Tous kourels</span>
+              <Eye className="w-3.5 h-3.5" />
+              <span>Voir membres</span>
             </span>
           </div>
           <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">
+            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-ht-emerald transition-colors">
               {membersInvolvedCount || 10}
             </div>
-            <div className="text-xs text-ht-sage font-medium mt-1">Membres impliqués</div>
+            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
+              <span>Membres impliqués</span>
+              <span className="text-[10px] text-ht-emerald font-bold underline">Cliquez pour voir ➔</span>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3">
+        {/* Stat Card 3: Jours restants (Clickable) */}
+        <div
+          onClick={() => handleOpenDetails('membres')}
+          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+        >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-amber-50 text-ht-amber flex items-center justify-center font-bold border border-amber-200">
+            <div className="w-11 h-11 rounded-2xl bg-amber-50 text-ht-amber flex items-center justify-center font-bold border border-amber-200 group-hover:scale-105 transition-transform">
               <Clock className="w-6 h-6 text-ht-amber" />
             </div>
             <span className="px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full border border-red-200 flex items-center gap-1">
@@ -103,16 +134,23 @@ export const KamilView = () => {
             </span>
           </div>
           <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">
+            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-ht-amber transition-colors">
               {daysRemaining || 6}
             </div>
-            <div className="text-xs text-ht-sage font-medium mt-1">Jours restants</div>
+            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
+              <span>Jours restants</span>
+              <span className="text-[10px] text-ht-amber font-bold underline">Aperçu ➔</span>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3">
+        {/* Stat Card 4: Cycles terminés (Clickable) */}
+        <div
+          onClick={() => handleOpenDetails('termines')}
+          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-ht-mint hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+        >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint">
+            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint group-hover:scale-105 transition-transform">
               <BookOpen className="w-6 h-6 text-ht-emerald" />
             </div>
             <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 flex items-center gap-1">
@@ -121,12 +159,16 @@ export const KamilView = () => {
             </span>
           </div>
           <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">
+            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-ht-emerald transition-colors">
               {kamilCycle.numero_cycle - 1}
             </div>
-            <div className="text-xs text-ht-sage font-medium mt-1">Cycles terminés</div>
+            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
+              <span>Cycles terminés</span>
+              <span className="text-[10px] text-ht-emerald font-bold underline">Aperçu ➔</span>
+            </div>
           </div>
         </div>
+
       </div>
 
       {/* Grid of 30 Juz */}
@@ -155,6 +197,12 @@ export const KamilView = () => {
       <AttributionJukiModal
         isOpen={isAttributionModalOpen}
         onClose={() => setIsAttributionModalOpen(false)}
+      />
+
+      <KamilDetailsModal
+        isOpen={isDetailsModalOpen}
+        initialTab={detailsTab}
+        onClose={() => setIsDetailsModalOpen(false)}
       />
     </div>
   );

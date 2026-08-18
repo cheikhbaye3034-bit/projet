@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Search, Plus, Filter, User, Phone, MapPin, ChevronRight, CheckCircle2, Clock, XCircle, Wallet, Trash2, ArrowRight, LayoutGrid, Map } from 'lucide-react';
+import { Search, Plus, Filter, User, Phone, MapPin, ChevronRight, CheckCircle2, Clock, XCircle, Wallet, Trash2, ArrowRight, LayoutGrid, Map, Briefcase } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { MembreModal } from './MembreModal';
 import { MembreDetailDrawer } from './MembreDetailDrawer';
 import { MembreZoneView } from './MembreZoneView';
+import { RepartitionSecteursModal } from './RepartitionSecteursModal';
 
 export const MembresView = () => {
   const { membres, zones, kourels, selectedMembreId, setSelectedMembreId, deleteMembre } = useApp();
@@ -13,6 +14,7 @@ export const MembresView = () => {
   const [selectedKourelFilter, setSelectedKourelFilter] = useState('all');
   const [selectedCotisationFilter, setSelectedCotisationFilter] = useState('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isRepartitionModalOpen, setIsRepartitionModalOpen] = useState(false);
 
   // Delete modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -113,14 +115,22 @@ export const MembresView = () => {
           />
         </div>
 
-        {/* Action Buttons Pair: Ajouter & Supprimer (with justification) */}
-        <div className="flex items-center gap-3">
+        {/* Action Buttons Trio: Ajouter, Répartir par Secteurs, Supprimer */}
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="px-5 py-2.5 gradient-emerald text-white rounded-2xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 active:scale-95 transform cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Ajouter un membre</span>
+          </button>
+
+          <button
+            onClick={() => setIsRepartitionModalOpen(true)}
+            className="px-4 py-2.5 bg-ht-mist text-ht-emerald border border-ht-mint hover:bg-ht-mint/30 rounded-2xl text-xs font-bold transition-all flex items-center gap-2 active:scale-95 transform cursor-pointer shadow-xs"
+          >
+            <Briefcase className="w-4 h-4 text-ht-emerald" />
+            <span>Répartir dans les secteurs</span>
           </button>
 
           <button
@@ -379,6 +389,12 @@ export const MembresView = () => {
       <MembreDetailDrawer
         membreId={selectedMembreId}
         onClose={() => setSelectedMembreId(null)}
+      />
+
+      {/* Repartition Secteurs Modal */}
+      <RepartitionSecteursModal
+        isOpen={isRepartitionModalOpen}
+        onClose={() => setIsRepartitionModalOpen(false)}
       />
     </div>
   );

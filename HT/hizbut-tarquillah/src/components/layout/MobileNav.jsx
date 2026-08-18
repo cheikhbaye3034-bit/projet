@@ -43,8 +43,8 @@ export const MobileNav = ({ isOpen, onClose }) => {
               HT
             </div>
             <div>
-              <h1 className="font-display font-bold text-base text-ht-ink">Hizbut-Tarqiyyah</h1>
-              <p className="text-[11px] text-ht-inkSoft">Association Religieuse</p>
+              <h1 className="font-display font-bold text-base text-ht-ink">Daara Hizbut-Tarqiyyah</h1>
+              <p className="text-[11px] text-ht-emerald font-semibold">Gestion de la Daara</p>
             </div>
           </div>
           <button

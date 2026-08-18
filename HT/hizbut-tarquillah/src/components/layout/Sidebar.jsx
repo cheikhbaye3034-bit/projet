@@ -34,9 +34,9 @@ export const Sidebar = () => {
         </div>
         <div>
           <h1 className="font-display font-extrabold text-base text-ht-ink leading-tight">
-            Hizbut-Tarqiyyah
+            Daara Hizbut-Tarqiyyah
           </h1>
-          <p className="text-[11px] text-ht-emerald font-bold">SaaS Officiel Association</p>
+          <p className="text-[11px] text-ht-emerald font-bold">Gestion de la Daara</p>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   INITIAL_ZONES,
   INITIAL_KOURELS,
+  INITIAL_SECTEURS,
   INITIAL_MEMBRES,
   INITIAL_KHASSIDAS,
   INITIAL_SONS_AUDIO,
@@ -28,9 +29,10 @@ export const AppProvider = ({ children }) => {
   // State Entities
   const [zones, setZones] = useState(INITIAL_ZONES);
   const [kourels, setKourels] = useState(INITIAL_KOURELS);
+  const [secteurs, setSecteurs] = useState(INITIAL_SECTEURS);
   const [membres, setMembres] = useState(INITIAL_MEMBRES);
-  const [khassidas] = useState(INITIAL_KHASSIDAS);
-  const [sonsAudio] = useState(INITIAL_SONS_AUDIO);
+  const [khassidas, setKhassidas] = useState(INITIAL_KHASSIDAS);
+  const [sonsAudio, setSonsAudio] = useState(INITIAL_SONS_AUDIO);
   const [seances, setSeances] = useState(INITIAL_SEANCES);
   const [kamilCycle, setKamilCycle] = useState(INITIAL_KAMIL_CYCLE);
   const [pastKamilCycles] = useState(PAST_KAMIL_CYCLES);
@@ -234,6 +236,61 @@ export const AppProvider = ({ children }) => {
     showToast(`Zone "${target ? target.nom : ''}" supprimée.`, 'info');
   };
 
+  // Khassidas actions
+  const addKhassida = (khassidaData) => {
+    const newKhassida = {
+      ...khassidaData,
+      id: 'kh_' + Date.now(),
+      auteur: khassidaData.auteur || 'Cheikh Ahmadou Bamba',
+      duree_estimee: khassidaData.duree_estimee || '20 min',
+      versets_count: Number(khassidaData.versets_count) || 100
+    };
+    setKhassidas((prev) => [newKhassida, ...prev]);
+    showToast(`Khassida "${newKhassida.titre}" ajoutée au programme avec succès !`);
+  };
+
+  const deleteKhassida = (id) => {
+    const target = khassidas.find((kh) => kh.id === id);
+    setKhassidas((prev) => prev.filter((kh) => kh.id !== id));
+    showToast(`Khassida "${target ? target.titre : ''}" supprimée du programme.`, 'info');
+  };
+
+  // Sons Audio actions
+  const addSonAudio = (sonData) => {
+    const newSon = {
+      ...sonData,
+      id: 'son_' + Date.now(),
+      date_enregistrement: new Date().toISOString().split('T')[0],
+      qualite: sonData.qualite || 'HQ 320 kbps',
+      taille: sonData.taille || '15.0 Mo'
+    };
+    setSonsAudio((prev) => [newSon, ...prev]);
+    showToast(`Audio de référence "${newSon.titre}" ajouté avec succès !`);
+  };
+
+  const deleteSonAudio = (id) => {
+    const target = sonsAudio.find((s) => s.id === id);
+    setSonsAudio((prev) => prev.filter((s) => s.id !== id));
+    showToast(`Audio de référence "${target ? target.titre : ''}" supprimé.`, 'info');
+  };
+
+  // Secteurs de travail actions
+  const updateMembreSecteur = (membreId, newSecteurId) => {
+    setMembres((prev) =>
+      prev.map((m) => (m.id === membreId ? { ...m, secteur_id: newSecteurId } : m))
+    );
+    const sec = secteurs.find((s) => s.id === newSecteurId);
+    showToast(`Secteur mis à jour : ${sec ? sec.nom : 'Non affecté'}`);
+  };
+
+  const bulkAssignSecteur = (membreIds, newSecteurId) => {
+    setMembres((prev) =>
+      prev.map((m) => (membreIds.includes(m.id) ? { ...m, secteur_id: newSecteurId } : m))
+    );
+    const sec = secteurs.find((s) => s.id === newSecteurId);
+    showToast(`${membreIds.length} membre(s) affecté(s) au secteur : ${sec ? sec.nom : 'Non affecté'}`);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -243,6 +300,7 @@ export const AppProvider = ({ children }) => {
         setActiveTab,
         zones,
         kourels,
+        secteurs,
         membres,
         khassidas,
         sonsAudio,
@@ -268,7 +326,13 @@ export const AppProvider = ({ children }) => {
         bulkUpdateMembreZone,
         updateZoneResponsable,
         addZone,
-        deleteZone
+        deleteZone,
+        addKhassida,
+        deleteKhassida,
+        addSonAudio,
+        deleteSonAudio,
+        updateMembreSecteur,
+        bulkAssignSecteur
       }}
     >
       {children}
