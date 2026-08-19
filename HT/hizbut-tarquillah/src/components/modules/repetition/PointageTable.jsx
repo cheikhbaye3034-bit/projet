@@ -1,9 +1,13 @@
-import React from 'react';
-import { CheckCircle2, Clock, XCircle, UserCheck, ShieldCheck } from 'lucide-react';
+import React, { useState } from 'react';
+import { CheckCircle2, Clock, XCircle, UserCheck, ShieldCheck, Zap } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
+import { PointageRapideModal } from './PointageRapideModal';
 
 export const PointageTable = ({ seance, membersOfKourel }) => {
-  const { updatePointage, currentUser } = useApp();
+  const { updatePointage, bulkUpdatePointage, currentUser } = useApp();
+
+  const [isRapideModalOpen, setIsRapideModalOpen] = useState(false);
+  const [targetStatut, setTargetStatut] = useState('Présent');
 
   if (!seance) {
     return (
@@ -13,6 +17,11 @@ export const PointageTable = ({ seance, membersOfKourel }) => {
     );
   }
 
+  const openRapideModal = (statut) => {
+    setTargetStatut(statut);
+    setIsRapideModalOpen(true);
+  };
+
   // Calculate stats for current seance pointage
   const totalMembers = membersOfKourel.length;
   let presents = 0;
@@ -20,7 +29,7 @@ export const PointageTable = ({ seance, membersOfKourel }) => {
   let absents = 0;
 
   membersOfKourel.forEach((m) => {
-    const p = seance.presences.find((item) => item.membre_id === m.id);
+    const p = seance.presences?.find((item) => item.membre_id === m.id);
     if (p) {
       if (p.statut === 'Présent') presents++;
       else if (p.statut === 'En retard') retards++;
@@ -60,6 +69,34 @@ export const PointageTable = ({ seance, membersOfKourel }) => {
         </div>
       </div>
 
+      {/* Quick Action Toolbar for Bulk & Interactive Pointage */}
+      <div className="p-4 bg-ht-page/80 border-b border-ht-line flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Zap className="w-4 h-4 text-ht-amber" />
+          <span className="text-xs font-bold text-ht-ink">Saisie Rapide des Présences & Retards :</span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            onClick={() => openRapideModal('Présent')}
+            className="btn-anim px-4 py-2 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
+            title="Saisir / Cocher les membres présents"
+          >
+            <CheckCircle2 className="w-4 h-4" />
+            <span>Pointer les Présents</span>
+          </button>
+
+          <button
+            onClick={() => openRapideModal('En retard')}
+            className="btn-anim px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
+            title="Saisir / Cocher les membres en retard"
+          >
+            <Clock className="w-4 h-4" />
+            <span>Pointer les Retards</span>
+          </button>
+        </div>
+      </div>
+
       {/* Pointage Members Table */}
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
@@ -73,7 +110,7 @@ export const PointageTable = ({ seance, membersOfKourel }) => {
           </thead>
           <tbody className="divide-y divide-ht-line text-sm text-ht-ink font-medium">
             {membersOfKourel.map((membre) => {
-              const presence = seance.presences.find((p) => p.membre_id === membre.id);
+              const presence = seance.presences?.find((p) => p.membre_id === membre.id);
               const currentStatut = presence?.statut || 'Non pointé';
               const heureArrivee = presence?.heure_arrivee || '';
 
@@ -167,6 +204,15 @@ export const PointageTable = ({ seance, membersOfKourel }) => {
           </tbody>
         </table>
       </div>
+
+      {/* Interactive Rapid Pointage Modal */}
+      <PointageRapideModal
+        isOpen={isRapideModalOpen}
+        onClose={() => setIsRapideModalOpen(false)}
+        seance={seance}
+        membersOfKourel={membersOfKourel}
+        statutTarget={targetStatut}
+      />
     </div>
   );
 };

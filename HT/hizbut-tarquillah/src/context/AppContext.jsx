@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 import {
   INITIAL_ZONES,
   INITIAL_KOURELS,
@@ -26,6 +27,9 @@ export const AppProvider = ({ children }) => {
   });
   const [activeTab, setActiveTab] = useState('accueil'); // accueil, dashboard, membres, repetition, kamil, info, login
 
+  // Loading state for Supabase
+  const [isLoading, setIsLoading] = useState(true);
+
   // State Entities
   const [zones, setZones] = useState(INITIAL_ZONES);
   const [kourels, setKourels] = useState(INITIAL_KOURELS);
@@ -49,6 +53,82 @@ export const AppProvider = ({ children }) => {
     setTimeout(() => setToast(null), 3500);
   };
 
+  // Initial Fetch from Supabase
+  useEffect(() => {
+    const fetchDataFromSupabase = async () => {
+      try {
+        setIsLoading(true);
+
+        const [
+          { data: dbZones },
+          { data: dbKourels },
+          { data: dbSecteurs },
+          { data: dbMembres },
+          { data: dbKhassidas },
+          { data: dbSons },
+          { data: dbSeances },
+          { data: dbPresences },
+          { data: dbCycles },
+          { data: dbAssignations },
+          { data: dbInfos }
+        ] = await Promise.all([
+          supabase.from('zones').select('*'),
+          supabase.from('kourels').select('*'),
+          supabase.from('secteurs').select('*'),
+          supabase.from('membres').select('*'),
+          supabase.from('khassidas').select('*'),
+          supabase.from('sons_audio').select('*'),
+          supabase.from('seances').select('*'),
+          supabase.from('presences').select('*'),
+          supabase.from('kamil_cycles').select('*'),
+          supabase.from('juz_assignations').select('*'),
+          supabase.from('informations').select('*')
+        ]);
+
+        if (dbZones && dbZones.length > 0) setZones(dbZones);
+        if (dbKourels && dbKourels.length > 0) setKourels(dbKourels);
+        if (dbSecteurs && dbSecteurs.length > 0) setSecteurs(dbSecteurs);
+        if (dbMembres && dbMembres.length > 0) setMembres(dbMembres);
+        if (dbKhassidas && dbKhassidas.length > 0) setKhassidas(dbKhassidas);
+        if (dbSons && dbSons.length > 0) setSonsAudio(dbSons);
+        if (dbInfos && dbInfos.length > 0) setInformations(dbInfos);
+
+        if (dbSeances && dbSeances.length > 0) {
+          const formattedSeances = dbSeances.map((s) => {
+            const seancePresences = (dbPresences || [])
+              .filter((p) => p.seance_id === s.id)
+              .map((p) => ({
+                membre_id: p.membre_id,
+                statut: p.statut,
+                heure_arrivee: p.heure_arrivee || '',
+                justifie: !!p.justifie
+              }));
+            return { ...s, presences: seancePresences };
+          });
+          setSeances(formattedSeances);
+        }
+
+        if (dbCycles && dbCycles.length > 0) {
+          const activeCycle = dbCycles.find((c) => c.statut === 'En cours') || dbCycles[0];
+          const cycleAssignations = (dbAssignations || [])
+            .filter((a) => a.cycle_id === activeCycle.id)
+            .sort((a, b) => a.juz - b.juz);
+          
+          setKamilCycle({
+            ...activeCycle,
+            assignations: cycleAssignations.length > 0 ? cycleAssignations : INITIAL_KAMIL_CYCLE.assignations
+          });
+        }
+      } catch (err) {
+        console.error('Erreur de chargement Supabase, fallback sur données locales:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDataFromSupabase();
+  }, []);
+
   // Auth actions
   const login = (identifier, password) => {
     setIsAuthenticated(true);
@@ -63,7 +143,7 @@ export const AppProvider = ({ children }) => {
   };
 
   // Membres Actions
-  const addMembre = (membreData) => {
+  const addMembre = async (membreData) => {
     const newMembre = {
       ...membreData,
       id: 'm_' + Date.now(),
@@ -72,35 +152,72 @@ export const AppProvider = ({ children }) => {
     };
     setMembres((prev) => [newMembre, ...prev]);
     showToast(`Membre ${newMembre.prenom} ${newMembre.nom} ajouté avec succès !`);
+
+    try {
+      await supabase.from('membres').insert([newMembre]);
+    } catch (e) {
+      console.error('Erreur Supabase addMembre:', e);
+    }
   };
 
-  const deleteMembre = (membreId) => {
+  const deleteMembre = async (membreId) => {
     const target = membres.find(m => m.id === membreId);
     setMembres((prev) => prev.filter(m => m.id !== membreId));
     if (selectedMembreId === membreId) setSelectedMembreId(null);
     showToast(`Membre ${target ? target.prenom + ' ' + target.nom : ''} supprimé avec succès.`, 'info');
+
+    try {
+      await supabase.from('membres').delete().eq('id', membreId);
+    } catch (e) {
+      console.error('Erreur Supabase deleteMembre:', e);
+    }
   };
 
   // Seance Pointage Actions
-  const updatePointage = (seanceId, membreId, newStatut, heureArrivee = '') => {
+  const addSeance = async (seanceData) => {
+    const newSeance = {
+      ...seanceData,
+      id: 's_' + Date.now(),
+      statut: seanceData.statut || 'En cours',
+      presences: seanceData.presences || []
+    };
+    setSeances((prev) => [newSeance, ...prev]);
+    showToast(`Nouvelle feuille de pointage créée pour la séance du ${newSeance.date} !`);
+
+    try {
+      const { presences, ...seanceDbFields } = newSeance;
+      await supabase.from('seances').insert([seanceDbFields]);
+    } catch (e) {
+      console.error('Erreur Supabase addSeance:', e);
+    }
+    return newSeance;
+  };
+
+  const updatePointage = async (seanceId, membreId, newStatut, heureArrivee = '') => {
+    let finalHeureArrivee = '';
+    
     setSeances((prevSeances) =>
       prevSeances.map((s) => {
         if (s.id !== seanceId) return s;
 
         const existingPresenceIndex = s.presences.findIndex((p) => p.membre_id === membreId);
         let updatedPresences = [...s.presences];
+        
+        finalHeureArrivee = newStatut === 'En retard' 
+          ? (heureArrivee || new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })) 
+          : (newStatut === 'Présent' ? s.heure_debut : '');
 
         if (existingPresenceIndex >= 0) {
           updatedPresences[existingPresenceIndex] = {
             ...updatedPresences[existingPresenceIndex],
             statut: newStatut,
-            heure_arrivee: newStatut === 'En retard' ? (heureArrivee || new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })) : (newStatut === 'Présent' ? s.heure_debut : '')
+            heure_arrivee: finalHeureArrivee
           };
         } else {
           updatedPresences.push({
             membre_id: membreId,
             statut: newStatut,
-            heure_arrivee: newStatut === 'En retard' ? heureArrivee : (newStatut === 'Présent' ? s.heure_debut : ''),
+            heure_arrivee: finalHeureArrivee,
             justifie: false
           });
         }
@@ -109,10 +226,68 @@ export const AppProvider = ({ children }) => {
       })
     );
     showToast(`Présence mise à jour : ${newStatut}`);
+
+    try {
+      await supabase.from('presences').upsert([{
+        seance_id: seanceId,
+        membre_id: membreId,
+        statut: newStatut,
+        heure_arrivee: finalHeureArrivee,
+        justifie: false
+      }], { onConflict: 'seance_id,membre_id' });
+    } catch (e) {
+      console.error('Erreur Supabase updatePointage:', e);
+    }
+  };
+
+  const bulkUpdatePointage = async (seanceId, memberIds, newStatut) => {
+    setSeances((prevSeances) =>
+      prevSeances.map((s) => {
+        if (s.id !== seanceId) return s;
+
+        let updatedPresences = [...s.presences];
+        memberIds.forEach((mId) => {
+          const existingIndex = updatedPresences.findIndex((p) => p.membre_id === mId);
+          const hArrivee = newStatut === 'En retard' ? '20:15' : (newStatut === 'Présent' ? s.heure_debut : '');
+          if (existingIndex >= 0) {
+            updatedPresences[existingIndex] = {
+              ...updatedPresences[existingIndex],
+              statut: newStatut,
+              heure_arrivee: hArrivee
+            };
+          } else {
+            updatedPresences.push({
+              membre_id: mId,
+              statut: newStatut,
+              heure_arrivee: hArrivee,
+              justifie: false
+            });
+          }
+        });
+
+        return { ...s, presences: updatedPresences };
+      })
+    );
+    showToast(`Pointage rapide effectué : Tous marqués "${newStatut}" !`);
+
+    try {
+      const currentSeance = seances.find(s => s.id === seanceId);
+      const rows = memberIds.map(mId => ({
+        seance_id: seanceId,
+        membre_id: mId,
+        statut: newStatut,
+        heure_arrivee: newStatut === 'En retard' ? '20:15' : (newStatut === 'Présent' ? (currentSeance?.heure_debut || '20:00') : ''),
+        justifie: false
+      }));
+      await supabase.from('presences').upsert(rows, { onConflict: 'seance_id,membre_id' });
+    } catch (e) {
+      console.error('Erreur Supabase bulkUpdatePointage:', e);
+    }
   };
 
   // Kamil Actions
-  const updateJuzStatut = (juzNumber, newStatut) => {
+  const updateJuzStatut = async (juzNumber, newStatut) => {
+    const valideeDate = newStatut === 'Terminé' ? new Date().toISOString().split('T')[0] : '';
     setKamilCycle((prev) => ({
       ...prev,
       assignations: prev.assignations.map((item) => {
@@ -120,14 +295,24 @@ export const AppProvider = ({ children }) => {
         return {
           ...item,
           statut: newStatut,
-          date_validee: newStatut === 'Terminé' ? new Date().toISOString().split('T')[0] : item.date_validee
+          date_validee: valideeDate
         };
       })
     }));
     showToast(`Juz' ${juzNumber} marqué comme "${newStatut}"`);
+
+    try {
+      await supabase
+        .from('juz_assignations')
+        .update({ statut: newStatut, date_validee: valideeDate })
+        .eq('cycle_id', kamilCycle.id)
+        .eq('juz', juzNumber);
+    } catch (e) {
+      console.error('Erreur Supabase updateJuzStatut:', e);
+    }
   };
 
-  const assignJuzToMembre = (juzNumber, membreId) => {
+  const assignJuzToMembre = async (juzNumber, membreId) => {
     setKamilCycle(prev => ({
       ...prev,
       assignations: prev.assignations.map(item => {
@@ -137,22 +322,34 @@ export const AppProvider = ({ children }) => {
     }));
     const m = membres.find(mem => mem.id === membreId);
     const name = m ? `${m.prenom} ${m.nom}` : 'Membre';
-    showToast(`Juki ${juzNumber} attribué à ${name}`);
+    showToast(`Juz' ${juzNumber} attribué à ${name}`);
+
+    try {
+      await supabase
+        .from('juz_assignations')
+        .update({ membre_id: membreId })
+        .eq('cycle_id', kamilCycle.id)
+        .eq('juz', juzNumber);
+    } catch (e) {
+      console.error('Erreur Supabase assignJuzToMembre:', e);
+    }
   };
 
-  const lancerNouveauCycle = (dureeSemaines = 2, modeAssignation = 'auto') => {
+  const lancerNouveauCycle = async (dureeSemaines = 2, modeAssignation = 'auto') => {
     const today = new Date();
     const endDate = new Date();
     endDate.setDate(today.getDate() + (dureeSemaines * 7));
 
     const activeMembres = membres.filter(m => m.statut === 'Actif');
+    const newCycleId = 'cycle-' + Date.now();
+    const newCycleNum = (kamilCycle?.numero_cycle || 41) + 1;
 
     const newAssignations = Array.from({ length: 30 }, (_, i) => {
       const juzNum = i + 1;
       const assignedMembre = activeMembres[i % activeMembres.length];
       return {
         juz: juzNum,
-        membre_id: assignedMembre ? assignedMembre.id : membres[0].id,
+        membre_id: assignedMembre ? assignedMembre.id : (membres[0]?.id || 'm1'),
         nom_juz: `Juz' ${juzNum}`,
         statut: 'À faire',
         date_validee: ''
@@ -160,8 +357,8 @@ export const AppProvider = ({ children }) => {
     });
 
     const newCycle = {
-      id: 'cycle-' + Date.now(),
-      numero_cycle: kamilCycle.numero_cycle + 1,
+      id: newCycleId,
+      numero_cycle: newCycleNum,
       date_debut: today.toISOString().split('T')[0],
       date_fin_prevue: endDate.toISOString().split('T')[0],
       statut: 'En cours',
@@ -171,10 +368,27 @@ export const AppProvider = ({ children }) => {
 
     setKamilCycle(newCycle);
     showToast(`Nouveau Cycle Kamil #${newCycle.numero_cycle} lancé avec succès !`);
+
+    try {
+      const { assignations, ...cycleFields } = newCycle;
+      await supabase.from('kamil_cycles').insert([cycleFields]);
+      
+      const dbAssignations = assignations.map(a => ({
+        cycle_id: newCycleId,
+        juz: a.juz,
+        membre_id: a.membre_id,
+        nom_juz: a.nom_juz,
+        statut: a.statut,
+        date_validee: a.date_validee
+      }));
+      await supabase.from('juz_assignations').insert(dbAssignations);
+    } catch (e) {
+      console.error('Erreur Supabase lancerNouveauCycle:', e);
+    }
   };
 
   // Information Actions
-  const addInformation = (infoData) => {
+  const addInformation = async (infoData) => {
     const newInfo = {
       ...infoData,
       id: 'inf_' + Date.now(),
@@ -183,40 +397,72 @@ export const AppProvider = ({ children }) => {
     };
     setInformations((prev) => [newInfo, ...prev]);
     showToast('Actualité publiée avec succès !');
+
+    try {
+      await supabase.from('informations').insert([newInfo]);
+    } catch (e) {
+      console.error('Erreur Supabase addInformation:', e);
+    }
   };
 
-  const togglePinInformation = (infoId) => {
+  const togglePinInformation = async (infoId) => {
+    const target = informations.find(i => i.id === infoId);
+    const newPinned = !target?.epingle;
     setInformations((prev) =>
-      prev.map((item) => (item.id === infoId ? { ...item, epingle: !item.epingle } : item))
+      prev.map((item) => (item.id === infoId ? { ...item, epingle: newPinned } : item))
     );
     showToast('Statut d\'épinglage modifié.');
+
+    try {
+      await supabase.from('informations').update({ epingle: newPinned }).eq('id', infoId);
+    } catch (e) {
+      console.error('Erreur Supabase togglePinInformation:', e);
+    }
   };
 
   // Zone Actions
-  const updateMembreZone = (membreId, newZoneId) => {
+  const updateMembreZone = async (membreId, newZoneId) => {
     setMembres((prev) =>
       prev.map((m) => (m.id === membreId ? { ...m, zone_id: newZoneId } : m))
     );
     const z = zones.find((z) => z.id === newZoneId);
     showToast(`Membre réaffecté à : ${z ? z.nom : 'Non affecté'}`);
+
+    try {
+      await supabase.from('membres').update({ zone_id: newZoneId }).eq('id', membreId);
+    } catch (e) {
+      console.error('Erreur Supabase updateMembreZone:', e);
+    }
   };
 
-  const bulkUpdateMembreZone = (membreIds, newZoneId) => {
+  const bulkUpdateMembreZone = async (membreIds, newZoneId) => {
     setMembres((prev) =>
       prev.map((m) => (membreIds.includes(m.id) ? { ...m, zone_id: newZoneId } : m))
     );
     const z = zones.find((z) => z.id === newZoneId);
     showToast(`${membreIds.length} membre(s) réaffecté(s) à : ${z ? z.nom : 'Non affecté'}`);
+
+    try {
+      await supabase.from('membres').update({ zone_id: newZoneId }).in('id', membreIds);
+    } catch (e) {
+      console.error('Erreur Supabase bulkUpdateMembreZone:', e);
+    }
   };
 
-  const updateZoneResponsable = (zoneId, newResponsable) => {
+  const updateZoneResponsable = async (zoneId, newResponsable) => {
     setZones((prev) =>
       prev.map((z) => (z.id === zoneId ? { ...z, responsable: newResponsable } : z))
     );
     showToast('Superviseur de la zone mis à jour avec succès.');
+
+    try {
+      await supabase.from('zones').update({ responsable: newResponsable }).eq('id', zoneId);
+    } catch (e) {
+      console.error('Erreur Supabase updateZoneResponsable:', e);
+    }
   };
 
-  const addZone = (zoneData) => {
+  const addZone = async (zoneData) => {
     const newZone = {
       ...zoneData,
       id: 'z_' + Date.now(),
@@ -225,19 +471,31 @@ export const AppProvider = ({ children }) => {
     };
     setZones((prev) => [...prev, newZone]);
     showToast(`Zone "${newZone.nom}" créée avec succès !`);
+
+    try {
+      await supabase.from('zones').insert([newZone]);
+    } catch (e) {
+      console.error('Erreur Supabase addZone:', e);
+    }
   };
 
-  const deleteZone = (zoneId) => {
+  const deleteZone = async (zoneId) => {
     const target = zones.find((z) => z.id === zoneId);
     setZones((prev) => prev.filter((z) => z.id !== zoneId));
     setMembres((prev) =>
       prev.map((m) => (m.zone_id === zoneId ? { ...m, zone_id: '' } : m))
     );
     showToast(`Zone "${target ? target.nom : ''}" supprimée.`, 'info');
+
+    try {
+      await supabase.from('zones').delete().eq('id', zoneId);
+    } catch (e) {
+      console.error('Erreur Supabase deleteZone:', e);
+    }
   };
 
   // Khassidas actions
-  const addKhassida = (khassidaData) => {
+  const addKhassida = async (khassidaData) => {
     const newKhassida = {
       ...khassidaData,
       id: 'kh_' + Date.now(),
@@ -247,16 +505,28 @@ export const AppProvider = ({ children }) => {
     };
     setKhassidas((prev) => [newKhassida, ...prev]);
     showToast(`Khassida "${newKhassida.titre}" ajoutée au programme avec succès !`);
+
+    try {
+      await supabase.from('khassidas').insert([newKhassida]);
+    } catch (e) {
+      console.error('Erreur Supabase addKhassida:', e);
+    }
   };
 
-  const deleteKhassida = (id) => {
+  const deleteKhassida = async (id) => {
     const target = khassidas.find((kh) => kh.id === id);
     setKhassidas((prev) => prev.filter((kh) => kh.id !== id));
     showToast(`Khassida "${target ? target.titre : ''}" supprimée du programme.`, 'info');
+
+    try {
+      await supabase.from('khassidas').delete().eq('id', id);
+    } catch (e) {
+      console.error('Erreur Supabase deleteKhassida:', e);
+    }
   };
 
   // Sons Audio actions
-  const addSonAudio = (sonData) => {
+  const addSonAudio = async (sonData) => {
     const newSon = {
       ...sonData,
       id: 'son_' + Date.now(),
@@ -266,34 +536,59 @@ export const AppProvider = ({ children }) => {
     };
     setSonsAudio((prev) => [newSon, ...prev]);
     showToast(`Audio de référence "${newSon.titre}" ajouté avec succès !`);
+
+    try {
+      await supabase.from('sons_audio').insert([newSon]);
+    } catch (e) {
+      console.error('Erreur Supabase addSonAudio:', e);
+    }
   };
 
-  const deleteSonAudio = (id) => {
+  const deleteSonAudio = async (id) => {
     const target = sonsAudio.find((s) => s.id === id);
     setSonsAudio((prev) => prev.filter((s) => s.id !== id));
     showToast(`Audio de référence "${target ? target.titre : ''}" supprimé.`, 'info');
+
+    try {
+      await supabase.from('sons_audio').delete().eq('id', id);
+    } catch (e) {
+      console.error('Erreur Supabase deleteSonAudio:', e);
+    }
   };
 
   // Secteurs de travail actions
-  const updateMembreSecteur = (membreId, newSecteurId) => {
+  const updateMembreSecteur = async (membreId, newSecteurId) => {
     setMembres((prev) =>
       prev.map((m) => (m.id === membreId ? { ...m, secteur_id: newSecteurId } : m))
     );
     const sec = secteurs.find((s) => s.id === newSecteurId);
     showToast(`Secteur mis à jour : ${sec ? sec.nom : 'Non affecté'}`);
+
+    try {
+      await supabase.from('membres').update({ secteur_id: newSecteurId }).eq('id', membreId);
+    } catch (e) {
+      console.error('Erreur Supabase updateMembreSecteur:', e);
+    }
   };
 
-  const bulkAssignSecteur = (membreIds, newSecteurId) => {
+  const bulkAssignSecteur = async (membreIds, newSecteurId) => {
     setMembres((prev) =>
       prev.map((m) => (membreIds.includes(m.id) ? { ...m, secteur_id: newSecteurId } : m))
     );
     const sec = secteurs.find((s) => s.id === newSecteurId);
     showToast(`${membreIds.length} membre(s) affecté(s) au secteur : ${sec ? sec.nom : 'Non affecté'}`);
+
+    try {
+      await supabase.from('membres').update({ secteur_id: newSecteurId }).in('id', membreIds);
+    } catch (e) {
+      console.error('Erreur Supabase bulkAssignSecteur:', e);
+    }
   };
 
   return (
     <AppContext.Provider
       value={{
+        isLoading,
         isAuthenticated,
         currentUser,
         activeTab,
@@ -316,7 +611,9 @@ export const AppProvider = ({ children }) => {
         logout,
         addMembre,
         deleteMembre,
+        addSeance,
         updatePointage,
+        bulkUpdatePointage,
         updateJuzStatut,
         assignJuzToMembre,
         lancerNouveauCycle,

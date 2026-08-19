@@ -59,3 +59,14 @@
 .badge-absent {
   @apply bg-ht-clayLight text-ht-clay border border-red-200 font-medium rounded-full px-2.5 py-0.5 text-xs inline-flex items-center gap-1;
 }
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}

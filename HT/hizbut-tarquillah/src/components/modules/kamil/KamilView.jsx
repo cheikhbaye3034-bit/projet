@@ -119,48 +119,54 @@ export const KamilView = () => {
           </div>
         </div>
 
-        {/* Stat Card 3: Jours restants (Non-cliquable) */}
+        {/* Stat Card 3: Parties en cours / Jours restants (Clickable) */}
         <div
-          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 cursor-default relative overflow-hidden"
+          onClick={() => handleOpenDetails('encours')}
+          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+          title="Cliquer pour voir les Juki en cours et à faire"
         >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-amber-50 text-ht-amber flex items-center justify-center font-bold border border-amber-200">
+            <div className="w-11 h-11 rounded-2xl bg-amber-50 text-ht-amber flex items-center justify-center font-bold border border-amber-200 group-hover:scale-105 transition-transform">
               <Clock className="w-6 h-6 text-ht-amber" />
             </div>
-            <span className="px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full border border-red-200 flex items-center gap-1">
-              <ArrowDownRight className="w-3.5 h-3.5 text-red-600" />
-              <span>Échéance proche</span>
+            <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200 flex items-center gap-1">
+              <Eye className="w-3.5 h-3.5" />
+              <span>Voir restants</span>
             </span>
           </div>
           <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">
-              {daysRemaining || 6}
+            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-ht-amber transition-colors">
+              {enCours + aFaire}/30
             </div>
-            <div className="text-xs text-ht-sage font-semibold mt-1">
-              <span>Jours restants</span>
+            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
+              <span>Parties restantes ({daysRemaining}j restants)</span>
+              <span className="text-[10px] text-ht-amber font-bold underline">Cliquez pour voir ➔</span>
             </div>
           </div>
         </div>
 
-        {/* Stat Card 4: Cycles terminés (Non-cliquable) */}
+        {/* Stat Card 4: Cycles terminés (Clickable) */}
         <div
-          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 cursor-default relative overflow-hidden"
+          onClick={() => handleOpenDetails('cycles')}
+          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+          title="Cliquer pour consulter l'historique des cycles Kamil"
         >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint">
-              <BookOpen className="w-6 h-6 text-ht-emerald" />
+            <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold border border-indigo-200 group-hover:scale-105 transition-transform">
+              <BookOpen className="w-6 h-6 text-indigo-600" />
             </div>
-            <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 flex items-center gap-1">
-              <ArrowUpRight className="w-3.5 h-3.5" />
-              <span>+1 ce mois</span>
+            <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full border border-indigo-200 flex items-center gap-1">
+              <Eye className="w-3.5 h-3.5" />
+              <span>Voir historique</span>
             </span>
           </div>
           <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">
+            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-indigo-600 transition-colors">
               {kamilCycle.numero_cycle - 1}
             </div>
-            <div className="text-xs text-ht-sage font-semibold mt-1">
+            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
               <span>Cycles terminés</span>
+              <span className="text-[10px] text-indigo-600 font-bold underline">Cliquez pour voir ➔</span>
             </div>
           </div>
         </div>
