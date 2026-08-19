@@ -119,13 +119,12 @@ export const KamilView = () => {
           </div>
         </div>
 
-        {/* Stat Card 3: Jours restants (Clickable) */}
+        {/* Stat Card 3: Jours restants (Non-cliquable) */}
         <div
-          onClick={() => handleOpenDetails('membres')}
-          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 cursor-default relative overflow-hidden"
         >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-amber-50 text-ht-amber flex items-center justify-center font-bold border border-amber-200 group-hover:scale-105 transition-transform">
+            <div className="w-11 h-11 rounded-2xl bg-amber-50 text-ht-amber flex items-center justify-center font-bold border border-amber-200">
               <Clock className="w-6 h-6 text-ht-amber" />
             </div>
             <span className="px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full border border-red-200 flex items-center gap-1">
@@ -134,23 +133,21 @@ export const KamilView = () => {
             </span>
           </div>
           <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-ht-amber transition-colors">
+            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">
               {daysRemaining || 6}
             </div>
-            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
+            <div className="text-xs text-ht-sage font-semibold mt-1">
               <span>Jours restants</span>
-              <span className="text-[10px] text-ht-amber font-bold underline">Aperçu ➔</span>
             </div>
           </div>
         </div>
 
-        {/* Stat Card 4: Cycles terminés (Clickable) */}
+        {/* Stat Card 4: Cycles terminés (Non-cliquable) */}
         <div
-          onClick={() => handleOpenDetails('termines')}
-          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-ht-mint hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
+          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 cursor-default relative overflow-hidden"
         >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint group-hover:scale-105 transition-transform">
+            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint">
               <BookOpen className="w-6 h-6 text-ht-emerald" />
             </div>
             <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 flex items-center gap-1">
@@ -159,12 +156,11 @@ export const KamilView = () => {
             </span>
           </div>
           <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-ht-emerald transition-colors">
+            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">
               {kamilCycle.numero_cycle - 1}
             </div>
-            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
+            <div className="text-xs text-ht-sage font-semibold mt-1">
               <span>Cycles terminés</span>
-              <span className="text-[10px] text-ht-emerald font-bold underline">Aperçu ➔</span>
             </div>
           </div>
         </div>

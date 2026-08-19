@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hizbut-Tarqiyyah — SaaS Officiel de Gestion</title>
+  <title>Daara Hizbut-Tarqiyyah — Gestion de la Daara</title>
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- React & ReactDOM (Pure JS, no Babel needed) -->
+  <!-- React & ReactDOM (Pure JS) -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
 
@@ -68,7 +68,7 @@
 
   <script>
     const e = React.createElement;
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useRef } = React;
 
     // SVG Icon Helper
     const Icon = ({ path, className = "w-5 h-5" }) => e('svg', {
@@ -100,48 +100,67 @@
       play: "M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z",
       user: "M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z",
       briefcase: "M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z",
-      mapPin: "M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+      folder: "M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z",
+      award: "M12 15l-2 5l9-5l-9-5l2 5zm0 0l-9 5l2-5l-2-5l9 5z",
+      arrowUp: "M7 11l5-5m0 0l5 5m-5-5v12"
     };
 
     // Images Assets
     const IMG_LOGO = "./1786985436277.png";
     const IMG_HERO = "./1786895192774.png";
+    const IMG_DASHBOARD = "./1779033727608.jpg";
     const IMG_INFO = "./1771881788502.jpg";
     const IMG_MODAL = "./1779138262345.jpg";
 
     const INITIAL_KOURELS = [
-      { id: 'k1', nom: 'Kourel 1 — Miftahoul Mouna', description: 'Groupe principal des chanteurs de khassidas' },
-      { id: 'k2', nom: 'Kourel 2 — Fathou Rahmane', description: 'Section récitation et mémorisation' },
-      { id: 'k3', nom: 'Kourel 3 — Khidmatoul Khadim', description: 'Section jeunes et apprentis' },
-      { id: 'k4', nom: 'Kourel 4 — Nurou Darayni', description: 'Section dames et accompagnatrices' },
+      { id: 'k1', nom: 'Kourel 1 — Miftahoul Mouna', description: 'Groupe principal des chanteurs de khassidas', superviseur: 'Serigne Modou Kara' },
+      { id: 'k2', nom: 'Kourel 2 — Fathou Rahmane', description: 'Section récitation et mémorisation', superviseur: 'Serigne Fallou Seck' },
+      { id: 'k3', nom: 'Kourel 3 — Khidmatoul Khadim', description: 'Section jeunes et apprentis', superviseur: 'Mouhamadou Bamba Sow' },
+      { id: 'k4', nom: 'Kourel 4 — Nurou Darayni', description: 'Section dames et accompagnatrices', superviseur: 'Sokhna Mame Diarra' },
+    ];
+
+    const INITIAL_SECTEURS = [
+      { id: 'sec1', nom: 'Commission Organisation & Logistique', code: 'ORG-LOG' },
+      { id: 'sec2', nom: 'Récitation & Kourel', code: 'REC-KOUR' },
+      { id: 'sec3', nom: 'Commission Restauration & Berndé', code: 'RESTO' },
+      { id: 'sec4', nom: 'Accueil & Protocole', code: 'PROT-ACC' },
+      { id: 'sec5', nom: 'Service Technique, Son & Médias', code: 'TECH-MEDIA' },
+      { id: 'sec6', nom: 'Secrétariat & Trésorerie', code: 'ADMIN-FIN' },
     ];
 
     const INITIAL_MEMBRES = [
-      { id: 'm1', nom: 'FALL', prenom: 'Modou', telephone: '+221 77 123 45 67', profession: 'Salarié', date_adhesion: '2021-02-10', statut: 'Actif', kourel_id: 'k1', presences: 12, retards: 1, absences: 0, cotisation_statut: 'À jour' },
-      { id: 'm2', nom: 'NDIAYE', prenom: 'Awa', telephone: '+221 78 234 56 78', profession: 'Étudiante', date_adhesion: '2020-05-12', statut: 'Actif', kourel_id: 'k1', presences: 10, retards: 2, absences: 1, cotisation_statut: 'À jour' },
-      { id: 'm3', nom: 'SOW', prenom: 'Ibrahima', telephone: '+221 70 345 67 89', profession: 'Salarié', date_adhesion: '2022-01-20', statut: 'Actif', kourel_id: 'k1', presences: 14, retards: 0, absences: 2, cotisation_statut: 'En retard' },
-      { id: 'm4', nom: 'DIOP', prenom: 'Mariama', telephone: '+221 76 456 78 90', profession: 'Élève', date_adhesion: '2023-04-15', statut: 'Actif', kourel_id: 'k2', presences: 8, retards: 3, absences: 0, cotisation_statut: 'À jour' },
-      { id: 'm5', nom: 'GUEYE', prenom: 'Cheikh', telephone: '+221 77 567 89 01', profession: 'Salarié', date_adhesion: '2019-11-03', statut: 'Actif', kourel_id: 'k2', presences: 15, retards: 0, absences: 0, cotisation_statut: 'À jour' },
-      { id: 'm6', nom: 'BA', prenom: 'Fatou', telephone: '+221 78 678 90 12', profession: 'Étudiante', date_adhesion: '2021-08-25', statut: 'Actif', kourel_id: 'k2', presences: 11, retards: 1, absences: 1, cotisation_statut: 'À jour' },
-      { id: 'm7', nom: 'TOURE', prenom: 'Serigne', telephone: '+221 70 789 01 23', profession: 'Autre', date_adhesion: '2022-09-14', statut: 'Actif', kourel_id: 'k3', presences: 9, retards: 2, absences: 3, cotisation_statut: 'En retard' },
-      { id: 'm8', nom: 'SY', prenom: 'Aïda', telephone: '+221 76 890 12 34', profession: 'Salariée', date_adhesion: '2020-03-30', statut: 'Actif', kourel_id: 'k3', presences: 13, retards: 0, absences: 1, cotisation_statut: 'À jour' },
-      { id: 'm9', nom: 'KANTE', prenom: 'Moustapha', telephone: '+221 77 901 23 45', profession: 'Salarié', date_adhesion: '2021-12-01', statut: 'Actif', kourel_id: 'k3', presences: 7, retards: 4, absences: 2, cotisation_statut: 'En retard' },
-      { id: 'm10', nom: 'FALL', prenom: 'Ndeye', telephone: '+221 78 012 34 56', profession: 'Étudiante', date_adhesion: '2023-01-10', statut: 'Actif', kourel_id: 'k4', presences: 12, retards: 1, absences: 0, cotisation_statut: 'À jour' },
-      { id: 'm11', nom: 'SARR', prenom: 'Fatou Bintou', telephone: '+221 70 123 45 67', profession: 'Salariée', date_adhesion: '2022-05-18', statut: 'Actif', kourel_id: 'k4', presences: 10, retards: 0, absences: 1, cotisation_statut: 'À jour' },
-      { id: 'm12', nom: 'KANE', prenom: 'Babacar', telephone: '+221 76 234 56 78', profession: 'Élève', date_adhesion: '2023-09-02', statut: 'Suspendu', kourel_id: 'k1', presences: 3, retards: 1, absences: 6, cotisation_statut: 'En retard' },
+      { id: 'm1', nom: 'MBACKE', prenom: 'Serigne Cheikh', telephone: '+221 77 123 45 67', profession: 'Salarié', date_adhesion: '2021-02-10', statut: 'Actif', kourel_id: 'k1', secteur_id: 'sec2', presences: 12, retards: 1, absences: 0, cotisation_statut: 'À jour' },
+      { id: 'm2', nom: 'NDIAYE', prenom: 'Cheikh Ahmadou', telephone: '+221 78 234 56 78', profession: 'Étudiant', date_adhesion: '2020-05-12', statut: 'Actif', kourel_id: 'k1', secteur_id: 'sec1', presences: 10, retards: 2, absences: 1, cotisation_statut: 'À jour' },
+      { id: 'm3', nom: 'DIOP', prenom: 'Moustapha', telephone: '+221 70 345 67 89', profession: 'Salarié', date_adhesion: '2022-01-20', statut: 'Actif', kourel_id: 'k1', secteur_id: 'sec5', presences: 14, retards: 0, absences: 2, cotisation_statut: 'En retard' },
+      { id: 'm4', nom: 'FALL', prenom: 'Ibrahima', telephone: '+221 76 456 78 90', profession: 'Élève', date_adhesion: '2023-04-15', statut: 'Actif', kourel_id: 'k2', secteur_id: 'sec2', presences: 8, retards: 3, absences: 0, cotisation_statut: 'À jour' },
+      { id: 'm5', nom: 'SOW', prenom: 'Mouhamadou Bamba', telephone: '+221 77 567 89 01', profession: 'Salarié', date_adhesion: '2019-11-03', statut: 'Actif', kourel_id: 'k2', secteur_id: 'sec3', presences: 15, retards: 0, absences: 0, cotisation_statut: 'À jour' },
+      { id: 'm6', nom: 'GUEYE', prenom: 'Khadim', telephone: '+221 78 678 90 12', profession: 'Étudiant', date_adhesion: '2021-08-25', statut: 'Actif', kourel_id: 'k2', secteur_id: 'sec4', presences: 11, retards: 1, absences: 1, cotisation_statut: 'En retard' },
+      { id: 'm7', nom: 'SECK', prenom: 'Abdoulaye', telephone: '+221 70 789 01 23', profession: 'Autre', date_adhesion: '2022-09-14', statut: 'Actif', kourel_id: 'k3', secteur_id: 'sec1', presences: 9, retards: 2, absences: 3, cotisation_statut: 'En retard' },
+      { id: 'm8', nom: 'SY', prenom: 'Serigne Fallou', telephone: '+221 76 890 12 34', profession: 'Salarié', date_adhesion: '2020-03-30', statut: 'Actif', kourel_id: 'k3', secteur_id: 'sec6', presences: 13, retards: 0, absences: 1, cotisation_statut: 'À jour' },
+      { id: 'm9', nom: 'LO', prenom: 'Ousmane', telephone: '+221 77 901 23 45', profession: 'Salarié', date_adhesion: '2021-12-01', statut: 'Actif', kourel_id: 'k3', secteur_id: 'sec3', presences: 7, retards: 4, absences: 2, cotisation_statut: 'À jour' },
+      { id: 'm10', nom: 'CISSE', prenom: 'Mame Diarra', telephone: '+221 78 012 34 56', profession: 'Étudiante', date_adhesion: '2023-01-10', statut: 'Actif', kourel_id: 'k4', secteur_id: 'sec4', presences: 12, retards: 1, absences: 0, cotisation_statut: 'À jour' },
+      { id: 'm11', nom: 'SARR', prenom: 'Fatou Bintou', telephone: '+221 70 123 45 67', profession: 'Salariée', date_adhesion: '2022-05-18', statut: 'Actif', kourel_id: 'k4', secteur_id: 'sec6', presences: 10, retards: 0, absences: 1, cotisation_statut: 'À jour' },
+      { id: 'm12', nom: 'KANE', prenom: 'Babacar', telephone: '+221 76 234 56 78', profession: 'Élève', date_adhesion: '2023-09-02', statut: 'Suspendu', kourel_id: 'k1', secteur_id: 'sec5', presences: 3, retards: 1, absences: 6, cotisation_statut: 'En retard' },
     ];
 
     const INITIAL_KHASSIDAS = [
-      { id: 'kh1', titre: 'Mawahibou Nafi (Les Dons du Profit)', auteur: 'Cheikh Ahmadou Bamba', versets: 120, niveau: 'Avancé', audio_ref: 'mawahibou_nafi_ref.mp3' },
-      { id: 'kh2', titre: 'Jalibatul Maratib (L’Attirante des Degrés)', auteur: 'Cheikh Ahmadou Bamba', versets: 85, niveau: 'Intermédiaire', audio_ref: 'jalibatul_maratib_ref.mp3' },
-      { id: 'kh3', titre: 'Assirou (Le Secret)', auteur: 'Cheikh Ahmadou Bamba', versets: 95, niveau: 'Expert', audio_ref: 'assirou_ref.mp3' },
-      { id: 'kh4', titre: 'Matlabul Fawzayni (La Quête du Bonheur)', auteur: 'Cheikh Ahmadou Bamba', versets: 150, niveau: 'Avancé', audio_ref: 'matlabul_fawzayni_ref.mp3' }
+      { id: 'kh1', titre: 'Mawahibou Nafi (Les Dons du Profit)', auteur: 'Cheikh Ahmadou Bamba', versets: 144, niveau: 'Avancé', percent: 85, file_name: 'Mawahibou_Nafi_Reference.pdf' },
+      { id: 'kh2', titre: 'Jalibatul Maratib (L’Attirante des Degrés)', auteur: 'Cheikh Ahmadou Bamba', versets: 98, niveau: 'Intermédiaire', percent: 65, file_name: 'Jalibatul_Maratib.pdf' },
+      { id: 'kh3', titre: 'Assirou (Le Secret)', auteur: 'Cheikh Ahmadou Bamba', versets: 54, niveau: 'Débutant', percent: 92, file_name: 'Assirou_Texte.pdf' },
+      { id: 'kh4', titre: 'Matlabul Fawzayni (La Quête du Bonheur)', auteur: 'Cheikh Ahmadou Bamba', versets: 180, niveau: 'Avancé', percent: 45, file_name: 'Matlabul_Fawzayni.pdf' }
+    ];
+
+    const INITIAL_AUDIOS_REF = [
+      { id: 'aud1', titre: 'Mawahibou Nafi — Version Officielle Kourel 1', khassida: 'Mawahibou Nafi', recitateur: 'Kourel Miftahoul Mouna', duree: '24:15', qualite: 'HQ 320 kbps', file_name: 'mawahibou_nafi_hq.mp3', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3' },
+      { id: 'aud2', titre: 'Jalibatul Maratib — Rythme Apprentissage', khassida: 'Jalibatul Maratib', recitateur: 'Serigne Modou Kara', duree: '17:40', qualite: 'HQ 256 kbps', file_name: 'jalibatul_maratib.mp3', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3' },
+      { id: 'aud3', titre: 'Assirou — Récitation Lente', khassida: 'Assirou', recitateur: 'Cheikh Ahmadou Ndiaye', duree: '12:10', qualite: 'HQ 192 kbps', file_name: 'assirou_lent.mp3', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3' },
+      { id: 'aud4', titre: 'Matlabul Fawzayni — Récitation Complète', khassida: 'Matlabul Fawzayni', recitateur: 'Kourel Nurou Darayni', duree: '29:50', qualite: 'HQ 320 kbps', file_name: 'matlabul_fawzayni.mp3', url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3' },
     ];
 
     const INITIAL_ENREGISTREMENTS = [
-      { id: 'rec1', titre: 'Répétition Générale Kourel 1 — Mawahibou Nafi', date: '2026-08-12', duree: '01:45:20', kourel: 'Kourel 1 — Miftahoul Mouna', auteur: 'Serigne Modou Kara' },
-      { id: 'rec2', titre: 'Séance Récitation Kourel 2 — Jalibatul Maratib', date: '2026-08-10', duree: '01:12:05', kourel: 'Kourel 2 — Fathou Rahmane', auteur: 'Serigne Fallou Seck' },
-      { id: 'rec3', titre: 'Répétition Nocturne — Assirou', date: '2026-08-08', duree: '02:05:40', kourel: 'Kourel 1 — Miftahoul Mouna', auteur: 'Cheikh Ahmadou Ndiaye' }
+      { id: 'rec1', titre: 'Répétition Générale Kourel 1 — Mawahibou Nafi', date: '2026-08-12', duree: '01:45:20', kourel: 'Kourel 1 — Miftahoul Mouna', auteur: 'Serigne Modou Kara', file_name: 'seance_k1_12aug.mp3' },
+      { id: 'rec2', titre: 'Séance Récitation Kourel 2 — Jalibatul Maratib', date: '2026-08-10', duree: '01:12:05', kourel: 'Kourel 2 — Fathou Rahmane', auteur: 'Serigne Fallou Seck', file_name: 'seance_k2_10aug.mp3' },
+      { id: 'rec3', titre: 'Répétition Nocturne — Assirou', date: '2026-08-08', duree: '02:05:40', kourel: 'Kourel 1 — Miftahoul Mouna', auteur: 'Cheikh Ahmadou Ndiaye', file_name: 'seance_k1_08aug.mp3' }
     ];
 
     const INITIAL_SEANCES = [
@@ -200,16 +219,18 @@
     ];
 
     function App() {
-      const [activeTab, setActiveTab] = useState('accueil');
-      const [repetitionSubTab, setRepetitionSubTab] = useState('pointage'); // 'pointage' | 'khassidas' | 'enregistrements'
+      const [activeTab, setActiveTab] = useState('dashboard');
+      const [repetitionSubTab, setRepetitionSubTab] = useState('khassidas'); // 'khassidas' | 'audios' | 'enregistrements' | 'pointage'
 
       const [membres, setMembres] = useState(INITIAL_MEMBRES);
       const [kourels] = useState(INITIAL_KOURELS);
+      const [secteurs] = useState(INITIAL_SECTEURS);
       const [seances, setSeances] = useState(INITIAL_SEANCES);
       const [kamilCycle, setKamilCycle] = useState(INITIAL_KAMIL_CYCLE);
       const [informations, setInformations] = useState(INITIAL_INFORMATIONS);
+      const [khassidas, setKhassidas] = useState(INITIAL_KHASSIDAS);
+      const [audiosRef, setAudiosRef] = useState(INITIAL_AUDIOS_REF);
       const [enregistrements, setEnregistrements] = useState(INITIAL_ENREGISTREMENTS);
-      const [khassidas] = useState(INITIAL_KHASSIDAS);
       const [toast, setToast] = useState(null);
 
       const [selectedKourelId, setSelectedKourelId] = useState('k1');
@@ -218,8 +239,23 @@
       const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
       const [selectedMembreModal, setSelectedMembreModal] = useState(null);
       const [isAttributionModalOpen, setIsAttributionModalOpen] = useState(false);
-      const [assignSearch, setAssignSearch] = useState('');
+      const [isKamilDetailsOpen, setIsKamilDetailsOpen] = useState(false);
+      const [kamilDetailsTab, setKamilDetailsTab] = useState('membres');
+      const [isRepartitionSecteursOpen, setIsRepartitionSecteursOpen] = useState(false);
+      
+      const [isAddKhassidaOpen, setIsAddKhassidaOpen] = useState(false);
+      const [isAddAudioOpen, setIsAddAudioOpen] = useState(false);
+      const [isAddEnregistrementOpen, setIsAddEnregistrementOpen] = useState(false);
       const [membreToDeleteId, setMembreToDeleteId] = useState('');
+
+      // Selected file names for modals
+      const [selectedFileNameKhassida, setSelectedFileNameKhassida] = useState('');
+      const [selectedFileNameAudio, setSelectedFileNameAudio] = useState('');
+      const [selectedFileNameRec, setSelectedFileNameRec] = useState('');
+
+      const fileInputKhassidaRef = useRef(null);
+      const fileInputAudioRef = useRef(null);
+      const fileInputRecRef = useRef(null);
 
       const showToast = (msg) => {
         setToast(msg);
@@ -239,6 +275,7 @@
           date_adhesion: new Date().toISOString().split('T')[0],
           statut: 'Actif',
           kourel_id: fd.get('kourel_id') || 'k1',
+          secteur_id: 'sec1',
           presences: 0,
           retards: 0,
           absences: 0,
@@ -260,6 +297,94 @@
           setMembreToDeleteId('');
           showToast("Membre supprimé avec succès de la base de données.");
         }
+      };
+
+      const handleAddKhassida = (ev) => {
+        ev.preventDefault();
+        const fd = new FormData(ev.target);
+        const newKh = {
+          id: 'kh_' + Date.now(),
+          titre: fd.get('titre'),
+          auteur: fd.get('auteur') || 'Cheikh Ahmadou Bamba',
+          versets: Number(fd.get('versets')) || 100,
+          niveau: fd.get('niveau') || 'Intermédiaire',
+          percent: 50,
+          file_name: selectedFileNameKhassida || 'document_khassida.pdf',
+          audio_ref: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+        };
+        setKhassidas([newKh, ...khassidas]);
+        setIsAddKhassidaOpen(false);
+        setSelectedFileNameKhassida('');
+        showToast(`Khassida "${newKh.titre}" ajoutée avec succès !`);
+      };
+
+      const handleDeleteKhassida = (id) => {
+        const target = khassidas.find(k => k.id === id);
+        if (confirm(`Voulez-vous supprimer la Khassida "${target ? target.titre : ''}" ?`)) {
+          setKhassidas(prev => prev.filter(k => k.id !== id));
+          showToast("Khassida supprimée du programme.");
+        }
+      };
+
+      const handleAddAudio = (ev) => {
+        ev.preventDefault();
+        const fd = new FormData(ev.target);
+        const newAud = {
+          id: 'aud_' + Date.now(),
+          titre: fd.get('titre'),
+          khassida: fd.get('khassida') || 'Mawahibou Nafi',
+          recitateur: fd.get('recitateur') || 'Kourel Miftahoul Mouna',
+          duree: '20:00',
+          qualite: 'HQ 320 kbps',
+          file_name: selectedFileNameAudio || 'audio_ref.mp3',
+          url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+        };
+        setAudiosRef([newAud, ...audiosRef]);
+        setIsAddAudioOpen(false);
+        setSelectedFileNameAudio('');
+        showToast(`Audio de référence "${newAud.titre}" ajouté !`);
+      };
+
+      const handleDeleteAudio = (id) => {
+        const target = audiosRef.find(a => a.id === id);
+        if (confirm(`Voulez-vous supprimer l'audio "${target ? target.titre : ''}" ?`)) {
+          setAudiosRef(prev => prev.filter(a => a.id !== id));
+          showToast("Audio de référence supprimé.");
+        }
+      };
+
+      const handleAddEnregistrement = (ev) => {
+        ev.preventDefault();
+        const fd = new FormData(ev.target);
+        const newRec = {
+          id: 'rec_' + Date.now(),
+          titre: fd.get('titre'),
+          kourel: fd.get('kourel') || 'Kourel 1 — Miftahoul Mouna',
+          auteur: fd.get('auteur') || 'Serigne Modou Kara',
+          date: new Date().toISOString().split('T')[0],
+          duree: '01:30:00',
+          file_name: selectedFileNameRec || 'enregistrement_live.mp3'
+        };
+        setEnregistrements([newRec, ...enregistrements]);
+        setIsAddEnregistrementOpen(false);
+        setSelectedFileNameRec('');
+        showToast(`Enregistrement "${newRec.titre}" ajouté !`);
+      };
+
+      const handleDeleteEnregistrement = (id) => {
+        const target = enregistrements.find(r => r.id === id);
+        if (confirm(`Voulez-vous supprimer l'enregistrement "${target ? target.titre : ''}" ?`)) {
+          setEnregistrements(prev => prev.filter(r => r.id !== id));
+          showToast("Enregistrement supprimé de la bibliothèque.");
+        }
+      };
+
+      const handleAutoSecteurs = () => {
+        setMembres(prev => prev.map((m, i) => ({
+          ...m,
+          secteur_id: secteurs[i % secteurs.length].id
+        })));
+        showToast("⚡ Auto-répartition des membres effectuée sur tous les secteurs !");
       };
 
       const updatePointage = (seanceId, membreId, newStatut) => {
@@ -308,6 +433,7 @@
       const terminesKamil = kamilCycle.assignations.filter(a => a.statut === 'Terminé').length;
       const enCoursKamil = kamilCycle.assignations.filter(a => a.statut === 'En cours').length;
       const aFaireKamil = kamilCycle.assignations.filter(a => a.statut === 'À faire').length;
+      const membersInvolvedCount = new Set(kamilCycle.assignations.map(a => a.membre_id)).size;
       const activeSeance = seances[0];
       const membersOfKourel = membres.filter(m => m.kourel_id === selectedKourelId);
 
@@ -331,11 +457,11 @@
           e('div', null,
             e('div', { className: 'flex items-center gap-3.5 mb-8' },
               e('div', { className: 'w-12 h-12 rounded-2xl bg-white border border-ht-mint p-1 flex items-center justify-center shadow-soft overflow-hidden flex-shrink-0' },
-                e('img', { src: IMG_LOGO, alt: 'Logo Hizbut-Tarqiyyah', className: 'w-full h-full object-contain' })
+                e('img', { src: IMG_LOGO, alt: 'Logo Daara Hizbut-Tarqiyyah', className: 'w-full h-full object-contain' })
               ),
               e('div', null,
-                e('h1', { className: 'font-display font-extrabold text-base text-ht-ink leading-tight tracking-tight' }, 'HIZBUT-TARQIYYAH'),
-                e('p', { className: 'text-[11px] text-ht-emerald font-bold' }, 'SaaS Officiel Association')
+                e('h1', { className: 'font-display font-extrabold text-base text-ht-ink leading-tight tracking-tight' }, 'Daara Hizbut-Tarqiyyah'),
+                e('p', { className: 'text-[11px] text-ht-emerald font-bold' }, 'Gestion de la Daara')
               )
             ),
             e('nav', { className: 'space-y-1.5' },
@@ -355,10 +481,10 @@
         ),
 
         // Main Content Area
-        e('main', { className: 'flex-1 p-6 md:p-8 max-w-6xl mx-auto space-y-8 w-full' },
+        e('main', { className: 'flex-1 p-6 md:p-8 max-w-7xl mx-auto space-y-8 w-full' },
           // Top Header Bar
           e('div', { className: 'flex items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-ht-line shadow-soft' },
-            e('div', { className: 'text-sm font-bold text-ht-ink' }, 'Hizbut-Tarqiyyah — Plateforme Officielle'),
+            e('div', { className: 'text-sm font-bold text-ht-ink' }, 'Daara Hizbut-Tarqiyyah — Gestion de la Daara'),
             e('div', { className: 'flex items-center gap-3' },
               e('div', { className: 'text-xs text-ht-sage font-medium hidden sm:block' }, 'MARDI 12 AOÛT 2026'),
               e('div', { className: 'p-2 bg-ht-page border border-ht-line rounded-xl text-ht-inkSoft relative' },
@@ -374,9 +500,9 @@
               className: 'relative rounded-3xl overflow-hidden shadow-2xl border border-ht-line p-8 sm:p-12 text-white space-y-5 bg-cover bg-center',
               style: { backgroundImage: `linear-gradient(to right, rgba(22, 36, 28, 0.95), rgba(31, 107, 75, 0.6)), url('${IMG_HERO}')` }
             },
-              e('div', { className: 'inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-ht-mint' }, '✨ Plateforme Officielle Hizbut-Tarqiyyah'),
-              e('h1', { className: 'font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl leading-tight' }, 'Bienvenue sur la Gestion Spirituelle & Organisationnelle'),
-              e('p', { className: 'text-sm text-gray-200 max-w-2xl leading-relaxed' }, 'Suivi des répétitions de Khassida, coordination des cycles de Kamil collectif (Juki), gestion de l’assiduité et des cotisations au service de la Khadimiya.'),
+              e('div', { className: 'inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-semibold text-ht-mint' }, '✨ Daara Hizbut-Tarqiyyah'),
+              e('h1', { className: 'font-display font-extrabold text-3xl sm:text-4xl lg:text-5xl leading-tight' }, 'Plateforme de Gestion de la Daara'),
+              e('p', { className: 'text-sm text-gray-200 max-w-2xl leading-relaxed' }, 'Suivi des répétitions de Khassida, coordination des cycles de Kamil collectif (Juki), gestion des membres par secteurs de travail.'),
               e('div', { className: 'flex flex-wrap gap-4 pt-2' },
                 e('button', { onClick: () => setActiveTab('repetition'), className: 'px-6 py-3 gradient-emerald text-white rounded-2xl font-bold text-xs shadow-lg hover:shadow-xl transition-all' }, 'Voir les Répétitions →'),
                 e('button', { onClick: () => setActiveTab('kamil'), className: 'px-6 py-3 bg-white/15 backdrop-blur-md border border-white/30 text-white rounded-2xl font-bold text-xs' }, 'Suivi Kamil Juki')
@@ -401,51 +527,125 @@
 
           // TAB: DASHBOARD
           activeTab === 'dashboard' && e('div', { className: 'space-y-8' },
-            e('div', null,
-              e('div', { className: 'text-xs font-bold text-ht-sage uppercase tracking-widest mb-1' }, 'AUJOURD\'HUI, MARDI 12 AOÛT'),
-              e('h1', { className: 'font-display font-extrabold text-3xl sm:text-4xl text-ht-ink' }, 'Tableau de bord')
+            e('div', {
+              className: 'relative rounded-3xl overflow-hidden shadow-2xl border border-ht-line p-8 sm:p-12 text-white space-y-5 bg-cover bg-center',
+              style: { backgroundImage: `linear-gradient(to right, rgba(13, 42, 31, 0.95), rgba(19, 61, 46, 0.9), rgba(31, 107, 75, 0.7)), url('${IMG_DASHBOARD}')` }
+            },
+              e('div', { className: 'inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-ht-mint shadow-inner' },
+                e(Icon, { path: PATHS.award, className: 'w-4 h-4 text-ht-amber' }),
+                'Synthèse Globale & Pilotage des Activités'
+              ),
+              e('h1', { className: 'font-display font-black text-3xl sm:text-4xl lg:text-5xl leading-tight' }, 'Tableau de Bord Hizbut Tarquillah'),
+              e('p', { className: 'text-sm sm:text-base text-emerald-100 max-w-2xl leading-relaxed font-medium' }, 'Vue d\'ensemble complète sur les répétitions de Khassidas, la progression de la lecture du Coran (Juki) et l\'assiduité des Kourels.'),
+              e('div', { className: 'flex flex-wrap gap-3.5 pt-2' },
+                e('button', { onClick: () => setActiveTab('repetition'), className: 'btn-anim px-6 py-3 gradient-emerald text-white rounded-2xl font-bold text-xs shadow-lg flex items-center gap-2' },
+                  e(Icon, { path: PATHS.mic, className: 'w-4 h-4' }), 'Répétitions'
+                ),
+                e('button', { onClick: () => setActiveTab('kamil'), className: 'btn-anim px-6 py-3 bg-white/15 backdrop-blur-md border border-white/30 text-white rounded-2xl font-bold text-xs hover:bg-white/25 flex items-center gap-2' },
+                  e(Icon, { path: PATHS.book, className: 'w-4 h-4 text-ht-mint' }), 'Kamil Juki'
+                )
+              )
             ),
-            e('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4' },
-              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft relative space-y-3' },
+
+            e('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5' },
+              e('div', { onClick: () => setActiveTab('repetition'), className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-4 hover:border-ht-mint transition-all cursor-pointer' },
                 e('div', { className: 'flex items-center justify-between' },
-                  e('div', { className: 'w-10 h-10 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center border border-ht-mint font-bold' }, e(Icon, { path: PATHS.check, className: 'w-5 h-5 text-ht-emerald' })),
-                  e('span', { className: 'px-3 py-1 bg-ht-mist text-ht-emerald text-xs font-bold rounded-full border border-ht-mint' }, '↗ +5 pts')
+                  e('span', { className: 'text-xs font-extrabold text-ht-sage uppercase tracking-wider' }, 'ASSIDUITÉ'),
+                  e('span', { className: 'px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-extrabold rounded-full border border-emerald-200 flex items-center gap-1' },
+                    e(Icon, { path: PATHS.arrowUp, className: 'w-3.5 h-3.5' }), '+4%'
+                  )
                 ),
-                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink mb-1' }, '87%'),
-                e('div', { className: 'text-xs text-ht-inkSoft font-medium' }, 'Taux de présence')
+                e('div', null,
+                  e('div', { className: 'font-display font-black text-4xl sm:text-5xl text-ht-ink' }, '87%'),
+                  e('div', { className: 'text-xs text-ht-sage font-semibold mt-1' }, 'Taux de présence global')
+                )
               ),
-              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft relative space-y-3' },
+
+              e('div', { onClick: () => setActiveTab('kamil'), className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-4 hover:border-ht-mint transition-all cursor-pointer' },
                 e('div', { className: 'flex items-center justify-between' },
-                  e('div', { className: 'w-10 h-10 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center border border-ht-mint font-bold' }, e(Icon, { path: PATHS.users, className: 'w-5 h-5 text-ht-emerald' })),
-                  e('span', { className: 'px-3 py-1 bg-ht-mist text-ht-emerald text-xs font-bold rounded-full border border-ht-mint' }, '↗ +3')
+                  e('span', { className: 'text-xs font-extrabold text-ht-sage uppercase tracking-wider' }, 'KAMIL JUKI'),
+                  e('span', { className: 'px-2.5 py-1 bg-ht-mist text-ht-emerald text-xs font-extrabold rounded-full border border-ht-mint' }, 'Cycle #42')
                 ),
-                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink mb-1' }, '146'),
-                e('div', { className: 'text-xs text-ht-inkSoft font-medium' }, 'Membres actifs')
+                e('div', null,
+                  e('div', { className: 'font-display font-black text-4xl sm:text-5xl text-ht-ink' }, `${terminesKamil}/30`),
+                  e('div', { className: 'text-xs text-ht-sage font-semibold mt-1' }, 'Juki terminés ce mois')
+                )
               ),
-              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft relative space-y-3' },
+
+              e('div', { onClick: () => setActiveTab('membres'), className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-4 hover:border-ht-mint transition-all cursor-pointer' },
                 e('div', { className: 'flex items-center justify-between' },
-                  e('div', { className: 'w-10 h-10 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center border border-ht-mint font-bold' }, e(Icon, { path: PATHS.book, className: 'w-5 h-5 text-ht-emerald' })),
-                  e('span', { className: 'px-3 py-1 bg-ht-mist text-ht-emerald text-xs font-bold rounded-full border border-ht-mint' }, '↗ 6 j restants')
+                  e('span', { className: 'text-xs font-extrabold text-ht-sage uppercase tracking-wider' }, 'MEMBRES'),
+                  e('span', { className: 'px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-extrabold rounded-full border border-emerald-200' }, '4 Kourels')
                 ),
-                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink mb-1' }, `${terminesKamil}/30`),
-                e('div', { className: 'text-xs text-ht-inkSoft font-medium' }, 'Progression Kamil')
+                e('div', null,
+                  e('div', { className: 'font-display font-black text-4xl sm:text-5xl text-ht-ink' }, membres.length),
+                  e('div', { className: 'text-xs text-ht-sage font-semibold mt-1' }, 'Inscrits dans les groupes')
+                )
               ),
-              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft relative space-y-3' },
+
+              e('div', { onClick: () => setActiveTab('membres'), className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-4 hover:border-ht-mint transition-all cursor-pointer' },
                 e('div', { className: 'flex items-center justify-between' },
-                  e('div', { className: 'w-10 h-10 rounded-2xl bg-red-50 text-ht-clay flex items-center justify-center border border-red-100 font-bold' }, e(Icon, { path: PATHS.clock, className: 'w-5 h-5 text-ht-clay' })),
-                  e('span', { className: 'px-3 py-1 bg-red-50 text-ht-clay text-xs font-bold rounded-full border border-red-200' }, '↘ -4')
+                  e('span', { className: 'text-xs font-extrabold text-ht-sage uppercase tracking-wider' }, 'COTISATIONS'),
+                  e('span', { className: 'px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-extrabold rounded-full border border-emerald-200' }, '✓ En règle')
                 ),
-                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink mb-1' }, '12'),
-                e('div', { className: 'text-xs text-ht-inkSoft font-medium' }, 'Retards ce mois')
+                e('div', null,
+                  e('div', { className: 'font-display font-black text-4xl sm:text-5xl text-ht-ink' }, '8/12'),
+                  e('div', { className: 'text-xs text-ht-sage font-semibold mt-1' }, 'Règlements à jour')
+                )
+              )
+            ),
+
+            e('div', { className: 'bg-white rounded-3xl p-6 sm:p-8 border border-ht-line shadow-soft space-y-6' },
+              e('div', { className: 'flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-ht-line pb-5' },
+                e('div', null,
+                  e('div', { className: 'text-xs font-extrabold text-ht-emerald uppercase tracking-wider mb-1' }, 'PROGRAMMES & MAÎTRISE'),
+                  e('h2', { className: 'font-display font-extrabold text-2xl sm:text-3xl text-ht-ink' }, 'Avancement des Différentes Activités')
+                ),
+                e('span', { className: 'text-xs font-semibold text-ht-sage bg-ht-page px-3 py-1.5 rounded-full border border-ht-line' }, 'Progression mensuelle')
+              ),
+
+              e('div', { className: 'grid grid-cols-1 lg:grid-cols-2 gap-8' },
+                e('div', { className: 'space-y-4' },
+                  e('h3', { className: 'font-display font-extrabold text-base text-ht-ink flex items-center gap-2' },
+                    e(Icon, { path: PATHS.book, className: 'w-4.5 h-4.5 text-ht-emerald' }), '📖 Apprentissage des Khassidas'
+                  ),
+                  e('div', { className: 'space-y-3.5' },
+                    khassidas.map((kh, idx) => e('div', { key: idx, className: 'p-4 bg-ht-page rounded-2xl border border-ht-line space-y-2.5' },
+                      e('div', { className: 'flex justify-between items-center text-xs font-bold' },
+                        e('span', { className: 'text-ht-ink font-extrabold text-sm' }, kh.titre),
+                        e('span', { className: 'text-ht-emerald font-black text-sm' }, `${kh.percent || 80}%`)
+                      ),
+                      e('div', { className: 'w-full bg-ht-line h-3 rounded-full overflow-hidden p-0.5' },
+                        e('div', { className: 'h-full bg-emerald-600 rounded-full transition-all duration-700', style: { width: `${kh.percent || 80}%` } })
+                      )
+                    ))
+                  )
+                ),
+
+                e('div', { className: 'space-y-4' },
+                  e('h3', { className: 'font-display font-extrabold text-base text-ht-ink flex items-center gap-2' },
+                    e(Icon, { path: PATHS.users, className: 'w-4.5 h-4.5 text-ht-emerald' }), '👥 Assiduité par Kourel'
+                  ),
+                  e('div', { className: 'space-y-3.5' },
+                    kourels.map(k => {
+                      const percent = k.id === 'k1' ? 92 : (k.id === 'k2' ? 88 : (k.id === 'k3' ? 82 : 95));
+                      return e('div', { key: k.id, className: 'p-4 bg-ht-page rounded-2xl border border-ht-line flex items-center justify-between gap-4' },
+                        e('div', null,
+                          e('div', { className: 'font-extrabold text-sm text-ht-ink' }, k.nom),
+                          e('div', { className: 'text-xs text-ht-sage font-medium mt-0.5' }, `Supervisé par ${k.superviseur || 'Serigne Modou Kara'}`)
+                        ),
+                        e('span', { className: 'px-3.5 py-1.5 bg-ht-mist text-ht-emerald text-xs font-black rounded-full border border-ht-mint' }, `${percent}% Présence`)
+                      );
+                    })
+                  )
+                )
               )
             )
           ),
 
-          // TAB: MEMBRES (One Single Unified Search Bar, Refined Table, Functional Delete Button)
+          // TAB: MEMBRES
           activeTab === 'membres' && e('div', { className: 'space-y-6' },
-            // Single Unified Header Bar for Membres
             e('div', { className: 'flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-ht-line shadow-soft' },
-              // Single Search Bar
               e('div', { className: 'relative flex-1 w-full max-w-md' },
                 e(Icon, { path: PATHS.search, className: 'w-4 h-4 text-ht-sage absolute left-3.5 top-1/2 -translate-y-1/2' }),
                 e('input', {
@@ -456,24 +656,28 @@
                   className: 'w-full pl-10 pr-4 py-2.5 bg-ht-page border border-ht-line rounded-xl text-xs font-medium focus:outline-none focus:border-ht-fern'
                 })
               ),
-              // Action Buttons Pair: Ajouter & Supprimer
-              e('div', { className: 'flex items-center gap-3 w-full sm:w-auto justify-end' },
+
+              e('div', { className: 'flex flex-wrap items-center gap-3 w-full sm:w-auto justify-end' },
                 e('button', {
                   onClick: () => setIsAddMembreOpen(true),
-                  className: 'px-5 py-2.5 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 active:scale-95 transform cursor-pointer'
+                  className: 'px-4 py-2.5 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2 active:scale-95 transition-all cursor-pointer'
                 }, e(Icon, { path: PATHS.plus, className: 'w-4 h-4' }), 'Ajouter un membre'),
+
+                e('button', {
+                  onClick: () => setIsRepartitionSecteursOpen(true),
+                  className: 'px-4 py-2.5 bg-ht-mist text-ht-emerald border border-ht-mint hover:bg-ht-mint/30 rounded-xl text-xs font-bold flex items-center gap-2 active:scale-95 transition-all cursor-pointer'
+                }, e(Icon, { path: PATHS.briefcase, className: 'w-4 h-4 text-ht-emerald' }), 'Répartir dans les secteurs'),
 
                 e('button', {
                   onClick: () => {
                     if (membres.length > 0) setMembreToDeleteId(membres[0].id);
                     setIsDeleteModalOpen(true);
                   },
-                  className: 'px-4 py-2.5 bg-red-50 text-ht-clay border border-red-200 hover:bg-red-100 rounded-xl text-xs font-bold transition-all flex items-center gap-2 active:scale-95 transform cursor-pointer'
+                  className: 'px-4 py-2.5 bg-red-50 text-ht-clay border border-red-200 hover:bg-red-100 rounded-xl text-xs font-bold flex items-center gap-2 active:scale-95 transition-all cursor-pointer'
                 }, e(Icon, { path: PATHS.trash, className: 'w-4 h-4 text-ht-clay' }), 'Supprimer un membre')
               )
             ),
 
-            // Refined Members Table
             e('div', { className: 'bg-white rounded-3xl border border-ht-line shadow-soft overflow-hidden' },
               e('table', { className: 'w-full text-left border-collapse' },
                 e('thead', null,
@@ -482,14 +686,15 @@
                     e('th', { className: 'py-4 px-6' }, 'Nom'),
                     e('th', { className: 'py-4 px-6' }, 'Téléphone'),
                     e('th', { className: 'py-4 px-6' }, 'Kourel'),
+                    e('th', { className: 'py-4 px-6' }, 'Secteur'),
                     e('th', { className: 'py-4 px-6' }, 'Cotisation'),
-                    e('th', { className: 'py-4 px-6' }, 'Statut'),
                     e('th', { className: 'py-4 px-6 text-right' }, 'Action')
                   )
                 ),
                 e('tbody', { className: 'divide-y divide-ht-line text-sm' },
                   membres.filter(m => `${m.prenom} ${m.nom}`.toLowerCase().includes(searchQuery.toLowerCase())).map(m => {
                     const k = kourels.find(k => k.id === m.kourel_id);
+                    const sec = secteurs.find(s => s.id === m.secteur_id);
                     const isEnRegle = m.cotisation_statut === 'À jour';
 
                     return e('tr', {
@@ -513,15 +718,15 @@
                       e('td', { className: 'py-4 px-6 text-xs' },
                         e('span', { className: 'px-3 py-1 bg-ht-mist text-ht-emerald font-bold rounded-xl border border-ht-mint inline-block whitespace-nowrap' }, k ? k.nom.split('—')[1] || k.nom : '-')
                       ),
+                      e('td', { className: 'py-4 px-6 text-xs' },
+                        e('span', { className: 'px-2.5 py-1 bg-ht-page text-ht-ink font-semibold rounded-lg border border-ht-line whitespace-nowrap' }, sec ? sec.code : 'ORG')
+                      ),
                       e('td', { className: 'py-4 px-6 whitespace-nowrap' },
                         e('span', {
                           className: `px-3.5 py-1 text-xs font-extrabold rounded-full inline-flex items-center gap-1.5 ${
                             isEnRegle ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-red-50 text-red-700 border border-red-200'
                           }`
                         }, isEnRegle ? 'En règle' : 'En retard')
-                      ),
-                      e('td', { className: 'py-4 px-6 whitespace-nowrap' },
-                        e('span', { className: 'badge-present' }, m.statut)
                       ),
                       e('td', { className: 'py-4 px-6 text-right whitespace-nowrap' },
                         e('button', {
@@ -539,14 +744,14 @@
             )
           ),
 
-          // TAB: REPETITION (3 Professional Sub-Sections: Pointage, Khassida & Audio Ref, Enregistrements)
+          // TAB: REPETITION (4 Sub-sections including ENREGISTREMENTS DES SÉANCES)
           activeTab === 'repetition' && e('div', { className: 'space-y-6' },
-            // Sub-Navigation Tabs Bar
             e('div', { className: 'bg-white rounded-3xl p-3 border border-ht-line shadow-soft flex flex-wrap items-center gap-2' },
               [
-                { id: 'pointage', label: 'Pointage & Séances Live', icon: PATHS.check },
-                { id: 'khassidas', label: 'Khassidas & Audios de Référence', icon: PATHS.music },
-                { id: 'enregistrements', label: 'Enregistrements des Séances', icon: PATHS.mic },
+                { id: 'khassidas', label: '📖 Khassida à répéter', icon: PATHS.book },
+                { id: 'audios', label: '🎵 Audios de Référence', icon: PATHS.music },
+                { id: 'enregistrements', label: '🎙️ Enregistrements des Séances', icon: PATHS.mic },
+                { id: 'pointage', label: '📅 Pointage Live', icon: PATHS.check },
               ].map(tab => e('button', {
                 key: tab.id,
                 onClick: () => setRepetitionSubTab(tab.id),
@@ -558,11 +763,112 @@
               }, e(Icon, { path: tab.icon }), tab.label))
             ),
 
-            // SUB-SECTION 1: POINTAGE & SÉANCES LIVE
+            // SUB-TAB 1: KHASSIDA À RÉPÉTER
+            repetitionSubTab === 'khassidas' && e('div', { className: 'space-y-6' },
+              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4' },
+                e('div', null,
+                  e('h3', { className: 'font-bold text-xl text-ht-ink mb-1' }, 'Sous-Section : Khassidas au Programme'),
+                  e('p', { className: 'text-xs text-ht-inkSoft' }, 'Poèmes et œuvres spirituelles répertoriés pour les répétitions.')
+                ),
+                e('button', {
+                  onClick: () => setIsAddKhassidaOpen(true),
+                  className: 'px-5 py-2.5 gradient-emerald text-white rounded-2xl text-xs font-bold shadow-md flex items-center gap-2 cursor-pointer'
+                }, e(Icon, { path: PATHS.plus, className: 'w-4 h-4' }), 'Ajouter une Khassida')
+              ),
+              e('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-6' },
+                khassidas.map(kh => e('div', { key: kh.id, className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-4 relative group' },
+                  e('div', { className: 'flex justify-between items-start' },
+                    e('div', null,
+                      e('h4', { className: 'font-bold text-lg text-ht-ink group-hover:text-ht-emerald transition-colors' }, kh.titre),
+                      e('p', { className: 'text-xs text-ht-emerald font-semibold mt-0.5' }, kh.auteur)
+                    ),
+                    e('div', { className: 'flex items-center gap-2' },
+                      e('span', { className: 'px-3 py-1 bg-ht-mist text-ht-emerald font-bold text-xs rounded-full border border-ht-mint' }, kh.niveau || 'Avancé'),
+                      e('button', {
+                        onClick: () => handleDeleteKhassida(kh.id),
+                        className: 'p-1.5 bg-red-50 hover:bg-red-100 text-ht-clay rounded-xl border border-red-200'
+                      }, e(Icon, { path: PATHS.trash, className: 'w-4 h-4 text-ht-clay' }))
+                    )
+                  ),
+                  e('div', { className: 'p-4 bg-ht-page rounded-2xl border border-ht-line flex items-center justify-between text-xs font-bold text-ht-ink' },
+                    e('span', { className: 'flex items-center gap-1.5' }, e(Icon, { path: PATHS.folder, className: 'w-4 h-4 text-ht-emerald' }), kh.file_name || 'Fichier PDF'),
+                    e('span', { className: 'text-ht-emerald font-bold' }, `${kh.versets || 120} versets`)
+                  )
+                ))
+              )
+            ),
+
+            // SUB-TAB 2: AUDIOS DE RÉFÉRENCE
+            repetitionSubTab === 'audios' && e('div', { className: 'space-y-6' },
+              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4' },
+                e('div', null,
+                  e('h3', { className: 'font-bold text-xl text-ht-ink mb-1' }, 'Sous-Section : Audios de Référence'),
+                  e('p', { className: 'text-xs text-ht-inkSoft' }, 'Enregistrements vocaux de référence HQ pour l\'apprentissage de la diction.')
+                ),
+                e('button', {
+                  onClick: () => setIsAddAudioOpen(true),
+                  className: 'px-5 py-2.5 gradient-emerald text-white rounded-2xl text-xs font-bold shadow-md flex items-center gap-2 cursor-pointer'
+                }, e(Icon, { path: PATHS.plus, className: 'w-4 h-4' }), 'Ajouter un Audio de référence')
+              ),
+              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft divide-y divide-ht-line' },
+                audiosRef.map(aud => e('div', { key: aud.id, className: 'py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4' },
+                  e('div', { className: 'flex items-center gap-4' },
+                    e('div', { className: 'w-10 h-10 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center border border-ht-mint font-bold' },
+                      e(Icon, { path: PATHS.music, className: 'w-5 h-5 text-ht-emerald' })
+                    ),
+                    e('div', null,
+                      e('h4', { className: 'font-bold text-sm text-ht-ink' }, aud.titre),
+                      e('div', { className: 'text-xs text-ht-sage mt-0.5' }, `Récitateur : ${aud.recitateur} • Fichier : ${aud.file_name || 'mp3'}`)
+                    )
+                  ),
+                  e('div', { className: 'flex items-center gap-3' },
+                    e('audio', { controls: true, className: 'h-9 w-48 sm:w-64 rounded-xl' },
+                      e('source', { src: aud.url, type: 'audio/mpeg' })
+                    ),
+                    e('button', {
+                      onClick: () => handleDeleteAudio(aud.id),
+                      className: 'p-2 bg-red-50 text-ht-clay hover:bg-red-100 border border-red-200 rounded-xl'
+                    }, e(Icon, { path: PATHS.trash, className: 'w-4 h-4 text-ht-clay' }))
+                  )
+                ))
+              )
+            ),
+
+            // SUB-TAB 3: ENREGISTREMENTS DES SÉANCES (Restaurée comme demandé !)
+            repetitionSubTab === 'enregistrements' && e('div', { className: 'space-y-6' },
+              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4' },
+                e('div', null,
+                  e('h3', { className: 'font-bold text-xl text-ht-ink mb-1' }, 'Sous-Section : Enregistrements des Séances'),
+                  e('p', { className: 'text-xs text-ht-inkSoft' }, 'Captures audio et enregistrements récents des répétitions des Kourels.')
+                ),
+                e('button', {
+                  onClick: () => setIsAddEnregistrementOpen(true),
+                  className: 'px-5 py-2.5 gradient-emerald text-white rounded-2xl text-xs font-bold shadow-md flex items-center gap-2 cursor-pointer'
+                }, e(Icon, { path: PATHS.plus, className: 'w-4 h-4' }), 'Ajouter un enregistrement')
+              ),
+              e('div', { className: 'space-y-4' },
+                enregistrements.map(rec => e('div', { key: rec.id, className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex flex-col md:flex-row justify-between items-start md:items-center gap-4' },
+                  e('div', { className: 'space-y-1' },
+                    e('span', { className: 'badge-present' }, rec.kourel),
+                    e('h4', { className: 'font-bold text-base text-ht-ink mt-1' }, rec.titre),
+                    e('p', { className: 'text-xs text-ht-sage font-medium' }, `Enregistré le ${rec.date} par ${rec.auteur} • Durée : ${rec.duree} • Fichier : ${rec.file_name || 'mp3'}`)
+                  ),
+                  e('div', { className: 'w-full md:w-auto flex items-center gap-3' },
+                    e('audio', { controls: true, className: 'h-9 w-full md:w-64 rounded-xl' }),
+                    e('button', {
+                      onClick: () => handleDeleteEnregistrement(rec.id),
+                      className: 'p-2 bg-red-50 text-ht-clay hover:bg-red-100 border border-red-200 rounded-xl'
+                    }, e(Icon, { path: PATHS.trash, className: 'w-4 h-4 text-ht-clay' }))
+                  )
+                ))
+              )
+            ),
+
+            // SUB-TAB 4: POINTAGE LIVE
             repetitionSubTab === 'pointage' && e('div', { className: 'space-y-6' },
               e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4' },
                 e('div', null,
-                  e('h3', { className: 'font-bold text-xl text-ht-ink' }, 'Séances de Répétition & Pointage'),
+                  e('h3', { className: 'font-bold text-xl text-ht-ink' }, 'Pointage & Séances Live'),
                   e('p', { className: 'text-xs text-ht-inkSoft' }, 'Superviseur : Serigne Modou Kara')
                 ),
                 e('div', { className: 'flex flex-wrap gap-2' },
@@ -576,13 +882,12 @@
                 )
               ),
               e('div', { className: 'bg-white rounded-3xl border border-ht-line shadow-soft overflow-hidden p-6' },
-                e('h4', { className: 'font-bold text-base text-ht-ink mb-4' }, 'Pointage des membres en direct'),
                 e('table', { className: 'w-full text-left border-collapse' },
                   e('thead', null,
                     e('tr', { className: 'border-b border-ht-line text-xs text-ht-sage uppercase' },
                       e('th', { className: 'py-3 px-4' }, 'Membre'),
                       e('th', { className: 'py-3 px-4' }, 'Statut actuel'),
-                      e('th', { className: 'py-3 px-4 text-right' }, 'Action 1-Clic')
+                      e('th', { className: 'py-3 px-4 text-right' }, 'Action Pointage')
                     )
                   ),
                   e('tbody', { className: 'divide-y divide-ht-line text-sm' },
@@ -595,78 +900,19 @@
                           e('span', { className: st === 'Présent' ? 'badge-present' : st === 'En retard' ? 'badge-retard' : 'badge-absent' }, st)
                         ),
                         e('td', { className: 'py-3.5 px-4 text-right space-x-2' },
-                          e('button', { onClick: () => updatePointage(activeSeance.id, m.id, 'Présent'), className: 'px-3 py-1 bg-ht-mist text-ht-emerald rounded-lg text-xs font-bold hover:bg-ht-mint' }, 'Présent'),
-                          e('button', { onClick: () => updatePointage(activeSeance.id, m.id, 'En retard'), className: 'px-3 py-1 bg-amber-50 text-ht-amber rounded-lg text-xs font-bold hover:bg-amber-100' }, 'En retard'),
-                          e('button', { onClick: () => updatePointage(activeSeance.id, m.id, 'Absent'), className: 'px-3 py-1 bg-red-50 text-ht-clay rounded-lg text-xs font-bold hover:bg-red-100' }, 'Absent')
+                          e('button', { onClick: () => updatePointage(activeSeance.id, m.id, 'Présent'), className: 'px-3 py-1 bg-ht-mist text-ht-emerald rounded-lg text-xs font-bold hover:bg-ht-mint cursor-pointer' }, 'Présent'),
+                          e('button', { onClick: () => updatePointage(activeSeance.id, m.id, 'En retard'), className: 'px-3 py-1 bg-amber-50 text-ht-amber rounded-lg text-xs font-bold hover:bg-amber-100 cursor-pointer' }, 'En retard'),
+                          e('button', { onClick: () => updatePointage(activeSeance.id, m.id, 'Absent'), className: 'px-3 py-1 bg-red-50 text-ht-clay rounded-lg text-xs font-bold hover:bg-red-100 cursor-pointer' }, 'Absent')
                         )
                       );
                     })
                   )
                 )
               )
-            ),
-
-            // SUB-SECTION 2: KHASSIDAS & AUDIOS DE RÉFÉRENCE
-            repetitionSubTab === 'khassidas' && e('div', { className: 'space-y-6' },
-              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft' },
-                e('h3', { className: 'font-bold text-xl text-ht-ink mb-1' }, 'Khassidas au programme & Audios de Référence'),
-                e('p', { className: 'text-xs text-ht-inkSoft' }, 'Consultez les poèmes et écoutez les versions audio de référence pour perfectionner la diction et la mélodie.')
-              ),
-              e('div', { className: 'grid grid-cols-1 md:grid-cols-2 gap-6' },
-                khassidas.map(kh => e('div', { key: kh.id, className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-4' },
-                  e('div', { className: 'flex justify-between items-start' },
-                    e('div', null,
-                      e('h4', { className: 'font-bold text-lg text-ht-ink' }, kh.titre),
-                      e('p', { className: 'text-xs text-ht-emerald font-semibold mt-0.5' }, kh.auteur)
-                    ),
-                    e('span', { className: 'px-3 py-1 bg-ht-mist text-ht-emerald font-bold text-xs rounded-full border border-ht-mint' }, kh.niveau)
-                  ),
-                  e('div', { className: 'p-4 bg-ht-page rounded-2xl border border-ht-line space-y-3' },
-                    e('div', { className: 'flex items-center justify-between text-xs font-bold text-ht-ink' },
-                      e('span', { className: 'flex items-center gap-2' }, e(Icon, { path: PATHS.music, className: 'w-4 h-4 text-ht-emerald' }), 'Audio de référence MP3'),
-                      e('span', { className: 'text-ht-sage' }, `${kh.versets} versets`)
-                    ),
-                    e('audio', { controls: true, className: 'w-full h-9 rounded-xl' },
-                      e('source', { src: `./${kh.audio_ref}`, type: 'audio/mpeg' }),
-                      'Votre navigateur ne supporte pas le lecteur audio.'
-                    )
-                  )
-                ))
-              )
-            ),
-
-            // SUB-SECTION 3: ENREGISTREMENTS DES SÉANCES
-            repetitionSubTab === 'enregistrements' && e('div', { className: 'space-y-6' },
-              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex justify-between items-center' },
-                e('div', null,
-                  e('h3', { className: 'font-bold text-xl text-ht-ink mb-1' }, 'Enregistrements des Séances de Répétition'),
-                  e('p', { className: 'text-xs text-ht-inkSoft' }, 'Bibliothèque des captures audio des Kourels pour évaluer l’assiduité et la qualité vocale.')
-                ),
-                e('button', {
-                  onClick: () => showToast("Formulaire d'ajout d'enregistrement audio ouvert"),
-                  className: 'px-4 py-2.5 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2'
-                }, e(Icon, { path: PATHS.plus, className: 'w-4 h-4' }), 'Ajouter un enregistrement')
-              ),
-              e('div', { className: 'space-y-4' },
-                enregistrements.map(rec => e('div', { key: rec.id, className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex flex-col md:flex-row justify-between items-start md:items-center gap-4' },
-                  e('div', { className: 'space-y-1' },
-                    e('span', { className: 'badge-present' }, rec.kourel),
-                    e('h4', { className: 'font-bold text-base text-ht-ink mt-1' }, rec.titre),
-                    e('p', { className: 'text-xs text-ht-sage font-medium' }, `Enregistré le ${rec.date} par ${rec.auteur} • Durée : ${rec.duree}`)
-                  ),
-                  e('div', { className: 'w-full md:w-auto flex items-center gap-3' },
-                    e('audio', { controls: true, className: 'h-9 w-full md:w-64 rounded-xl' }),
-                    e('button', {
-                      onClick: () => showToast(`Téléchargement de ${rec.titre}`),
-                      className: 'px-3.5 py-2 bg-ht-mist text-ht-emerald font-bold text-xs rounded-xl border border-ht-mint whitespace-nowrap'
-                    }, 'Télécharger ⬇')
-                  )
-                ))
-              )
             )
           ),
 
-          // TAB: KAMIL
+          // TAB: KAMIL (4 Stat Cards: First 2 clickable, Last 2 NON-CLICKABLE)
           activeTab === 'kamil' && e('div', { className: 'space-y-8' },
             e('div', { className: 'flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4' },
               e('div', null,
@@ -676,35 +922,61 @@
               e('div', { className: 'flex items-center gap-3' },
                 e('button', {
                   onClick: () => setIsAttributionModalOpen(true),
-                  className: 'btn-anim px-5 py-3 bg-ht-mist text-ht-emerald border border-ht-mint rounded-2xl text-xs font-bold shadow-xs hover:bg-ht-mint flex items-center gap-2'
+                  className: 'btn-anim px-5 py-3 bg-ht-mist text-ht-emerald border border-ht-mint rounded-2xl text-xs font-extrabold shadow-xs hover:bg-ht-mint flex items-center gap-2 cursor-pointer'
                 }, e(Icon, { path: PATHS.userCheck, className: 'w-4 h-4 text-ht-emerald' }), '👤 Assigner les 30 Juki'),
                 e('button', {
                   onClick: handleAutoDistribute,
-                  className: 'btn-anim px-5 py-3 gradient-emerald text-white rounded-2xl text-xs font-bold shadow-md hover:shadow-lg flex items-center gap-2'
+                  className: 'btn-anim px-5 py-3 gradient-emerald text-white rounded-2xl text-xs font-bold shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer'
                 }, '✨ Répartition Automatique')
               )
             ),
+
+            // 4 Stat Cards: Card 1 & 2 open modal, Card 3 & 4 DO NOTHING when clicked!
             e('div', { className: 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4' },
-              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3' },
-                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink' }, `${terminesKamil}/30`),
-                e('div', { className: 'text-xs text-ht-sage font-medium' }, 'Parties terminées')
+              // Case 1: Parties terminées (CLICKABLE)
+              e('div', {
+                onClick: () => { setKamilDetailsTab('termines'); setIsKamilDetailsOpen(true); },
+                className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-ht-mint transition-all cursor-pointer group'
+              },
+                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink group-hover:text-ht-emerald' }, `${terminesKamil}/30`),
+                e('div', { className: 'text-xs text-ht-sage font-medium flex justify-between' },
+                  e('span', null, 'Parties terminées'),
+                  e('span', { className: 'text-ht-emerald font-bold' }, 'Détail ➔')
+                )
               ),
-              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3' },
-                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink' }, '10'),
-                e('div', { className: 'text-xs text-ht-sage font-medium' }, 'Membres impliqués')
+
+              // Case 2: Membres impliqués (CLICKABLE)
+              e('div', {
+                onClick: () => { setKamilDetailsTab('membres'); setIsKamilDetailsOpen(true); },
+                className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-ht-mint transition-all cursor-pointer group'
+              },
+                e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink group-hover:text-ht-emerald' }, membersInvolvedCount),
+                e('div', { className: 'text-xs text-ht-sage font-medium flex justify-between' },
+                  e('span', null, 'Membres impliqués'),
+                  e('span', { className: 'text-ht-emerald font-bold' }, 'Détail ➔')
+                )
               ),
-              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3' },
+
+              // Case 3: Jours restants (DOES NOTHING / NON-CLICKABLE as requested)
+              e('div', {
+                className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 cursor-default'
+              },
                 e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink' }, '6'),
                 e('div', { className: 'text-xs text-ht-sage font-medium' }, 'Jours restants')
               ),
-              e('div', { className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3' },
+
+              // Case 4: Cycles terminés (DOES NOTHING / NON-CLICKABLE as requested)
+              e('div', {
+                className: 'bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 cursor-default'
+              },
                 e('div', { className: 'font-display font-extrabold text-4xl text-ht-ink' }, '14'),
                 e('div', { className: 'text-xs text-ht-sage font-medium' }, 'Cycles terminés')
               )
             ),
+
             e('div', { className: 'bg-white rounded-3xl p-6 sm:p-8 border border-ht-line shadow-soft space-y-6' },
               e('div', { className: 'flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-ht-line pb-4' },
-                e('h3', { className: 'font-display font-bold text-xl text-ht-ink' }, 'Les 30 parties'),
+                e('h3', { className: 'font-display font-bold text-xl text-ht-ink' }, 'Les 30 Juki'),
                 e('div', { className: 'flex flex-wrap items-center gap-4 text-xs font-semibold' },
                   e('span', { className: 'flex items-center gap-2 text-ht-emerald' }, e('span', { className: 'w-3 h-3 rounded-full bg-ht-emerald' }), `Terminé (${terminesKamil})`),
                   e('span', { className: 'flex items-center gap-2 text-ht-fern' }, e('span', { className: 'w-3 h-3 rounded-full bg-ht-mint border border-ht-sage' }), `En cours (${enCoursKamil})`),
@@ -754,16 +1026,310 @@
           )
         ),
 
-        // POPUP MODAL FICHE MEMBRE (Positioned in Middle of Screen with 1779138262345.jpg Background & Refined Cards)
+        // MODAL KAMIL DETAILS
+        isKamilDetailsOpen && e('div', { className: 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in' },
+          e('div', { className: 'bg-white rounded-3xl w-full max-w-3xl max-h-[85vh] shadow-2xl border border-ht-line flex flex-col overflow-hidden' },
+            e('div', { className: 'p-6 border-b border-ht-line flex items-center justify-between bg-ht-mist' },
+              e('div', null,
+                e('h3', { className: 'font-display font-extrabold text-xl text-ht-ink' }, 'Détail du Kamil Juki #' + kamilCycle.numero_cycle),
+                e('p', { className: 'text-xs text-ht-emerald font-semibold' }, 'Aperçu détaillé des membres impliqués et des Juki terminés')
+              ),
+              e('button', { onClick: () => setIsKamilDetailsOpen(false), className: 'text-gray-400 font-bold text-xl p-1' }, '✕')
+            ),
+            e('div', { className: 'p-4 border-b border-ht-line flex gap-2' },
+              e('button', {
+                onClick: () => setKamilDetailsTab('membres'),
+                className: `px-4 py-2 rounded-xl text-xs font-bold ${kamilDetailsTab === 'membres' ? 'gradient-emerald text-white' : 'bg-ht-page text-ht-ink'}`
+              }, 'Membres Impliqués'),
+              e('button', {
+                onClick: () => setKamilDetailsTab('termines'),
+                className: `px-4 py-2 rounded-xl text-xs font-bold ${kamilDetailsTab === 'termines' ? 'gradient-emerald text-white' : 'bg-ht-page text-ht-ink'}`
+              }, 'Parties Terminées')
+            ),
+            e('div', { className: 'p-6 overflow-y-auto flex-1 space-y-3' },
+              kamilDetailsTab === 'membres' ? (
+                membres.map(m => {
+                  const assigned = kamilCycle.assignations.filter(a => a.membre_id === m.id);
+                  if (assigned.length === 0) return null;
+                  return e('div', { key: m.id, className: 'p-4 bg-ht-page rounded-2xl border border-ht-line flex items-center justify-between' },
+                    e('div', null,
+                      e('div', { className: 'font-bold text-sm text-ht-ink' }, `${m.prenom} ${m.nom}`),
+                      e('div', { className: 'text-xs text-ht-sage' }, m.telephone)
+                    ),
+                    e('div', { className: 'flex gap-2' },
+                      assigned.map(a => e('span', { key: a.juz, className: `px-3 py-1 rounded-full text-xs font-extrabold ${a.statut === 'Terminé' ? 'bg-emerald-600 text-white' : 'bg-amber-500 text-white'}` }, `Juki ${a.juz}`))
+                    )
+                  );
+                })
+              ) : (
+                kamilCycle.assignations.filter(a => a.statut === 'Terminé').map(a => {
+                  const m = membres.find(mem => mem.id === a.membre_id);
+                  return e('div', { key: a.juz, className: 'p-4 bg-white rounded-2xl border border-ht-line flex items-center justify-between' },
+                    e('div', null,
+                      e('div', { className: 'font-extrabold text-sm text-ht-emerald' }, `Juki #${a.juz} — ${a.nom_juz}`),
+                      e('div', { className: 'text-xs text-ht-sage' }, `Récité par : ${m ? m.prenom + ' ' + m.nom : 'Membre'}`)
+                    ),
+                    e('span', { className: 'px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-extrabold rounded-full border border-emerald-200' }, `✓ Validé (${a.date_validee || '16 août'})`)
+                  );
+                })
+              )
+            ),
+            e('div', { className: 'p-4 border-t border-ht-line text-right' },
+              e('button', { onClick: () => setIsKamilDetailsOpen(false), className: 'px-5 py-2 gradient-emerald text-white text-xs font-bold rounded-xl' }, 'Fermer')
+            )
+          )
+        ),
+
+        // MODAL ATTRIBUTION JUKI (Recherche dynamique par barre de recherche au lieu de liste déroulante)
+        isAttributionModalOpen && e('div', { className: 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in' },
+          e('div', { className: 'bg-white rounded-3xl w-full max-w-3xl max-h-[88vh] shadow-2xl border border-ht-line flex flex-col overflow-hidden' },
+            e('div', { className: 'p-6 border-b border-ht-line flex items-center justify-between bg-ht-mist' },
+              e('div', null,
+                e('h3', { className: 'font-display font-extrabold text-xl text-ht-ink' }, 'Assigner les 30 Juki aux membres'),
+                e('p', { className: 'text-xs text-ht-emerald font-semibold' }, 'Recherche rapide par nom pour une attribution instantanée')
+              ),
+              e('button', { onClick: () => setIsAttributionModalOpen(false), className: 'text-gray-400 font-bold text-xl' }, '✕')
+            ),
+            e('div', { className: 'p-4 border-b border-ht-line flex justify-between gap-4 bg-ht-page' },
+              e('div', { className: 'relative flex-1' },
+                e(Icon, { path: PATHS.search, className: 'w-4 h-4 text-ht-sage absolute left-3.5 top-1/2 -translate-y-1/2' }),
+                e('input', {
+                  type: 'text',
+                  placeholder: '🔍 Rechercher un Juki ou le nom d\'un membre...',
+                  value: searchQuery,
+                  onChange: (ev) => setSearchQuery(ev.target.value),
+                  className: 'w-full pl-10 pr-4 py-2 bg-white border border-ht-line rounded-xl text-xs font-semibold focus:outline-none focus:border-ht-emerald'
+                })
+              ),
+              e('button', { onClick: handleAutoDistribute, className: 'px-4 py-2 bg-ht-mist text-ht-emerald font-bold text-xs rounded-xl border border-ht-mint hover:bg-ht-mint/40 cursor-pointer whitespace-nowrap' }, '✨ Auto-répartir')
+            ),
+            e('div', { className: 'p-6 overflow-y-auto flex-1 space-y-4' },
+              kamilCycle.assignations.filter(a => {
+                const currentM = membres.find(m => m.id === a.membre_id);
+                const query = searchQuery.toLowerCase();
+                return `juki ${a.juz}`.includes(query) || (currentM && `${currentM.prenom} ${currentM.nom}`.toLowerCase().includes(query));
+              }).map(a => {
+                const currentM = membres.find(m => m.id === a.membre_id);
+
+                return e('div', { key: a.juz, className: 'p-4 bg-ht-page rounded-2xl border border-ht-line space-y-3' },
+                  e('div', { className: 'flex justify-between items-center' },
+                    e('div', { className: 'flex items-center gap-2' },
+                      e('span', { className: 'w-8 h-8 rounded-xl gradient-emerald text-white flex items-center justify-center font-extrabold text-xs' }, a.juz),
+                      e('span', { className: 'font-extrabold text-ht-ink text-sm' }, `Juki #${a.juz} — ${a.nom_juz}`),
+                    ),
+                    e('span', { className: `px-3 py-1 rounded-full text-xs font-extrabold ${a.statut === 'Terminé' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'}` }, a.statut)
+                  ),
+                  
+                  // Barre de Recherche Rapide Membre (Remplace le menu déroulant à flèche !)
+                  e('div', { className: 'relative' },
+                    e(Icon, { path: PATHS.search, className: 'w-4 h-4 text-ht-sage absolute left-3 top-1/2 -translate-y-1/2' }),
+                    e('input', {
+                      type: 'text',
+                      placeholder: `Actuellement attribué à : ${currentM ? currentM.prenom + ' ' + currentM.nom : 'Membre'} — Taper pour changer...`,
+                      onChange: (ev) => {
+                        const val = ev.target.value.toLowerCase();
+                        if (val.length >= 2) {
+                          const matched = membres.find(m => `${m.prenom} ${m.nom}`.toLowerCase().includes(val));
+                          if (matched) assignJuzToMembre(a.juz, matched.id);
+                        }
+                      },
+                      className: 'w-full pl-9 pr-4 py-2 bg-white border border-ht-line rounded-xl text-xs font-semibold text-ht-ink focus:outline-none focus:border-ht-emerald'
+                    }),
+                    // Raccourcis membres filtrés rapides sous la recherche
+                    e('div', { className: 'flex flex-wrap gap-1.5 mt-2' },
+                      membres.slice(0, 5).map(m => e('button', {
+                        key: m.id,
+                        onClick: () => assignJuzToMembre(a.juz, m.id),
+                        className: `px-2.5 py-1 text-[11px] font-bold rounded-lg transition-all ${
+                          a.membre_id === m.id ? 'bg-ht-emerald text-white shadow-xs' : 'bg-white hover:bg-ht-mist text-ht-ink border border-ht-line'
+                        }`
+                      }, `${m.prenom} ${m.nom[0]}.`))
+                    )
+                  )
+                );
+              })
+            ),
+            e('div', { className: 'p-4 border-t border-ht-line text-right' },
+              e('button', { onClick: () => setIsAttributionModalOpen(false), className: 'px-5 py-2 gradient-emerald text-white text-xs font-bold rounded-xl cursor-pointer' }, 'Valider & Fermer')
+            )
+          )
+        ),
+
+        // MODAL RÉPARTITION SECTEURS
+        isRepartitionSecteursOpen && e('div', { className: 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-fade-in' },
+          e('div', { className: 'bg-white rounded-3xl w-full max-w-3xl max-h-[85vh] shadow-2xl border border-ht-line flex flex-col overflow-hidden' },
+            e('div', { className: 'p-6 border-b border-ht-line flex items-center justify-between bg-ht-mist' },
+              e('h3', { className: 'font-display font-extrabold text-xl text-ht-ink' }, 'Répartition des Membres par Secteurs de Travail'),
+              e('button', { onClick: () => setIsRepartitionSecteursOpen(false), className: 'text-gray-400 font-bold text-xl' }, '✕')
+            ),
+            e('div', { className: 'p-4 border-b border-ht-line flex justify-between gap-4' },
+              e('span', { className: 'text-xs text-ht-sage font-medium self-center' }, 'Affectez les membres aux commissions opérationnelles.'),
+              e('button', { onClick: handleAutoSecteurs, className: 'px-4 py-2 bg-ht-mist text-ht-emerald font-bold text-xs rounded-xl border border-ht-mint' }, '✨ Répartir équitablement')
+            ),
+            e('div', { className: 'p-6 overflow-y-auto flex-1 space-y-3' },
+              membres.map(m => e('div', { key: m.id, className: 'p-3.5 bg-ht-page rounded-2xl border border-ht-line flex items-center justify-between text-xs gap-4' },
+                e('div', null,
+                  e('div', { className: 'font-bold text-sm text-ht-ink' }, `${m.prenom} ${m.nom}`),
+                  e('div', { className: 'text-ht-sage' }, m.telephone)
+                ),
+                e('select', {
+                  value: m.secteur_id || 'sec1',
+                  onChange: (ev) => {
+                    const secId = ev.target.value;
+                    setMembres(prev => prev.map(item => item.id === m.id ? { ...item, secteur_id: secId } : item));
+                    showToast("Secteur mis à jour pour " + m.prenom);
+                  },
+                  className: 'p-2.5 bg-white border border-ht-line rounded-xl font-bold text-ht-ink flex-1 max-w-xs'
+                },
+                  secteurs.map(s => e('option', { key: s.id, value: s.id }, `${s.nom} (${s.code})`))
+                )
+              ))
+            ),
+            e('div', { className: 'p-4 border-t border-ht-line text-right' },
+              e('button', { onClick: () => setIsRepartitionSecteursOpen(false), className: 'px-5 py-2 gradient-emerald text-white text-xs font-bold rounded-xl' }, 'Terminer')
+            )
+          )
+        ),
+
+        // MODAL AJOUT KHASSIDA (Bouton Gestionnaire de Fichiers !)
+        isAddKhassidaOpen && e('div', { className: 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm' },
+          e('div', { className: 'bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-ht-line' },
+            e('div', { className: 'flex justify-between items-center' },
+              e('h3', { className: 'font-bold text-lg text-ht-ink' }, 'Ajouter une Khassida au Programme'),
+              e('button', { onClick: () => setIsAddKhassidaOpen(false), className: 'text-gray-400 font-bold' }, '✕')
+            ),
+            e('form', { onSubmit: handleAddKhassida, className: 'space-y-3.5' },
+              e('input', { name: 'titre', required: true, placeholder: 'Titre de la Khassida (ex: Mawahibou Nafi)', className: 'w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold' }),
+              e('input', { name: 'auteur', defaultValue: 'Cheikh Ahmadou Bamba', placeholder: 'Auteur', className: 'w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold' }),
+              e('input', { name: 'versets', type: 'number', defaultValue: 100, placeholder: 'Nombre de versets', className: 'w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold' }),
+              e('select', { name: 'niveau', className: 'w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold' },
+                e('option', { value: 'Débutant' }, 'Débutant'),
+                e('option', { value: 'Intermédiaire' }, 'Intermédiaire'),
+                e('option', { value: 'Avancé' }, 'Avancé')
+              ),
+              
+              // Bouton Gestionnaire de Fichiers
+              e('div', { className: 'space-y-1.5' },
+                e('label', { className: 'text-xs font-bold text-ht-ink block' }, 'Fichier Document PDF / Texte'),
+                e('input', {
+                  type: 'file',
+                  ref: fileInputKhassidaRef,
+                  accept: '.pdf,.doc,.docx,.txt',
+                  className: 'hidden',
+                  onChange: (ev) => {
+                    if (ev.target.files && ev.target.files[0]) {
+                      setSelectedFileNameKhassida(ev.target.files[0].name);
+                    }
+                  }
+                }),
+                e('button', {
+                  type: 'button',
+                  onClick: () => fileInputKhassidaRef.current && fileInputKhassidaRef.current.click(),
+                  className: 'w-full p-3 bg-ht-mist border border-dashed border-ht-emerald rounded-xl text-xs font-bold text-ht-emerald hover:bg-ht-mint/40 transition-all flex items-center justify-center gap-2 cursor-pointer'
+                }, e(Icon, { path: PATHS.folder, className: 'w-4 h-4 text-ht-emerald' }), selectedFileNameKhassida ? `📄 ${selectedFileNameKhassida}` : '📁 Parcourir le gestionnaire de fichiers...')
+              ),
+
+              e('div', { className: 'flex justify-end gap-2 pt-3' },
+                e('button', { type: 'button', onClick: () => setIsAddKhassidaOpen(false), className: 'px-4 py-2 border rounded-xl text-xs font-semibold' }, 'Annuler'),
+                e('button', { type: 'submit', className: 'px-5 py-2 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md cursor-pointer' }, 'Ajouter')
+              )
+            )
+          )
+        ),
+
+        // MODAL AJOUT AUDIO REFERENCE (Bouton Gestionnaire de Fichiers !)
+        isAddAudioOpen && e('div', { className: 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm' },
+          e('div', { className: 'bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-ht-line' },
+            e('div', { className: 'flex justify-between items-center' },
+              e('h3', { className: 'font-bold text-lg text-ht-ink' }, 'Ajouter un Audio de Référence'),
+              e('button', { onClick: () => setIsAddAudioOpen(false), className: 'text-gray-400 font-bold' }, '✕')
+            ),
+            e('form', { onSubmit: handleAddAudio, className: 'space-y-3.5' },
+              e('input', { name: 'titre', required: true, placeholder: 'Titre de l\'audio MP3', className: 'w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold' }),
+              e('input', { name: 'recitateur', defaultValue: 'Kourel Miftahoul Mouna', placeholder: 'Récitateur / Kourel', className: 'w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold' }),
+              e('select', { name: 'khassida', className: 'w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold' },
+                khassidas.map(kh => e('option', { key: kh.id, value: kh.titre }, kh.titre))
+              ),
+              
+              // Bouton Gestionnaire de Fichiers Audio
+              e('div', { className: 'space-y-1.5' },
+                e('label', { className: 'text-xs font-bold text-ht-ink block' }, 'Fichier Audio (MP3, WAV, M4A)'),
+                e('input', {
+                  type: 'file',
+                  ref: fileInputAudioRef,
+                  accept: 'audio/*,.mp3,.wav,.m4a',
+                  className: 'hidden',
+                  onChange: (ev) => {
+                    if (ev.target.files && ev.target.files[0]) {
+                      setSelectedFileNameAudio(ev.target.files[0].name);
+                    }
+                  }
+                }),
+                e('button', {
+                  type: 'button',
+                  onClick: () => fileInputAudioRef.current && fileInputAudioRef.current.click(),
+                  className: 'w-full p-3 bg-ht-mist border border-dashed border-ht-emerald rounded-xl text-xs font-bold text-ht-emerald hover:bg-ht-mint/40 transition-all flex items-center justify-center gap-2 cursor-pointer'
+                }, e(Icon, { path: PATHS.music, className: 'w-4 h-4 text-ht-emerald' }), selectedFileNameAudio ? `🎵 ${selectedFileNameAudio}` : '📁 Ouvrir le gestionnaire de fichiers MP3...')
+              ),
+
+              e('div', { className: 'flex justify-end gap-2 pt-3' },
+                e('button', { type: 'button', onClick: () => setIsAddAudioOpen(false), className: 'px-4 py-2 border rounded-xl text-xs font-semibold' }, 'Annuler'),
+                e('button', { type: 'submit', className: 'px-5 py-2 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md cursor-pointer' }, 'Ajouter')
+              )
+            )
+          )
+        ),
+
+        // MODAL AJOUT ENREGISTREMENT SÉANCE (Bouton Gestionnaire de Fichiers !)
+        isAddEnregistrementOpen && e('div', { className: 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm' },
+          e('div', { className: 'bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-ht-line' },
+            e('div', { className: 'flex justify-between items-center' },
+              e('h3', { className: 'font-bold text-lg text-ht-ink' }, 'Ajouter un Enregistrement de Séance'),
+              e('button', { onClick: () => setIsAddEnregistrementOpen(false), className: 'text-gray-400 font-bold' }, '✕')
+            ),
+            e('form', { onSubmit: handleAddEnregistrement, className: 'space-y-3.5' },
+              e('input', { name: 'titre', required: true, placeholder: 'Titre (ex: Répétition Générale Kourel 1)', className: 'w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold' }),
+              e('select', { name: 'kourel', className: 'w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold' },
+                kourels.map(k => e('option', { key: k.id, value: k.nom }, k.nom))
+              ),
+              e('input', { name: 'auteur', defaultValue: 'Serigne Modou Kara', placeholder: 'Superviseur / Auteur', className: 'w-full p-3 bg-ht-page border border-ht-line rounded-xl text-xs font-semibold' }),
+              
+              // Bouton Gestionnaire de Fichiers Enregistrement
+              e('div', { className: 'space-y-1.5' },
+                e('label', { className: 'text-xs font-bold text-ht-ink block' }, 'Fichier Audio Enregistrement'),
+                e('input', {
+                  type: 'file',
+                  ref: fileInputRecRef,
+                  accept: 'audio/*,.mp3,.wav',
+                  className: 'hidden',
+                  onChange: (ev) => {
+                    if (ev.target.files && ev.target.files[0]) {
+                      setSelectedFileNameRec(ev.target.files[0].name);
+                    }
+                  }
+                }),
+                e('button', {
+                  type: 'button',
+                  onClick: () => fileInputRecRef.current && fileInputRecRef.current.click(),
+                  className: 'w-full p-3 bg-ht-mist border border-dashed border-ht-emerald rounded-xl text-xs font-bold text-ht-emerald hover:bg-ht-mint/40 transition-all flex items-center justify-center gap-2 cursor-pointer'
+                }, e(Icon, { path: PATHS.mic, className: 'w-4 h-4 text-ht-emerald' }), selectedFileNameRec ? `🎙️ ${selectedFileNameRec}` : '📁 Ouvrir le gestionnaire de fichiers audio...')
+              ),
+
+              e('div', { className: 'flex justify-end gap-2 pt-3' },
+                e('button', { type: 'button', onClick: () => setIsAddEnregistrementOpen(false), className: 'px-4 py-2 border rounded-xl text-xs font-semibold' }, 'Annuler'),
+                e('button', { type: 'submit', className: 'px-5 py-2 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md cursor-pointer' }, 'Enregistrer')
+              )
+            )
+          )
+        ),
+
+        // POPUP MODAL FICHE MEMBRE
         selectedMembreModal && e('div', { className: 'fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-md animate-fade-in' },
           e('div', { className: 'relative w-full max-w-xl bg-white rounded-3xl shadow-2xl border border-ht-line flex flex-col max-h-[85vh] overflow-hidden' },
-            // Background Image Overlay 1779138262345.jpg
             e('div', {
               className: 'absolute inset-0 bg-cover bg-center pointer-events-none opacity-25',
               style: { backgroundImage: `url('${IMG_MODAL}')` }
             }),
-
-            // Header
             e('div', { className: 'p-6 border-b border-ht-line flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-10' },
               e('div', { className: 'flex items-center gap-4' },
                 e('div', { className: 'w-14 h-14 rounded-2xl gradient-emerald text-white flex items-center justify-center font-display font-extrabold text-xl shadow-md border border-ht-mint' },
@@ -776,26 +1342,15 @@
               ),
               e('button', { onClick: () => setSelectedMembreModal(null), className: 'p-2 rounded-2xl text-gray-400 hover:text-gray-700 font-bold text-xl' }, '✕')
             ),
-
-            // Modal Body with Refined Personal Info Grid
             e('div', { className: 'p-6 space-y-4 overflow-y-auto relative z-10 flex-1' },
-              // Refined Informations Personnelles Section
               e('div', { className: 'bg-white/90 backdrop-blur-md rounded-2xl p-5 border border-ht-line space-y-4 shadow-soft' },
                 e('div', { className: 'flex items-center justify-between border-b border-ht-line pb-3' },
                   e('div', { className: 'flex items-center gap-2' },
                     e(Icon, { path: PATHS.user, className: 'w-4 h-4 text-ht-emerald' }),
                     e('span', { className: 'text-xs font-bold text-ht-ink uppercase tracking-wider' }, 'Informations Personnelles')
                   ),
-                  e('span', {
-                    className: `px-3 py-1 text-xs font-extrabold rounded-full flex items-center gap-1.5 ${
-                      selectedMembreModal.statut === 'Actif' ? 'bg-ht-mist text-ht-emerald border border-ht-mint' : 'bg-red-50 text-ht-clay border border-red-200'
-                    }`
-                  },
-                    e('span', { className: `w-2 h-2 rounded-full ${selectedMembreModal.statut === 'Actif' ? 'bg-ht-emerald' : 'bg-ht-clay'}` }),
-                    selectedMembreModal.statut
-                  )
+                  e('span', { className: 'px-3 py-1 text-xs font-extrabold rounded-full bg-ht-mist text-ht-emerald border border-ht-mint' }, selectedMembreModal.statut)
                 ),
-
                 e('div', { className: 'grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs' },
                   e('div', { className: 'p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1' },
                     e('span', { className: 'text-[10px] font-bold text-ht-sage uppercase tracking-wider block' }, 'Prénom'),
@@ -813,73 +1368,26 @@
                     )
                   ),
                   e('div', { className: 'p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1' },
-                    e('span', { className: 'text-[10px] font-bold text-ht-sage uppercase tracking-wider block' }, 'Profession'),
+                    e('span', { className: 'text-[10px] font-bold text-ht-sage uppercase tracking-wider block' }, 'Secteur de travail'),
                     e('div', { className: 'flex items-center gap-2 font-semibold text-ht-ink' },
                       e(Icon, { path: PATHS.briefcase, className: 'w-3.5 h-3.5 text-ht-sage' }),
-                      selectedMembreModal.profession || 'Salarié'
-                    )
-                  ),
-                  e('div', { className: 'p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1 col-span-1 sm:col-span-2' },
-                    e('span', { className: 'text-[10px] font-bold text-ht-sage uppercase tracking-wider block' }, 'Adresse Résidence'),
-                    e('div', { className: 'flex items-center gap-2 font-medium text-ht-ink' },
-                      e(Icon, { path: PATHS.mapPin, className: 'w-3.5 h-3.5 text-ht-sage' }),
-                      selectedMembreModal.adresse || 'Touba Mosquée, Quartier Darou Minam'
+                      secteurs.find(s => s.id === selectedMembreModal.secteur_id)?.nom || 'Organisation'
                     )
                   )
                 )
-              ),
-
-              // Presence, Retard, Absence Stats
-              e('div', { className: 'bg-white/90 backdrop-blur-md rounded-2xl p-4 border border-ht-line space-y-2 shadow-soft' },
-                e('div', { className: 'font-bold text-xs text-ht-ink mb-2' }, 'Statistiques d\'Assiduité & Absences'),
-                e('div', { className: 'grid grid-cols-3 gap-2 text-center text-xs' },
-                  e('div', { className: 'p-2.5 bg-ht-mist rounded-xl border border-ht-mint font-bold text-ht-emerald' },
-                    e('div', { className: 'text-lg' }, selectedMembreModal.presences || 12),
-                    e('div', { className: 'text-[10px] text-ht-sage font-normal' }, 'Présences')
-                  ),
-                  e('div', { className: 'p-2.5 bg-amber-50 rounded-xl border border-amber-200 font-bold text-ht-amber' },
-                    e('div', { className: 'text-lg' }, selectedMembreModal.retards || 1),
-                    e('div', { className: 'text-[10px] text-amber-700 font-normal' }, 'Retards')
-                  ),
-                  e('div', { className: 'p-2.5 bg-red-50 rounded-xl border border-red-200 font-bold text-ht-clay' },
-                    e('div', { className: 'text-lg' }, selectedMembreModal.absences || 0),
-                    e('div', { className: 'text-[10px] text-red-700 font-normal' }, 'Absences')
-                  )
-                )
-              ),
-
-              // Coran / Juki Assigned
-              e('div', { className: 'bg-white/90 backdrop-blur-md rounded-2xl p-4 border border-ht-line space-y-2 shadow-soft' },
-                e('div', { className: 'font-bold text-xs text-ht-ink' }, 'Juki (Portion du Coran Attribuée)'),
-                (() => {
-                  const jAssigned = kamilCycle.assignations.find(a => a.membre_id === selectedMembreModal.id);
-                  return jAssigned ? e('div', { className: 'p-3 bg-ht-mist rounded-xl border border-ht-mint flex justify-between items-center text-xs' },
-                    e('div', null,
-                      e('div', { className: 'font-bold text-ht-emerald text-sm' }, `Juki #${jAssigned.juz}`),
-                      e('div', { className: 'text-[11px] text-ht-inkSoft' }, jAssigned.nom_juz)
-                    ),
-                    e('span', { className: 'px-2.5 py-1 bg-ht-emerald text-white rounded-full font-bold text-[10px]' }, jAssigned.statut)
-                  ) : e('div', { className: 'text-xs text-ht-sage italic p-2' }, 'Aucun Juki attribué actuellement sur ce cycle.');
-                })()
               )
             ),
-
-            // Footer with Delete CTA
             e('div', { className: 'p-4 border-t border-ht-line bg-white/90 backdrop-blur-md flex justify-between items-center relative z-10' },
               e('button', {
                 onClick: () => handleDeleteMembre(selectedMembreModal.id),
                 className: 'px-4 py-2 bg-red-50 text-ht-clay hover:bg-red-100 border border-red-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer'
               }, e(Icon, { path: PATHS.trash, className: 'w-4 h-4 text-ht-clay' }), 'Supprimer le membre'),
-
-              e('button', {
-                onClick: () => setSelectedMembreModal(null),
-                className: 'px-5 py-2 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md cursor-pointer'
-              }, 'Fermer')
+              e('button', { onClick: () => setSelectedMembreModal(null), className: 'px-5 py-2 gradient-emerald text-white rounded-xl text-xs font-bold shadow-md cursor-pointer' }, 'Fermer')
             )
           )
         ),
 
-        // Functional Delete Member Modal
+        // DELETE MEMBER MODAL
         isDeleteModalOpen && e('div', { className: 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in' },
           e('div', { className: 'bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl border border-ht-line' },
             e('div', { className: 'flex justify-between items-center' },
@@ -909,7 +1417,7 @@
           )
         ),
 
-        // Add Member Modal
+        // ADD MEMBER MODAL
         isAddMembreOpen && e('div', { className: 'fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50' },
           e('div', { className: 'bg-white rounded-3xl p-6 w-full max-w-md space-y-4 shadow-2xl' },
             e('div', { className: 'flex justify-between items-center' },

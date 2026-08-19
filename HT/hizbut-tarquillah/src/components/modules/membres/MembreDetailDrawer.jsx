@@ -307,5 +307,6 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
         </div>
       </div>
     </div>
+  </div>
   );
 };
