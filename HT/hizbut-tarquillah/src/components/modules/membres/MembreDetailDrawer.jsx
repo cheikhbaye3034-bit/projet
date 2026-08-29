@@ -1,10 +1,25 @@
 import React from 'react';
-import { X, User, Phone, MapPin, Briefcase, Calendar, BookOpen, CheckCircle2, Clock, XCircle, ShieldCheck, Wallet, AlertCircle, Trash2 } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  User, 
+  Phone, 
+  MapPin, 
+  Briefcase, 
+  Calendar, 
+  BookOpen, 
+  CheckCircle2, 
+  Clock, 
+  ShieldCheck, 
+  Trash2,
+  Award,
+  Layers,
+  Sparkles,
+  Hash
+} from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
-import bgModal from '../../../assets/images/bg_modal.jpg';
 
 export const MembreDetailDrawer = ({ membreId, onClose }) => {
-  const { membres, zones, kourels, kamilCycle, seances, deleteMembre, updateMembreZone } = useApp();
+  const { membres, kourels, kamilCycle, seances, deleteMembre } = useApp();
 
   if (!membreId) return null;
 
@@ -12,15 +27,14 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
   if (!membre) return null;
 
   const kourel = kourels.find((k) => k.id === membre.kourel_id);
-  const zoneAssigned = zones ? zones.find((z) => z.id === membre.zone_id) : null;
 
   // Kamil Juki assignment for this member
-  const juzAssigned = kamilCycle.assignations.find((a) => a.membre_id === membreId);
+  const juzAssigned = kamilCycle?.assignations?.find((a) => a.membre_id === membreId);
 
   // History of recorded presences for this member across all seances
   const memberPresences = [];
-  seances.forEach((s) => {
-    const p = s.presences.find((item) => item.membre_id === membreId);
+  (seances || []).forEach((s) => {
+    const p = s.presences?.find((item) => item.membre_id === membreId);
     if (p) {
       memberPresences.push({
         seanceId: s.id,
@@ -37,8 +51,7 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
   const totalRetards = memberPresences.filter(p => p.statut === 'En retard').length;
   const totalAbsents = memberPresences.filter(p => p.statut === 'Absent').length;
 
-  const presenceRate = totalRecorded > 0 ? Math.round(((totalPresents + totalRetards) / totalRecorded) * 100) : 100;
-  const isEnRegle = membre.cotisation_statut === 'À jour';
+  const presenceRate = totalRecorded > 0 ? Math.round(((totalPresents + totalRetards * 0.5) / totalRecorded) * 100) : 100;
 
   const handleDelete = () => {
     if (window.confirm(`Êtes-vous sûr de vouloir supprimer le membre ${membre.prenom} ${membre.nom} ?`)) {
@@ -48,265 +61,212 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 select-none animate-fade-in">
-      {/* Backdrop with dark blur */}
-      <div
-        onClick={onClose}
-        className="fixed inset-0 bg-ht-ink/80 backdrop-blur-md transition-opacity"
-      ></div>
+    <div className="space-y-6 animate-fade-in select-none">
+      
+      {/* Top Action Bar: Back button */}
+      <div className="flex items-center justify-between gap-4">
+        <button
+          onClick={onClose}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-xs sm:text-sm font-bold text-slate-700 shadow-soft-xs transition-all cursor-pointer active:scale-95"
+        >
+          <ArrowLeft className="w-4 h-4 text-emerald-800" />
+          <span>Retour au Répertoire des Membres</span>
+        </button>
 
-      {/* Centered Modal Card with Background Image 1779138262345.jpg */}
-      <div className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl z-10 flex flex-col max-h-[90vh] overflow-hidden border border-ht-line animate-scale-up">
+        <span className="text-xs font-black uppercase tracking-wider text-slate-400">
+          Fiche Membre Individuelle
+        </span>
+      </div>
+
+      {/* Main Header Profile Card (100% Direct on Page, No Modal, No Dark Stain) */}
+      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         
-        {/* Background Image & Overlay */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center pointer-events-none opacity-25"
-          style={{ backgroundImage: `url(${bgModal})` }}
-        />
+        <div className="flex items-center gap-4 sm:gap-5">
+          {/* Avatar Initials */}
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-emerald-800 text-white font-display font-black text-2xl sm:text-3xl flex items-center justify-center shadow-md flex-shrink-0">
+            {membre.prenom?.[0] || 'M'}{membre.nom?.[0] || 'D'}
+          </div>
 
-        {/* Top Header */}
-        <div className="p-6 border-b border-ht-line flex items-center justify-between bg-white/90 backdrop-blur-md sticky top-0 z-10">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl gradient-emerald text-white flex items-center justify-center font-display font-extrabold text-xl shadow-md border border-ht-mint">
-              {membre.prenom[0]}{membre.nom[0]}
-            </div>
-            <div>
-              <h3 className="font-display font-bold text-xl text-ht-ink leading-snug">
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="font-display font-black text-xl sm:text-2xl lg:text-3xl text-slate-900 leading-tight">
                 {membre.prenom} {membre.nom}
-              </h3>
-              <p className="text-xs text-ht-emerald font-bold mt-0.5">
-                {kourel ? kourel.nom : 'Non rattaché'}
-              </p>
+              </h1>
+              
+              <span
+                className={`px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase rounded-md flex items-center gap-1 ${
+                  membre.statut === 'Actif'
+                    ? 'bg-emerald-100 text-emerald-900 border border-emerald-200'
+                    : 'bg-rose-100 text-rose-900 border border-rose-200'
+                }`}
+              >
+                <span className={`w-1.5 h-1.5 rounded-full ${membre.statut === 'Actif' ? 'bg-emerald-600' : 'bg-rose-600'}`} />
+                <span>{membre.statut || 'Actif'}</span>
+              </span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-500">
+              <span className="flex items-center gap-1 text-emerald-800 font-bold bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-100">
+                <Layers className="w-3.5 h-3.5 text-emerald-700" />
+                <span>{kourel ? kourel.nom : 'Kourel non spécifié'}</span>
+              </span>
+
+              <span className="flex items-center gap-1 text-slate-600">
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                <span>Inscrit le {membre.date_adhesion || '10 Février 2021'}</span>
+              </span>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-2xl text-ht-sage hover:text-ht-ink hover:bg-ht-mist transition-all"
-            title="Fermer"
-          >
-            <X className="w-6 h-6" />
-          </button>
         </div>
 
-        {/* Content body */}
-        <div className="p-6 space-y-5 overflow-y-auto flex-1 relative z-10">
-        {/* Content body */}
-        <div className="p-6 space-y-5 overflow-y-auto flex-1 relative z-10">
-          {/* High-End Refined Personal Info Section */}
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-5 border border-ht-line space-y-4 shadow-soft">
-            <div className="flex items-center justify-between border-b border-ht-line pb-3">
-              <div className="flex items-center gap-2">
-                <User className="w-4 h-4 text-ht-emerald" />
-                <span className="text-xs font-bold text-ht-ink uppercase tracking-wider">Informations Personnelles</span>
-              </div>
-              <span
-                className={`px-3 py-1 text-xs font-extrabold rounded-full flex items-center gap-1.5 ${
-                  membre.statut === 'Actif'
-                    ? 'bg-ht-mist text-ht-emerald border border-ht-mint'
-                    : membre.statut === 'Suspendu'
-                    ? 'bg-red-50 text-ht-clay border border-red-200'
-                    : 'bg-gray-100 text-gray-600'
-                }`}
-              >
-                <span className={`w-2 h-2 rounded-full ${membre.statut === 'Actif' ? 'bg-ht-emerald' : 'bg-ht-clay'}`}></span>
-                <span>{membre.statut}</span>
+        {/* Action Button: Supprimer */}
+        <button
+          onClick={handleDelete}
+          className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 self-end md:self-center shadow-xs"
+        >
+          <Trash2 className="w-4 h-4" />
+          <span>Supprimer ce membre</span>
+        </button>
+      </div>
+
+      {/* Grid of Clean Detail Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        
+        {/* CARD 1 : INFORMATIONS PERSONNELLES */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-soft space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+            <User className="w-4 h-4 text-emerald-800" />
+            <h2 className="font-display font-bold text-sm text-slate-900">
+              Identité & Coordonnées
+            </h2>
+          </div>
+
+          <div className="space-y-3 text-xs">
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+              <span className="text-slate-500 font-medium">Prénom</span>
+              <span className="font-bold text-slate-900">{membre.prenom}</span>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+              <span className="text-slate-500 font-medium">Nom de famille</span>
+              <span className="font-bold text-slate-900 uppercase">{membre.nom}</span>
+            </div>
+
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+              <span className="text-slate-500 font-medium">Téléphone</span>
+              <span className="font-bold text-emerald-900 flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-emerald-700" />
+                <span>{membre.telephone}</span>
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1">
-                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Prénom</span>
-                <span className="font-bold text-sm text-ht-ink block">{membre.prenom}</span>
-              </div>
-
-              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1">
-                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Nom</span>
-                <span className="font-extrabold text-sm text-ht-ink uppercase tracking-wide block">{membre.nom}</span>
-              </div>
-
-              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1">
-                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Téléphone</span>
-                <div className="flex items-center gap-2 font-mono font-bold text-ht-emerald">
-                  <Phone className="w-3.5 h-3.5 text-ht-sage" />
-                  <span>{membre.telephone}</span>
-                </div>
-              </div>
-
-              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1">
-                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Profession</span>
-                <div className="flex items-center gap-2 font-semibold text-ht-ink">
-                  <Briefcase className="w-3.5 h-3.5 text-ht-sage" />
-                  <span>{membre.profession || 'Non spécifié'}</span>
-                </div>
-              </div>
-
-              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1 col-span-1 sm:col-span-2">
-                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Adresse Résidence</span>
-                <div className="flex items-center gap-2 font-medium text-ht-ink">
-                  <MapPin className="w-3.5 h-3.5 text-ht-sage" />
-                  <span>{membre.adresse || 'Touba Mosquée, Quartier Darou Minam'}</span>
-                </div>
-              </div>
-
-              <div className="p-3 bg-ht-page/90 rounded-xl border border-ht-line space-y-1 col-span-1 sm:col-span-2">
-                <span className="text-[10px] font-bold text-ht-sage uppercase tracking-wider block">Date d'Adhésion</span>
-                <div className="flex items-center gap-2 font-medium text-ht-ink">
-                  <Calendar className="w-3.5 h-3.5 text-ht-sage" />
-                  <span>Inscrit depuis le {membre.date_adhesion}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* SECTION ZONE GÉOGRAPHIQUE & SUPERVISEUR */}
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-4 border border-ht-line shadow-soft space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 font-display font-bold text-xs text-ht-ink uppercase tracking-wider">
-                <MapPin className="w-4 h-4 text-ht-emerald" />
-                <span>Zone Géographique Affectée</span>
-              </div>
-            </div>
-            <div className="flex items-center justify-between gap-3 p-3 bg-ht-page/80 rounded-xl border border-ht-line text-xs">
-              <div>
-                <span className="font-bold text-ht-emerald text-sm block">
-                  {zoneAssigned ? zoneAssigned.nom : 'Non affecté'}
-                </span>
-                <span className="text-[11px] text-ht-sage font-medium">
-                  {zoneAssigned ? `Superviseur : ${zoneAssigned.responsable}` : 'Veuillez affecter une zone à ce membre'}
-                </span>
-              </div>
-              <select
-                value={membre.zone_id || ''}
-                onChange={(e) => updateMembreZone(membre.id, e.target.value)}
-                className="px-3 py-1.5 bg-white border border-ht-line rounded-xl font-semibold text-ht-ink focus:outline-none focus:border-ht-fern text-xs cursor-pointer"
-              >
-                <option value="">Sélectionner une Zone...</option>
-                {zones.map((z) => (
-                  <option key={z.id} value={z.id}>
-                    {z.nom}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* SECTION COTISATIONS (En règle ou pas) */}
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-5 border border-ht-line shadow-soft space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 font-display font-bold text-sm text-ht-ink">
-                <Wallet className="w-4 h-4 text-ht-emerald" />
-                <span>Statut des Cotisations</span>
-              </div>
-              <span
-                className={`px-3 py-1 text-xs font-extrabold rounded-full flex items-center gap-1.5 ${
-                  isEnRegle
-                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                    : 'bg-red-50 text-red-700 border border-red-200'
-                }`}
-              >
-                {isEnRegle ? (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                    <span>EN RÈGLE</span>
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="w-3.5 h-3.5 text-red-600" />
-                    <span>NON EN RÈGLE</span>
-                  </>
-                )}
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between">
+              <span className="text-slate-500 font-medium">Profession</span>
+              <span className="font-bold text-slate-900 flex items-center gap-1.5">
+                <Briefcase className="w-3.5 h-3.5 text-slate-400" />
+                <span>{membre.profession || 'Salarié'}</span>
               </span>
             </div>
 
-            <div className="p-3.5 bg-ht-page/80 rounded-xl border border-ht-line space-y-2 text-xs">
-              <div className="flex justify-between text-ht-ink font-medium">
-                <span className="text-ht-sage">Montant mensuel :</span>
-                <span className="font-bold text-ht-ink">{membre.cotisation_montant || '5 000 FCFA'}</span>
-              </div>
-              <div className="flex justify-between text-ht-ink font-medium">
-                <span className="text-ht-sage">Dernier paiement :</span>
-                <span className="font-semibold text-ht-emerald">{membre.dernier_paiement || 'N/A'}</span>
-              </div>
+            <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+              <span className="text-slate-500 font-medium block">Adresse de résidence</span>
+              <span className="font-semibold text-slate-900 flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                <span>{membre.adresse || 'Touba Mosquée, Quartier Darou Minam'}</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* CARD 2 : ASSIDUITÉ & PRÉSENCES */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-soft space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+            <div className="flex items-center gap-2">
+              <Award className="w-4 h-4 text-emerald-800" />
+              <h2 className="font-display font-bold text-sm text-slate-900">
+                Assiduité & Séances
+              </h2>
+            </div>
+            <span className="text-xs font-black text-emerald-900 bg-emerald-100 px-2.5 py-0.5 rounded-md">
+              {presenceRate}%
+            </span>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2.5 text-center text-xs">
+            <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200">
+              <span className="font-display font-black text-xl text-emerald-900 block">{totalPresents}</span>
+              <span className="text-[10px] text-emerald-700 font-bold uppercase tracking-wider block mt-1">Présences</span>
+            </div>
+
+            <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200">
+              <span className="font-display font-black text-xl text-amber-900 block">{totalRetards}</span>
+              <span className="text-[10px] text-amber-700 font-bold uppercase tracking-wider block mt-1">Retards</span>
+            </div>
+
+            <div className="p-3 bg-rose-50 rounded-2xl border border-rose-200">
+              <span className="font-display font-black text-xl text-rose-900 block">{totalAbsents}</span>
+              <span className="text-[10px] text-rose-700 font-bold uppercase tracking-wider block mt-1">Absences</span>
             </div>
           </div>
 
-          {/* NUMÉRO DU CORAN PRIS (Juki Kamil) */}
-          <div className="bg-white/90 backdrop-blur-md rounded-2xl p-5 border border-ht-line shadow-soft space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 font-display font-bold text-sm text-ht-ink">
-                <BookOpen className="w-4 h-4 text-ht-emerald" />
-                <span>Numéro du Coran Pris (Juki — Cycle #{kamilCycle.numero_cycle})</span>
-              </div>
+          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1 text-xs">
+            <div className="flex items-center justify-between text-slate-600">
+              <span>Total séances enregistrées</span>
+              <span className="font-bold text-slate-900">{totalRecorded} séances</span>
             </div>
+            <div className="flex items-center justify-between text-slate-600">
+              <span>Régularité globale</span>
+              <span className="font-bold text-emerald-800">{presenceRate >= 80 ? 'Excellente' : 'Moyenne'}</span>
+            </div>
+          </div>
+        </div>
 
+        {/* CARD 3 : LECTURE DU SAINT CORAN (KAMIL) */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-soft space-y-4">
+          <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
+            <BookOpen className="w-4 h-4 text-emerald-800" />
+            <h2 className="font-display font-bold text-sm text-slate-900">
+              Récitation du Coran (Kamil)
+            </h2>
+          </div>
+
+          <div className="space-y-3 text-xs">
             {juzAssigned ? (
-              <div className="p-3.5 bg-ht-mist rounded-xl border border-ht-mint flex items-center justify-between">
-                <div>
-                  <div className="font-display font-extrabold text-base text-ht-emerald flex items-center gap-2">
-                    <span>Juki {juzAssigned.juz}</span>
-                    <span className="text-xs font-normal text-ht-sage">(Coran n°{juzAssigned.juz})</span>
-                  </div>
-                  <div className="text-xs text-ht-inkSoft mt-0.5 font-medium">{juzAssigned.nom_juz}</div>
+              <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="px-2.5 py-1 bg-emerald-800 text-white rounded-lg text-xs font-black">
+                    Juki N° {juzAssigned.juz}
+                  </span>
+                  <span className={`px-2.5 py-0.5 rounded-md text-[11px] font-black uppercase ${
+                    juzAssigned.statut === 'Terminé' 
+                      ? 'bg-emerald-200 text-emerald-950' 
+                      : 'bg-amber-200 text-amber-950'
+                  }`}>
+                    {juzAssigned.statut}
+                  </span>
                 </div>
-                <span
-                  className={`px-2.5 py-1 text-xs font-bold rounded-full ${
-                    juzAssigned.statut === 'Terminé'
-                      ? 'bg-ht-emerald text-white'
-                      : juzAssigned.statut === 'En cours'
-                      ? 'bg-ht-amber text-white'
-                      : 'bg-white text-ht-inkSoft border border-ht-line'
-                  }`}
-                >
-                  {juzAssigned.statut}
-                </span>
+
+                <div>
+                  <p className="font-display font-bold text-sm text-emerald-950">
+                    {juzAssigned.nom_juz}
+                  </p>
+                  <p className="text-[11px] text-slate-600 mt-0.5">
+                    Cycle en cours #{kamilCycle?.numero_cycle || 42}
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="text-xs text-ht-sage italic bg-ht-page/80 p-3 rounded-xl border border-ht-line">
-                Aucun Juki (portion du Coran) attribué sur ce cycle.
+              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center space-y-1">
+                <BookOpen className="w-6 h-6 text-slate-400 mx-auto" />
+                <p className="text-slate-600 font-semibold">Aucun Juki attribué</p>
+                <p className="text-[11px] text-slate-400">Ce membre n'a pas encore de portion assignée sur ce cycle.</p>
               </div>
             )}
           </div>
-
-          {/* NOMBRE D'ABSENCES & Attendance Stats */}
-          <div className="space-y-3 bg-white/90 backdrop-blur-md rounded-2xl p-5 border border-ht-line shadow-soft">
-            <div className="flex items-center justify-between">
-              <h4 className="font-display font-bold text-sm text-ht-ink">
-                Nombre d'Absences & Présences
-              </h4>
-              <span className="text-xs font-bold text-ht-emerald bg-ht-mist px-2.5 py-0.5 rounded-full border border-ht-mint">
-                Assiduité : {presenceRate}%
-              </span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="p-2.5 bg-ht-mist rounded-xl border border-ht-mint">
-                <div className="font-display font-bold text-sm text-ht-emerald">{totalPresents}</div>
-                <div className="text-[10px] text-ht-sage font-medium">Présences</div>
-              </div>
-              <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200">
-                <div className="font-display font-bold text-sm text-ht-amber">{totalRetards}</div>
-                <div className="text-[10px] text-amber-700 font-medium">Retards</div>
-              </div>
-              <div className="p-2.5 bg-red-50 rounded-xl border border-red-200">
-                <div className="font-display font-bold text-sm text-ht-clay">{totalAbsents}</div>
-                <div className="text-[10px] text-red-700 font-bold">Absences ({totalAbsents})</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Footer CTA: Supprimer membre */}
-          <div className="pt-2 flex justify-end">
-            <button
-              onClick={handleDelete}
-              className="px-4 py-2.5 bg-red-50 text-ht-clay hover:bg-red-100 border border-red-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2"
-            >
-              <Trash2 className="w-4 h-4 text-ht-clay" />
-              <span>Supprimer le membre</span>
-            </button>
-          </div>
         </div>
+
       </div>
+
     </div>
-  </div>
   );
 };

@@ -68,8 +68,8 @@ export const PointageRapideModal = ({ isOpen, onClose, seance, membersOfKourel, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in select-none">
-      <div className="bg-white rounded-3xl border border-ht-line shadow-2xl w-full max-w-xl overflow-hidden animate-scale-up flex flex-col">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-3 sm:p-4 bg-slate-900/15 backdrop-blur-xs animate-fade-in select-none">
+      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-xl overflow-hidden animate-scale-up flex flex-col max-h-[90vh] overflow-y-auto">
         {/* Modal Header */}
         <div
           className={`p-6 border-b border-ht-line flex items-center justify-between text-white ${

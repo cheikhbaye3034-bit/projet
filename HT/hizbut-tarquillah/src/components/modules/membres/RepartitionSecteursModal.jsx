@@ -33,8 +33,8 @@ export const RepartitionSecteursModal = ({ isOpen, onClose }) => {
   });
 
   return (
-    <div className="fixed inset-0 bg-ht-ink/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in select-none">
-      <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] shadow-2xl border border-ht-line flex flex-col overflow-hidden relative">
+    <div className="fixed inset-0 bg-slate-900/15 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 z-[500] animate-fade-in select-none">
+      <div className="bg-white rounded-3xl w-full max-w-4xl max-h-[90vh] shadow-2xl border border-slate-200 flex flex-col overflow-hidden relative">
         
         {/* Header */}
         <div className="p-6 border-b border-ht-line bg-gradient-to-r from-ht-mist via-white to-emerald-50/40 flex items-center justify-between">

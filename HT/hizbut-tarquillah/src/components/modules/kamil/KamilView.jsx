@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { BookOpen, Plus, Calendar, Clock, CheckCircle2, Award, Users, TrendingUp, ArrowUpRight, ArrowDownRight, UserCheck, Eye } from 'lucide-react';
+import { BookOpen, Plus, Calendar, Clock, CheckCircle2, Award, Users, TrendingUp, ArrowUpRight, UserCheck, Eye, Sparkles } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { JuzGrid } from './JuzGrid';
 import { NouveauCycleModal } from './NouveauCycleModal';
 import { AttributionJukiModal } from './AttributionJukiModal';
 import { KamilDetailsModal } from './KamilDetailsModal';
 import { KamilHistoryChart } from './KamilHistoryChart';
+import kamilHeroQuran from '../../../assets/images/kamil_hero_quran.jpg';
 
 export const KamilView = () => {
   const { kamilCycle, membres, pastKamilCycles } = useApp();
@@ -16,14 +17,14 @@ export const KamilView = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [detailsTab, setDetailsTab] = useState('membres'); // 'membres' | 'termines'
 
-  const termines = kamilCycle.assignations.filter((a) => a.statut === 'Terminé').length;
-  const enCours = kamilCycle.assignations.filter((a) => a.statut === 'En cours').length;
-  const aFaire = kamilCycle.assignations.filter((a) => a.statut === 'À faire').length;
+  const termines = kamilCycle ? kamilCycle.assignations.filter((a) => a.statut === 'Terminé').length : 0;
+  const enCours = kamilCycle ? kamilCycle.assignations.filter((a) => a.statut === 'En cours').length : 0;
+  const aFaire = kamilCycle ? kamilCycle.assignations.filter((a) => a.statut === 'À faire').length : 0;
 
-  const membersInvolvedCount = new Set(kamilCycle.assignations.map(a => a.membre_id)).size;
+  const membersInvolvedCount = kamilCycle ? new Set(kamilCycle.assignations.map(a => a.membre_id)).size : 0;
 
   const today = new Date();
-  const endDate = new Date(kamilCycle.date_fin_prevue);
+  const endDate = new Date(kamilCycle?.date_fin_prevue || Date.now());
   const diffTime = endDate - today;
   const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
@@ -33,162 +34,164 @@ export const KamilView = () => {
   };
 
   return (
-    <div className="space-y-8 pb-10 animate-fade-in select-none">
-      {/* Top Title Header & Action CTAs */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div>
-          <div className="text-xs font-bold text-ht-emerald uppercase tracking-widest mb-1">
-            CYCLE EN COURS · ÉCHÉANCE LE 18 AOÛT
+    <div className="space-y-8 pb-12 animate-fade-in select-none">
+      
+      {/* Grand Hero Banner with Holy Quran Background */}
+      <div className="relative rounded-3xl overflow-hidden shadow-xl border border-emerald-500/40 text-white p-6 sm:p-8">
+        <div 
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${kamilHeroQuran})` }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/98 via-slate-950/90 to-emerald-950/95 backdrop-blur-[1px]" />
+
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="space-y-2.5 max-w-2xl">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-900/90 backdrop-blur-md border border-emerald-400/40 text-xs font-black text-emerald-200">
+              <Sparkles className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
+              <span>Cycle Actif #{kamilCycle?.numero_cycle} • Échéance dans {daysRemaining} jours</span>
+            </div>
+            
+            <h1 className="font-display font-black text-2xl sm:text-3xl text-white tracking-tight drop-shadow-md">
+              Kamil — Récitation Collective du Saint Coran
+            </h1>
+            
+            <p className="text-xs sm:text-sm text-slate-100 font-medium leading-relaxed max-w-xl">
+              Coordination de la lecture intégrale des 30 Jukis répartis entre les membres du Dahira.
+            </p>
           </div>
-          <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink">
-            Kamil — Lecture collective du Coran
-          </h1>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            onClick={() => setIsAttributionModalOpen(true)}
-            className="btn-anim px-5 py-3 bg-ht-mist text-ht-emerald border border-ht-mint rounded-2xl text-xs font-extrabold shadow-sm hover:bg-ht-mint flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
-          >
-            <UserCheck className="w-4 h-4 text-ht-emerald" />
-            <span>👤 Assigner les 30 Juki</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2.5 self-end md:self-center">
+            <button
+              onClick={() => setIsAttributionModalOpen(true)}
+              className="px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white border border-white/25 rounded-xl text-xs font-bold shadow-md flex items-center gap-2 transition-all active:scale-95 cursor-pointer backdrop-blur-md"
+            >
+              <UserCheck className="w-4 h-4 text-emerald-300" />
+              <span>Assigner les Jukis</span>
+            </button>
 
-          <button
-            onClick={() => setIsNouveauCycleModalOpen(true)}
-            className="btn-anim px-5 py-3 gradient-emerald text-white rounded-2xl text-xs font-bold shadow-md hover:shadow-lg flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
-          >
-            <Plus className="w-4 h-4 text-white" />
-            <span>Lancer un Nouveau Cycle</span>
-          </button>
+            <button
+              onClick={() => setIsNouveauCycleModalOpen(true)}
+              className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-600 text-white rounded-xl text-xs font-bold shadow-lg flex items-center gap-2 transition-all active:scale-95 cursor-pointer"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Nouveau Cycle</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* 4 Professional Clickable KPI Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        
-        {/* Stat Card 1: Parties terminées (Clickable) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        {/* Stat Card 1: Parties terminées */}
         <div
           onClick={() => handleOpenDetails('termines')}
-          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-ht-mint hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
-          title="Cliquer pour voir le détail des Juki terminés"
+          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          title="Cliquer pour voir le détail des Jukis terminés"
         >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint group-hover:scale-105 transition-transform">
-              <CheckCircle2 className="w-6 h-6 text-ht-emerald" />
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold border border-emerald-200/80 group-hover:scale-105 transition-transform">
+              <CheckCircle2 className="w-5 h-5 text-emerald-700" />
             </div>
-            <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5" />
-              <span>Voir détail</span>
+            <span className="px-2 py-0.5 bg-emerald-100/70 text-emerald-800 text-[10px] font-black rounded-full flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              <span>Détails</span>
             </span>
           </div>
-          <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-ht-emerald transition-colors">
+          <div className="mt-4">
+            <div className="font-display font-black text-2xl text-slate-900 group-hover:text-emerald-800 transition-colors">
               {termines}/30
             </div>
-            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
-              <span>Parties terminées</span>
-              <span className="text-[10px] text-ht-emerald font-bold underline">Cliquez pour voir ➔</span>
+            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span>Jukis validés</span>
+              <span className="text-[10px] text-emerald-700 font-bold underline">Voir liste ➔</span>
             </div>
           </div>
         </div>
 
-        {/* Stat Card 2: Membres impliqués (Clickable) */}
+        {/* Stat Card 2: Membres impliqués */}
         <div
           onClick={() => handleOpenDetails('membres')}
-          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-ht-mint hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
-          title="Cliquer pour voir la liste des membres impliqués et leurs Juki"
+          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          title="Cliquer pour voir la liste des membres impliqués"
         >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint group-hover:scale-105 transition-transform">
-              <Users className="w-6 h-6 text-ht-emerald" />
+            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center font-bold border border-blue-200/80 group-hover:scale-105 transition-transform">
+              <Users className="w-5 h-5 text-blue-700" />
             </div>
-            <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200 flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5" />
-              <span>Voir membres</span>
+            <span className="px-2 py-0.5 bg-blue-100/70 text-blue-800 text-[10px] font-black rounded-full flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              <span>Membres</span>
             </span>
           </div>
-          <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-ht-emerald transition-colors">
+          <div className="mt-4">
+            <div className="font-display font-black text-2xl text-slate-900 group-hover:text-blue-800 transition-colors">
               {membersInvolvedCount || 10}
             </div>
-            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
-              <span>Membres impliqués</span>
-              <span className="text-[10px] text-ht-emerald font-bold underline">Cliquez pour voir ➔</span>
+            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span>Lecteurs actifs</span>
+              <span className="text-[10px] text-blue-700 font-bold underline">Affectations ➔</span>
             </div>
           </div>
         </div>
 
-        {/* Stat Card 3: Parties en cours / Jours restants (Clickable) */}
+        {/* Stat Card 3: Parties en cours */}
         <div
           onClick={() => handleOpenDetails('encours')}
-          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-amber-300 hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
-          title="Cliquer pour voir les Juki en cours et à faire"
+          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          title="Cliquer pour voir les Jukis en cours"
         >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-amber-50 text-ht-amber flex items-center justify-center font-bold border border-amber-200 group-hover:scale-105 transition-transform">
-              <Clock className="w-6 h-6 text-ht-amber" />
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center font-bold border border-amber-200/80 group-hover:scale-105 transition-transform">
+              <Clock className="w-5 h-5 text-amber-700" />
             </div>
-            <span className="px-3 py-1 bg-amber-50 text-amber-700 text-xs font-bold rounded-full border border-amber-200 flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5" />
-              <span>Voir restants</span>
+            <span className="px-2 py-0.5 bg-amber-100/70 text-amber-800 text-[10px] font-black rounded-full flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              <span>Restants</span>
             </span>
           </div>
-          <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-ht-amber transition-colors">
+          <div className="mt-4">
+            <div className="font-display font-black text-2xl text-slate-900 group-hover:text-amber-800 transition-colors">
               {enCours + aFaire}/30
             </div>
-            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
-              <span>Parties restantes ({daysRemaining}j restants)</span>
-              <span className="text-[10px] text-ht-amber font-bold underline">Cliquez pour voir ➔</span>
+            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span>Restants ({daysRemaining}j)</span>
+              <span className="text-[10px] text-amber-700 font-bold underline">Voir tout ➔</span>
             </div>
           </div>
         </div>
 
-        {/* Stat Card 4: Cycles terminés (Clickable) */}
+        {/* Stat Card 4: Cycles terminés */}
         <div
           onClick={() => handleOpenDetails('cycles')}
-          className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft space-y-3 hover:border-indigo-300 hover:shadow-md transition-all cursor-pointer group relative overflow-hidden"
-          title="Cliquer pour consulter l'historique des cycles Kamil"
+          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          title="Cliquer pour voir l'historique des cycles"
         >
           <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold border border-indigo-200 group-hover:scale-105 transition-transform">
-              <BookOpen className="w-6 h-6 text-indigo-600" />
+            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-800 flex items-center justify-center font-bold border border-purple-200/80 group-hover:scale-105 transition-transform">
+              <BookOpen className="w-5 h-5 text-purple-700" />
             </div>
-            <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-bold rounded-full border border-indigo-200 flex items-center gap-1">
-              <Eye className="w-3.5 h-3.5" />
-              <span>Voir historique</span>
+            <span className="px-2 py-0.5 bg-purple-100/70 text-purple-800 text-[10px] font-black rounded-full flex items-center gap-1">
+              <Eye className="w-3 h-3" />
+              <span>Historique</span>
             </span>
           </div>
-          <div>
-            <div className="font-display font-extrabold text-3xl sm:text-4xl text-ht-ink group-hover:text-indigo-600 transition-colors">
-              {kamilCycle.numero_cycle - 1}
+          <div className="mt-4">
+            <div className="font-display font-black text-2xl text-slate-900 group-hover:text-purple-800 transition-colors">
+              {(pastKamilCycles?.length || 0) + (kamilCycle?.numero_cycle ? kamilCycle.numero_cycle - 1 : 41)}
             </div>
-            <div className="text-xs text-ht-sage font-semibold mt-1 flex items-center justify-between">
-              <span>Cycles terminés</span>
-              <span className="text-[10px] text-indigo-600 font-bold underline">Cliquez pour voir ➔</span>
+            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span>Cycles complétés</span>
+              <span className="text-[10px] text-purple-700 font-bold underline">Archives ➔</span>
             </div>
           </div>
         </div>
-
       </div>
 
-      {/* Grid of 30 Juz */}
+      {/* Main Grid View */}
       <JuzGrid onOpenAttribution={() => setIsAttributionModalOpen(true)} />
 
-      {/* Historical Cycles Section */}
-      <div className="bg-white rounded-3xl p-6 sm:p-8 border border-ht-line shadow-soft space-y-4">
-        <div>
-          <div className="text-xs font-bold text-ht-sage uppercase tracking-wider mb-1">
-            6 DERNIERS CYCLES
-          </div>
-          <h3 className="font-display font-bold text-xl text-ht-ink">
-            Respect des échéances
-          </h3>
-        </div>
-
-        <KamilHistoryChart />
-      </div>
+      {/* Kamil Cycles History & Evolution Chart */}
+      <KamilHistoryChart />
 
       {/* Modals */}
       <NouveauCycleModal
@@ -203,8 +206,8 @@ export const KamilView = () => {
 
       <KamilDetailsModal
         isOpen={isDetailsModalOpen}
-        initialTab={detailsTab}
         onClose={() => setIsDetailsModalOpen(false)}
+        initialTab={detailsTab}
       />
     </div>
   );

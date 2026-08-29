@@ -16,15 +16,9 @@ export const NouveauCycleModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        onClick={onClose}
-        className="fixed inset-0 bg-ht-ink/40 backdrop-blur-sm transition-opacity"
-      ></div>
-
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-3 sm:p-4 bg-slate-900/15 backdrop-blur-xs animate-fade-in select-none">
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 border border-ht-line shadow-2xl z-10 animate-scale-up">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl z-10 animate-scale-up max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-4 mb-6 border-b border-ht-line">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl gradient-emerald text-white flex items-center justify-center font-bold">

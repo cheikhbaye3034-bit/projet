@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dossier de Cadrage & Spécifications — Hizbut Tarquillah</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+        @page {
+            size: A4;
+            margin: 20mm 15mm 20mm 15mm;
+            @bottom-right {
+                content: counter(page);
+                font-family: 'Inter', sans-serif;
+                font-size: 9pt;
+                color: #64748b;
+            }
+        }
+
+        :root {
+            --primary-dark: #144631;
+            --primary: #1F5E43;
+            --primary-light: #2e8b62;
+            --accent: #3F9270;
+            --bg-accent: #F0F7F3;
+            --bg-card: #FFFFFF;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --border-light: #edf2f7;
+            --gold: #D4AF37;
+            --gold-light: #FAF5E6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: var(--text-main);
+            background-color: #ffffff;
+            line-height: 1.6;
+            font-size: 10.5pt;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
+        h1, h2, h3, h4, .font-heading {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: var(--primary-dark);
+            font-weight: 700;
+        }
+
+        .page-break {
+            page-break-before: always;
+            break-before: page;
+        }
+
+        .avoid-break {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
+        /* --- PAGE DE GARDE --- */
+        .cover-page {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 40px 20px 20px 20px;
+            background: radial-gradient(circle at 90% 10%, #EBF5F0 0%, #FFFFFF 60%);
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            box-sizing: border-box;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cover-page::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: linear-gradient(90deg, var(--primary-dark), var(--accent), var(--gold));
+        }
+
+        .cover-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge-tag {
+            background: var(--bg-accent);
+            color: var(--primary);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 9pt;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            border: 1px solid rgba(31, 94, 67, 0.2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-block;
+        }
+
+        .cover-body {
+            margin: auto 0;
+        }
+
+        .cover-title {
+            font-size: 32pt;
+            font-weight: 800;
+            line-height: 1.15;
+            color: var(--primary-dark);
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+
+        .cover-title span {
+            color: var(--accent);
+        }
+
+        .cover-subtitle {
+            font-size: 15pt;
+            font-weight: 500;
+            color: #475569;
+            margin-bottom: 24px;
+            line-height: 1.4;
+        }
+
+        .cover-desc {
+            font-size: 11pt;
+            color: #64748b;
+            max-width: 90%;
+            line-height: 1.6;
+            border-left: 3px solid var(--primary);
+            padding-left: 16px;
+            background: rgba(240, 247, 243, 0.5);
+            padding-top: 10px;
+            padding-bottom: 10px;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .cover-footer {
+            border-top: 1px solid var(--border-color);
+            padding-top: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .meta-item {
+            font-size: 9.5pt;
+        }
+        .meta-label {
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 8pt;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+        .meta-value {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        /* --- STYLES CONTENU --- */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--bg-accent);
+            padding-bottom: 8px;
+            margin-bottom: 24px;
+        }
+
+        .header-bar .doc-topic {
+            font-size: 8.5pt;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+        }
+
+        .header-bar .doc-version {
+            font-size: 8.5pt;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        h2 {
+            font-size: 17pt;
+            margin-top: 28px;
+            margin-bottom: 14px;
+            padding-bottom: 6px;
+            border-bottom: 1.5px solid var(--border-color);
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h2::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 3px;
+        }
+
+        h3 {
+            font-size: 12.5pt;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        p {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 14px;
+        }
+
+        li {
+            margin-bottom: 4px;
+        }
+
+        /* --- TABLEAUX --- */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0 20px 0;
+            font-size: 9.5pt;
+        }
+
+        th {
+            background-color: var(--primary);
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 600;
+            text-align: left;
+            padding: 8px 12px;
+            border: 1px solid var(--primary);
+        }
+
+        td {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        tr:nth-child(even) {
+            background-color: #FBFDFB;
+        }
+
+        /* --- CARTES & CALLOUTS --- */
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+            margin: 14px 0;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 14px;
+            border-top: 3px solid var(--primary);
+        }
+
+        .card h4 {
+            font-size: 11pt;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+
+        .callout {
+            background-color: var(--bg-accent);
+            border-left: 4px solid var(--primary);
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+            margin: 14px 0;
+            font-size: 10pt;
+        }
+
+        .callout-title {
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 4px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .code-block {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 12px 14px;
+            border-radius: 6px;
+            font-family: 'Fira Code', monospace;
+            font-size: 8.5pt;
+            line-height: 1.45;
+            margin: 12px 0 16px 0;
+            overflow-x: hidden;
+            white-space: pre-wrap;
+            border: 1px solid #1e293b;
+        }
+
+        .pill {
+            display: inline-block;
+            font-size: 8pt;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            color: #334155;
+            margin-right: 4px;
+        }
+
+        .pill-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .pill-blue {
+            background: #e0f2fe;
+            color: #0369a1;
+        }
+
+        .pill-amber {
+            background: #fef3c7;
+            color: #92400e;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PAGE DE GARDE -->
+    <div class="cover-page">
+        <div class="cover-header">
+            <div class="badge-tag">Spécifications & Architecture</div>
+            <div style="font-weight: 700; color: var(--primary);">DAHIRA / KOUREL MANAGEMENT</div>
+        </div>
+
+        <div class="cover-body">
+            <h1 class="cover-title">Hizbut Tarquillah</h1>
+            <div class="cover-subtitle">Plateforme SaaS de Gestion Intégrée pour Association Religieuse</div>
+            <div class="cover-desc">
+                Dossier complet de spécifications fonctionnelles, modélisation des données, 
+                architecture technique et feuille de route de développement pour la gestion 
+                des membres, répétitions, Kamil collectif et communications.
+            </div>
+        </div>
+
+        <div class="cover-footer">
+            <div class="meta-item">
+                <div class="meta-label">Projet</div>
+                <div class="meta-value">SaaS Hizbut Tarquillah (V1.0)</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Cible d'usage</div>
+                <div class="meta-value">100% Web Responsive (Mobile First)</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Rôles V1</div>
+                <div class="meta-value">Super Administrateur & Superviseurs de Kourels</div>
+            </div>
+            <div class="meta-item">
+                <div class="meta-label">Date & Statut</div>
+                <div class="meta-value">Août 2026 — Validé & Prêt pour Développement</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGE 2 : SOMMAIRE & CADRE GENERAL -->
+    <div class="page-break"></div>
+    <div class="header-bar">
+        <span class="doc-topic">Hizbut Tarquillah — Dossier de Présentation</span>
+        <span class="doc-version">Section 1 & 2</span>
+    </div>
+
+    <h2>1. Vision & Périmètre Global du Projet</h2>
+    <p>
+        <strong>Hizbut Tarquillah</strong> est une plateforme logicielle SaaS (Software as a Service) 
+        dédiée à l'organisation, au pilotage et à la traçabilité des activités d'une association religieuse 
+        (dahira/kourel). Elle offre un environnement centralisé pour remplacer les feuilles volantes et 
+        cahiers manuels par un système interactif, sécurisé et accessible en temps réel.
+    </p>
+
+    <div class="card-grid">
+        <div class="card">
+            <h4>🎯 1. Gestion des Membres</h4>
+            <p style="font-size: 9pt; margin-bottom: 0;">
+                Annuaire centralisé des membres, suivi des fiches personnelles, rattachement à un kourel principal 
+                et historiques individuels.
+            </p>
+        </div>
+        <div class="card">
+            <h4>🎵 2. Répétition & Khassidas</h4>
+            <p style="font-size: 9pt; margin-bottom: 0;">
+                Planification des séances par kourel, pointage numérique des présences/retards, écoute des audios 
+                de référence et archivage des enregistrements.
+            </p>
+        </div>
+        <div class="card">
+            <h4>📖 3. Kamil Collectif (Coran)</h4>
+            <p style="font-size: 9pt; margin-bottom: 0;">
+                Pilotage unifié de la récitation complète du Coran en 30 parties (Juz'), répartition transversale 
+                entre kourels et validation en temps réel.
+            </p>
+        </div>
+        <div class="card">
+            <h4>📢 4. Actualités & Notifications</h4>
+            <p style="font-size: 9pt; margin-bottom: 0;">
+                Fil d'actualité officiel, rappels automatiques d'échéances et de séances, annonces et communiqués 
+                épinglés.
+            </p>
+        </div>
+    </div>
+
+    <div class="callout">
+        <div class="callout-title">💡 Principe Directeur d'Accessibilité (Contrainte Clé)</div>
+        L'application est conçue en <strong>100% Web Responsive (Mobile First)</strong>. Une seule base de code 
+        permet l'accès fluide depuis tout navigateur smartphone, tablette ou ordinateur portable sans exiger 
+        d'installation sur store natif.
+    </div>
+
+    <h2>2. Rôles et Gestion des Accès (RBAC)</h2>
+    <p>
+        Pour la Version 1 (V1), l'accès à la plateforme est strictement réservé au corps d'encadrement. 
+        Les membres sont administrés sous forme de fiches.
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 25%;">Rôle Utilisateur</th>
+                <th style="width: 30%;">Profil & Périmètre</th>
+                <th style="width: 45%;">Droits & Actions Principales</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Super Admin</strong></td>
+                <td>Responsable général de l'association</td>
+                <td>Accès total au système, gestion des utilisateurs, configuration des kourels, supervision des statistiques globales, publication et validation des contenus.</td>
+            </tr>
+            <tr>
+                <td><strong>Superviseur de Kourel</strong></td>
+                <td>Responsable(s) désigné(s) par groupe</td>
+                <td>Pointage des présences/retards pour son/ses kourels, organisation des séances de répétition, enregistrements audio, validation des lectures Kamil assignées.</td>
+            </tr>
+            <tr>
+                <td><strong>Membre</strong></td>
+                <td>Adhérent de l'association</td>
+                <td><em>Fiche passive en V1 (sans compte de connexion).</em> Géré par les superviseurs. Une interface de consultation personnelle est envisagée pour une V2.</td>
+            </tr>
+            <tr>
+                <td><strong>Secrétaire / Rédacteur</strong></td>
+                <td>Pôle communication</td>
+                <td>Publication et modération des informations et actualités (fusionné avec Super Admin en V1).</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="callout">
+        <div class="callout-title">⚠️ Règle Métier Importante : Multi-Superviseurs par Kourel</div>
+        Un kourel peut être co-administré par <strong>plusieurs superviseurs</strong>. La base de données intègre 
+        une relation multiple (Many-to-Many) et un <strong>journal d'audit (Audit Log)</strong> horodaté identifiant 
+        l'auteur précis de chaque pointage ou modification.
+    </div>
+
+    <!-- PAGE 3 : MODELE DE DONNEES -->
+    <div class="page-break"></div>
+    <div class="header-bar">
+        <span class="doc-topic">Hizbut Tarquillah — Dossier de Présentation</span>
+        <span class="doc-version">Section 3</span>
+    </div>
+
+    <h2>3. Modèle de Données & Schéma Relationnel</h2>
+    <p>
+        Le schéma de base de données PostgreSQL a été conçu pour garantir l'intégrité référentielle et 
+        la scalabilité des statistiques d'assiduité et de lecture.
+    </p>
+
+    <h3>3.1 Entités Cœurs (Membres & Kourels)</h3>
+    <div class="code-block">
+// Entité Membre (Fiche sans compte login en V1)
+Membre {
+  id: uuid [PK]
+  nom: string, prenom: string
+  telephone: string [Index], adresse: string
+  profession: enum (Élève, Étudiant, Salarié, Sans emploi, Autre)
+  date_naissance: date [nullable]
+  date_adhesion: date
+  statut: enum (Actif, Inactif, Suspendu)
+  kourel_id: uuid [FK -> Kourel.id]
+}
+
+// Entité Kourel & Liaison Superviseurs
+Kourel {
+  id: uuid [PK]
+  nom: string (ex: "Kourel 1", "Kourel Miftahoul Mouna")
+  description: text, date_creation: date
+}
+
+SuperviseurKourel {
+  id: uuid [PK]
+  superviseur_id: uuid [FK -> User.id]
+  kourel_id: uuid [FK -> Kourel.id]
+}</div>
+
+    <h3>3.2 Module Répétitions & Présences</h3>
+    <div class="code-block">
+Khassida { id: uuid, titre: string, auteur: string, texte_url: string }
+AudioReference { id: uuid, khassida_id: uuid [FK], audio_url: string, duree: int }
+
+SeanceRepetition {
+  id: uuid [PK]
+  kourel_id: uuid [FK -> Kourel.id]
+  khassida_id: uuid [FK -> Khassida.id]
+  audio_reference_id: uuid [FK, nullable]
+  superviseur_id: uuid [FK -> User.id]
+  date_seance: date, heure_debut: time, heure_fin: time
+  statut: enum (Planifiée, En cours, Terminée, Annulée)
+  notes: text
+}
+
+Presence {
+  id: uuid [PK]
+  seance_id: uuid [FK -> SeanceRepetition.id]
+  membre_id: uuid [FK -> Membre.id]
+  statut: enum (Présent, Absent, En retard)
+  heure_arrivee: time [nullable si retard]
+  justifie: boolean, motif: string
+  pointe_par: uuid [FK -> User.id]
+  date_pointage: timestamp
+}</div>
+
+    <h3>3.3 Module Kamil (Suivi Collectif du Coran en 30 Juz')</h3>
+    <div class="code-block">
+CycleKamil {
+  id: uuid [PK]
+  // Global à toute l'association (pas de kourel_id)
+  date_debut: date, date_fin_prevue: date (cycle de 1 à 2 semaines)
+  statut: enum (En cours, Terminé)
+}
+
+PartieCoran { id: int [1..30], nom_arabe: string }
+
+AssignationPartie {
+  id: uuid [PK]
+  cycle_kamil_id: uuid [FK -> CycleKamil.id]
+  partie_id: int [FK -> PartieCoran.id (1..30)]
+  membre_id: uuid [FK -> Membre.id]
+  statut: enum (À faire, En cours, Terminé)
+  date_completion: timestamp [nullable]
+  valide_par: uuid [FK -> User.id]
+}</div>
+
+    <!-- PAGE 4 : SPECIFICATIONS FONCTIONNELLES DES 3 MODULES -->
+    <div class="page-break"></div>
+    <div class="header-bar">
+        <span class="doc-topic">Hizbut Tarquillah — Dossier de Présentation</span>
+        <span class="doc-version">Section 4 & 5</span>
+    </div>
+
+    <h2>4. Spécifications Détaillées des 3 Pôles Fonctionnels</h2>
+
+    <div class="card avoid-break" style="margin-bottom: 16px;">
+        <h3 style="margin-top: 0;">🎵 PÔLE 1 — Module Répétition & Assiduité</h3>
+        <ul>
+            <li><strong>Planning & Récurrence :</strong> Planification des séances par kourel (ex: tous les mardis 20h).</li>
+            <li><strong>Fiche de Séance Interactive :</strong> Accès direct au texte de la khassida et à l'audio de référence.</li>
+            <li><strong>Pointage Rapide & Tactile :</strong> Interface mobile optimisée pour cocher Présent / Absent / Retard en quelques secondes.</li>
+            <li><strong>Enregistrements de Séances :</strong> Possibilité pour le superviseur d'uploader l'audio enregistré pendant la répétition.</li>
+            <li><strong>Statistiques & Tableaux de Bord :</strong> Taux de présence global, par kourel et par membre, courbe d'évolution temporelle et suivi des retards chroniques.</li>
+        </ul>
+    </div>
+
+    <div class="card avoid-break" style="margin-bottom: 16px;">
+        <h3 style="margin-top: 0;">📖 PÔLE 2 — Module Kamil Collectif</h3>
+        <ul>
+            <li><strong>Cycle Unique & Fédérateur :</strong> Un seul cycle Kamil actif pour l'association entière, mobilisant l'ensemble des kourels.</li>
+            <li><strong>Grille Interactive des 30 Juz' :</strong> Vue synthétique sous forme de matrice de 30 cartes avec code couleur dynamique (<span class="pill pill-amber">À faire</span> <span class="pill pill-blue">En cours</span> <span class="pill pill-green">Validé</span>).</li>
+            <li><strong>Affectation des Récitants :</strong> Assignation des 30 parties aux membres de façon manuelle ou automatisée.</li>
+            <li><strong>Validation Superviseur :</strong> Chaque superviseur valide la finalisation de la récitation pour les membres de son groupe.</li>
+            <li><strong>Indicateurs d'Assiduité :</strong> Temps moyen de complétion, historique des cycles clôturés et taux de respect de l'échéance (1 ou 2 semaines).</li>
+        </ul>
+    </div>
+
+    <div class="card avoid-break">
+        <h3 style="margin-top: 0;">📢 PÔLE 3 — Fil d'Informations & Actualités</h3>
+        <ul>
+            <li><strong>Feed Dynamique :</strong> Affichage chronologique des actualités sur la page d'accueil de l'application.</li>
+            <li><strong>Typologie des Publications :</strong> Catégories claires (<span class="pill">Événement</span> <span class="pill">Annonce</span> <span class="pill">Communiqué</span>).</li>
+            <li><strong>Système d'Épinglage :</strong> Mise en exergue des messages prioritaires en tête de feed.</li>
+        </ul>
+    </div>
+
+    <h2>5. Fonctionnalités Transverses & Sécurité</h2>
+    <ul>
+        <li><strong>Authentification & Sécurité :</strong> Connexion par login/mot de passe avec prise en charge du numéro de téléphone comme identifiant, gestion fine des privilèges (RBAC).</li>
+        <li><strong>Notifications Intelligentes :</strong> Rappels de séances, alertes d'échéance Kamil imminente et diffusion de nouvelles annonces par notifications push / email.</li>
+        <li><strong>Moteur de Recherche & Filtres :</strong> Recherche instantanée par nom, téléphone, kourel d'appartenance, statut ou profession.</li>
+        <li><strong>Exports Administratifs :</strong> Génération de rapports d'assiduité et listes de membres sous formats PDF et CSV.</li>
+        <li><strong>Traçabilité & Audit :</strong> Enregistrement exhaustif de l'identité des superviseurs ayant effectué les pointages et validations.</li>
+    </ul>
+
+    <!-- PAGE 5 : ARCHITECTURE TECHNIQUE & ROADMAP -->
+    <div class="page-break"></div>
+    <div class="header-bar">
+        <span class="doc-topic">Hizbut Tarquillah — Dossier de Présentation</span>
+        <span class="doc-version">Section 6, 7 & 8</span>
+    </div>
+
+    <h2>6. Architecture Technique Recommandée</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Composant</th>
+                <th>Technologie / Choix</th>
+                <th>Justification & Rôle</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Frontend</strong></td>
+                <td>React / Next.js 14 + Tailwind CSS</td>
+                <td>Interface réactive, composants modernes, excellente fluidité mobile et rendu ultra-rapide.</td>
+            </tr>
+            <tr>
+                <td><strong>Backend / API</strong></td>
+                <td>Supabase / Node.js (API REST)</td>
+                <td>Gestion unifiée de la base de données, authentification JWT sécurisée et règles Row-Level Security.</td>
+            </tr>
+            <tr>
+                <td><strong>Base de Données</strong></td>
+                <td>PostgreSQL</td>
+                <td>Robustesse relationnelle, gestion native des relations Kourel/Superviseurs/Présences.</td>
+            </tr>
+            <tr>
+                <td><strong>Stockage Médias</strong></td>
+                <td>Stockage Objet (S3 / Supabase Storage)</td>
+                <td>Hébergement haute disponibilité des fichiers audios (khassidas, répétitions) et PDF sans surcharger la base.</td>
+            </tr>
+            <tr>
+                <td><strong>Charte Visuelle</strong></td>
+                <td>Palette Vert & Blanc Islamique Moderne</td>
+                <td>Vert profond (<code>#1F5E43</code>), Vert d'accent (<code>#3F9270</code>), Fond clair (<code>#E4F1E9</code>) et typographie <em>Plus Jakarta Sans</em>.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>7. Feuille de Route de Réalisation (Phases)</h2>
+
+    <div class="card avoid-break" style="margin-bottom: 12px;">
+        <h4>📦 Phase 1 — Socle MVP (Gestion des Membres, Séances & Pointage)</h4>
+        <p style="font-size: 9pt; margin-bottom: 0;">
+            Authentification Admin & Superviseurs • CRUD Membres & Kourels • Création des séances • Pointage tactile des présences/retards • Statistiques de base.
+        </p>
+    </div>
+
+    <div class="card avoid-break" style="margin-bottom: 12px;">
+        <h4>📖 Phase 2 — Module Kamil Fédérateur</h4>
+        <p style="font-size: 9pt; margin-bottom: 0;">
+            Création des cycles Kamil globaux • Grille interactive 30 Juz' • Assignation des membres • Validation des lectures • Statistiques de complétion.
+        </p>
+    </div>
+
+    <div class="card avoid-break" style="margin-bottom: 12px;">
+        <h4>🎵 Phase 3 — Multimédia & Communication</h4>
+        <p style="font-size: 9pt; margin-bottom: 0;">
+            Lecteur audio intégré pour Khassidas de référence & enregistrements • Fil d'actualités avec épinglage • Exports CSV/PDF.
+        </p>
+    </div>
+
+    <div class="card avoid-break">
+        <h4>🔒 Phase 4 — Consolidation & Audit</h4>
+        <p style="font-size: 9pt; margin-bottom: 0;">
+            Journal d'audit détaillé (qui a pointé quoi) • Tableaux de bord comparatifs inter-kourels • Préparation de l'espace membre futur (V2).
+        </p>
+    </div>
+
+    <h2>8. Décisions Validées & Points de Cadrage</h2>
+    <div class="callout">
+        <p><strong>✅ Décisions entérinées :</strong></p>
+        <ul style="margin-bottom: 0; font-size: 9.5pt;">
+            <li><strong>Cycle Kamil Global :</strong> Un seul cycle commun pour toute l'association, pas de cycles isolés par kourel.</li>
+            <li><strong>Accès Membre V1 :</strong> Réservé aux encadrants (les membres n'ont pas d'identifiant de connexion en V1).</li>
+            <li><strong>Notifications dès la V1 :</strong> Alertes séances et rappels d'échéances intégrés directement dans le flux de travail.</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 30px; text-align: center; font-size: 9pt; color: var(--text-muted); border-top: 1px solid var(--border-color); padding-top: 10px;">
+        Document de Synthèse & Spécifications — Hizbut Tarquillah © 2026 — Tous droits réservés.
+    </div>
+
+</body>
+</html>

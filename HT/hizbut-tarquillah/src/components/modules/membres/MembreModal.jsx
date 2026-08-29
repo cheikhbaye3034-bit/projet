@@ -30,15 +30,15 @@ export const MembreModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-3 sm:p-6 animate-fade-in select-none">
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-ht-ink/40 backdrop-blur-sm transition-opacity"
-      ></div>
+        className="fixed inset-0 bg-slate-900/15 backdrop-blur-xs transition-opacity"
+      />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 border border-ht-line shadow-2xl z-10 animate-scale-up max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-lg bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-2xl z-10 animate-scale-up max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between pb-4 mb-6 border-b border-ht-line">
           <div>
             <h3 className="font-display font-bold text-xl text-ht-ink">Ajouter un nouveau membre</h3>

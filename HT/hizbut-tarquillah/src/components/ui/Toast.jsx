@@ -20,8 +20,8 @@ export const Toast = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 animate-bounce-short">
-      <div className={`flex items-center gap-3 bg-white px-4 py-3 rounded-xl shadow-soft-lg border ${borderColors[toast.type] || 'border-ht-line'}`}>
+    <div className="fixed bottom-20 lg:bottom-6 right-4 sm:right-6 z-[9999] animate-bounce-short">
+      <div className={`flex items-center gap-3 bg-white px-4 py-3 rounded-2xl shadow-2xl border ${borderColors[toast.type] || 'border-ht-line'}`}>
         {icons[toast.type] || icons.info}
         <span className="text-sm font-medium text-ht-ink">{toast.message}</span>
       </div>

@@ -42,6 +42,43 @@ export const AppProvider = ({ children }) => {
   const [pastKamilCycles] = useState(PAST_KAMIL_CYCLES);
   const [informations, setInformations] = useState(INITIAL_INFORMATIONS);
   
+  // App Settings & Customization
+  const [appSettings, setAppSettings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ht_app_settings');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return {
+      daaraName: 'Daara Hizbut-Tarqiyyah',
+      logoUrl: '',
+      memberAccessCode: '188828',
+      responsableAccessCode: '994201',
+      theme: 'light'
+    };
+  });
+
+  // Responsables list
+  const [responsables, setResponsables] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ht_responsables');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [
+      { id: 'r1', prenom: 'Serigne Modou', nom: 'Kara', email: 'admin.modou@hizbut-tarquillah.sn', telephone: '+221 77 500 12 34', role: 'Super Admin', date_creation: '2021-01-15' },
+      { id: 'r2', prenom: 'Cheikh Abdoulaye', nom: 'Diop', email: 'abdoulaye.diop@hizbut-tarquillah.sn', telephone: '+221 77 620 44 88', role: 'Superviseur Kourels', date_creation: '2022-03-20' },
+      { id: 'r3', prenom: 'Moustapha', nom: 'Fall', email: 'moustapha.fall@hizbut-tarquillah.sn', telephone: '+221 77 811 90 22', role: 'Responsable Kamil & Audios', date_creation: '2023-05-10' }
+    ];
+  });
+
+  // Apply theme to document element
+  useEffect(() => {
+    if (appSettings.theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [appSettings.theme]);
+
   // Selected Member for Detail Drawer
   const [selectedMembreId, setSelectedMembreId] = useState(null);
 
@@ -51,6 +88,115 @@ export const AppProvider = ({ children }) => {
   const showToast = (message, type = 'success') => {
     setToast({ message, type, id: Date.now() });
     setTimeout(() => setToast(null), 3500);
+  };
+
+  const updateAppSettings = (newSettings) => {
+    setAppSettings((prev) => {
+      const updated = { ...prev, ...newSettings };
+      try {
+        localStorage.setItem('ht_app_settings', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+    showToast('Réglages sauvegardés avec succès !');
+  };
+
+  // Kourel Actions
+  const addKourel = async (kourelData) => {
+    const newKourel = {
+      id: 'k_' + Date.now(),
+      nom: kourelData.nom || 'Nouveau Kourel',
+      responsable: kourelData.responsable || 'À désigner',
+      repetition_jour: kourelData.repetition_jour || 'Samedi 17h00',
+      membres_count: 0
+    };
+    setKourels((prev) => [...prev, newKourel]);
+    showToast(`Kourel « ${newKourel.nom} » ajouté avec succès !`);
+
+    try {
+      await supabase.from('kourels').insert([newKourel]);
+    } catch (e) {
+      console.error('Erreur Supabase addKourel:', e);
+    }
+  };
+
+  const updateKourel = async (id, data) => {
+    setKourels((prev) => prev.map(k => k.id === id ? { ...k, ...data } : k));
+    showToast('Kourel mis à jour avec succès !');
+
+    try {
+      await supabase.from('kourels').update(data).eq('id', id);
+    } catch (e) {
+      console.error('Erreur Supabase updateKourel:', e);
+    }
+  };
+
+  const deleteKourel = async (id) => {
+    setKourels((prev) => prev.filter(k => k.id !== id));
+    showToast('Kourel supprimé.', 'info');
+
+    try {
+      await supabase.from('kourels').delete().eq('id', id);
+    } catch (e) {
+      console.error('Erreur Supabase deleteKourel:', e);
+    }
+  };
+
+  // Secteurs Actions
+  const addSecteur = async (nom, description = '') => {
+    const newSecteur = {
+      id: 'sec_' + Date.now(),
+      nom: nom.trim(),
+      description: description.trim() || 'Commission opérationnelle de la Daara',
+      membres_count: 0
+    };
+    setSecteurs((prev) => [...prev, newSecteur]);
+    showToast(`Secteur « ${newSecteur.nom} » ajouté avec succès !`);
+
+    try {
+      await supabase.from('secteurs').insert([newSecteur]);
+    } catch (e) {
+      console.error('Erreur Supabase addSecteur:', e);
+    }
+  };
+
+  const deleteSecteur = async (id) => {
+    setSecteurs((prev) => prev.filter(s => s.id !== id));
+    showToast('Secteur d\'activité supprimé.', 'info');
+
+    try {
+      await supabase.from('secteurs').delete().eq('id', id);
+    } catch (e) {
+      console.error('Erreur Supabase deleteSecteur:', e);
+    }
+  };
+
+  // Responsables Actions
+  const addResponsable = (data) => {
+    const newResp = {
+      id: 'resp_' + Date.now(),
+      prenom: data.prenom || '',
+      nom: data.nom || '',
+      email: data.email || '',
+      telephone: data.telephone || '',
+      role: data.role || 'Responsable',
+      date_creation: new Date().toISOString().split('T')[0]
+    };
+    setResponsables((prev) => {
+      const updated = [...prev, newResp];
+      try { localStorage.setItem('ht_responsables', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
+    showToast(`Responsable ${newResp.prenom} ${newResp.nom} ajouté avec succès !`);
+  };
+
+  const deleteResponsable = (id) => {
+    setResponsables((prev) => {
+      const updated = prev.filter(r => r.id !== id);
+      try { localStorage.setItem('ht_responsables', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
+    showToast('Responsable supprimé.', 'info');
   };
 
   // Initial Fetch from Supabase
@@ -130,9 +276,40 @@ export const AppProvider = ({ children }) => {
   }, []);
 
   // Auth actions
-  const login = (identifier, password) => {
+  const login = (identifier, password, profileData = {}) => {
     setIsAuthenticated(true);
-    setActiveTab('dashboard');
+    
+    // Check if role is Responsable / Superviseur / Super Admin
+    const isResponsable = profileData.role === 'responsable' || 
+                          profileData.role === 'Super Admin' || 
+                          profileData.role === 'superviseur' ||
+                          (typeof identifier === 'string' && (identifier.toLowerCase().includes('resp') || identifier.toLowerCase().includes('admin')));
+
+    if (isResponsable) {
+      setCurrentUser({
+        id: 'u1',
+        nom: profileData.nom || 'Kara',
+        prenom: profileData.prenom || 'Serigne Modou',
+        role: 'Super Admin',
+        email: profileData.email || 'admin@hizbut-tarquillah.sn',
+        matricule: profileData.matricule || 'HT-RESP-001',
+        telephone: profileData.telephone || '+221 77 500 12 34'
+      });
+      setActiveTab('dashboard'); // Redirects directly to Daara management dashboard
+    } else {
+      setCurrentUser({
+        id: 'm2',
+        nom: profileData.nom || 'Ndiaye',
+        prenom: profileData.prenom || 'Cheikh',
+        email: profileData.email || (typeof identifier === 'string' && identifier.includes('@') ? identifier : 'cheikh.ndiaye@hizbut-tarquillah.sn'),
+        matricule: profileData.matricule || 'HT-MEM-0142',
+        telephone: profileData.telephone || '+221 77 654 32 10',
+        role: 'Membre',
+        kourel_id: 'k1',
+        cotisation_statut: 'À jour'
+      });
+      setActiveTab('accueil');
+    }
     showToast('Connexion réussie. Bienvenue sur Hizbut-Tarqiyyah !');
   };
 
@@ -590,7 +767,9 @@ export const AppProvider = ({ children }) => {
       value={{
         isLoading,
         isAuthenticated,
+        setIsAuthenticated,
         currentUser,
+        setCurrentUser,
         activeTab,
         setActiveTab,
         zones,
@@ -629,7 +808,17 @@ export const AppProvider = ({ children }) => {
         addSonAudio,
         deleteSonAudio,
         updateMembreSecteur,
-        bulkAssignSecteur
+        bulkAssignSecteur,
+        appSettings,
+        updateAppSettings,
+        addKourel,
+        updateKourel,
+        deleteKourel,
+        addSecteur,
+        deleteSecteur,
+        responsables,
+        addResponsable,
+        deleteResponsable
       }}
     >
       {children}

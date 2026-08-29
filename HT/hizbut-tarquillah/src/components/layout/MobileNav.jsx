@@ -8,55 +8,57 @@ import {
   Newspaper,
   X,
   LogOut,
-  ShieldCheck
+  ShieldCheck,
+  ChevronRight
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import logoImg from '../../assets/images/logo.png';
 
 export const MobileNav = ({ isOpen, onClose }) => {
-  const { activeTab, setActiveTab, currentUser, logout } = useApp();
+  const { activeTab, setActiveTab, currentUser, logout, membres, jukis } = useApp();
 
   if (!isOpen) return null;
 
   const navItems = [
     { id: 'accueil', label: 'Accueil', icon: Home },
     { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-    { id: 'membres', label: 'Membres', icon: Users },
-    { id: 'repetition', label: 'Répétition', icon: Mic },
-    { id: 'kamil', label: 'Suivi Kamil', icon: BookOpen },
+    { id: 'membres', label: 'Membres', icon: Users, badge: membres?.length },
+    { id: 'repetition', label: 'Répétition & Pointage', icon: Mic, badge: 'Live' },
+    { id: 'kamil', label: 'Suivi Kamil Coran', icon: BookOpen },
     { id: 'info', label: 'Informations', icon: Newspaper },
   ];
 
   return (
-    <div className="fixed inset-0 z-50 lg:hidden flex">
+    <div className="fixed inset-0 z-[500] lg:hidden flex animate-fade-in">
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-ht-ink/40 backdrop-blur-sm transition-opacity"
-      ></div>
+        className="fixed inset-0 bg-slate-900/15 backdrop-blur-xs transition-opacity"
+      />
 
       {/* Drawer content */}
-      <div className="relative w-4/5 max-w-xs bg-white h-full shadow-2xl flex flex-col z-10 animate-slide-in">
+      <div className="relative w-4/5 max-w-xs bg-white h-full shadow-2xl flex flex-col z-10">
         {/* Header */}
-        <div className="p-5 border-b border-ht-line flex items-center justify-between">
+        <div className="p-4 border-b border-ht-line flex items-center justify-between bg-emerald-900 text-white">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-emerald flex items-center justify-center text-white font-display font-extrabold text-lg">
-              HT
+            <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-soft">
+              <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h1 className="font-display font-bold text-base text-ht-ink">Daara Hizbut-Tarqiyyah</h1>
-              <p className="text-[11px] text-ht-emerald font-semibold">Gestion de la Daara</p>
+              <h1 className="font-display font-bold text-sm text-white">Hizbut-Tarqiyyah</h1>
+              <p className="text-[10px] text-emerald-200 font-bold">Portail Gestion Pro</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-ht-sage hover:bg-ht-page"
+            className="p-1.5 rounded-lg text-white/80 hover:bg-white/10"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto">
+        <nav className="flex-1 p-3.5 space-y-1.5 overflow-y-auto">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.id;
@@ -68,33 +70,42 @@ export const MobileNav = ({ isOpen, onClose }) => {
                   setActiveTab(item.id);
                   onClose();
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-colors ${
+                className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl font-bold text-xs transition-all ${
                   isActive
-                    ? 'bg-ht-mist text-ht-emerald font-semibold border border-ht-mint'
-                    : 'text-ht-inkSoft hover:bg-ht-page'
+                    ? 'bg-emerald-800 text-white shadow-soft-lg'
+                    : 'text-slate-700 hover:bg-slate-100'
                 }`}
               >
-                <Icon className={`w-5 h-5 ${isActive ? 'text-ht-emerald' : 'text-ht-sage'}`} />
-                <span>{item.label}</span>
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-emerald-700'}`} />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-emerald-100 text-emerald-800'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
               </button>
             );
           })}
         </nav>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-ht-line bg-ht-page/50">
-          <div className="p-3 bg-white rounded-xl border border-ht-line flex items-center justify-between">
+        <div className="p-4 border-t border-ht-line bg-slate-50">
+          <div className="p-3 bg-white rounded-xl border border-ht-line flex items-center justify-between shadow-soft-xs">
             <div className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-lg bg-ht-mint text-ht-emerald flex items-center justify-center font-bold text-xs">
-                {currentUser.prenom[0]}{currentUser.nom[0]}
+              <div className="w-8 h-8 rounded-lg bg-emerald-800 text-white flex items-center justify-center font-bold text-xs">
+                {currentUser?.prenom?.[0] || 'S'}{currentUser?.nom?.[0] || 'K'}
               </div>
               <div className="truncate">
-                <div className="font-semibold text-xs text-ht-ink truncate">
-                  {currentUser.prenom} {currentUser.nom}
+                <div className="font-bold text-xs text-slate-900 truncate">
+                  {currentUser?.prenom} {currentUser?.nom}
                 </div>
-                <div className="text-[10px] text-ht-emerald flex items-center gap-1 font-medium">
-                  <ShieldCheck className="w-3 h-3" />
-                  <span>{currentUser.role}</span>
+                <div className="text-[10px] text-emerald-700 flex items-center gap-1 font-semibold">
+                  <ShieldCheck className="w-3 h-3 text-emerald-600" />
+                  <span>{currentUser?.role || 'Superviseur'}</span>
                 </div>
               </div>
             </div>
@@ -103,7 +114,8 @@ export const MobileNav = ({ isOpen, onClose }) => {
                 logout();
                 onClose();
               }}
-              className="p-1.5 text-ht-sage hover:text-ht-clay rounded-lg"
+              className="p-2 text-slate-400 hover:text-rose-600 rounded-lg"
+              title="Déconnexion"
             >
               <LogOut className="w-4 h-4" />
             </button>
