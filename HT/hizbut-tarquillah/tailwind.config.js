@@ -34,10 +34,10 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
-        display: ['Outfit', '"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
-        serif: ['"Playfair Display"', '"Cormorant Garamond"', 'Georgia', 'serif'],
-        cormorant: ['"Cormorant Garamond"', '"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['"Plus Jakarta Sans"', 'Outfit', 'sans-serif'],
+        serif: ['"Cinzel"', 'serif'],
+        arabic: ['"Amiri"', 'serif'],
       },
       boxShadow: {
         'soft-xs': '0 1px 3px 0 rgba(16, 91, 60, 0.04), 0 1px 2px -1px rgba(16, 91, 60, 0.02)',

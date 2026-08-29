@@ -12,9 +12,9 @@ export const AudioModal = ({ isOpen, onClose }) => {
     khassida_id: khassidas[0]?.id || 'kh1',
     recitateur: 'Kourel Miftahoul Mouna',
     duree: '20:00',
-    qualite: 'HQ 320 kbps',
+    qualite: 'HQ 128 kbps',
     audio_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-    taille: '15.0 Mo'
+    taille: '2.4 Mo'
   });
 
   if (!isOpen) return null;
@@ -36,9 +36,9 @@ export const AudioModal = ({ isOpen, onClose }) => {
       khassida_id: khassidas[0]?.id || 'kh1',
       recitateur: 'Kourel Miftahoul Mouna',
       duree: '20:00',
-      qualite: 'HQ 320 kbps',
+      qualite: 'HQ 128 kbps',
       audio_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-      taille: '15.0 Mo'
+      taille: '2.4 Mo'
     });
     onClose();
   };

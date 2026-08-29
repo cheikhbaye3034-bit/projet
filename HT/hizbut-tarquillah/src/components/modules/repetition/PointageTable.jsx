@@ -79,119 +79,125 @@ export const PointageTable = ({ seance, membersOfKourel }) => {
 
       {/* Quick Action Toolbar */}
       <div className="p-4 bg-white border-b border-slate-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-        {/* Search */}
-        <div className="relative w-full sm:w-64">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        {/* Search Input */}
+        <div className="relative flex-1 max-w-md">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Filtrer un membre..."
+            placeholder="Filtrer un membre par son nom ou prénom..."
             value={filterSearch}
             onChange={(e) => setFilterSearch(e.target.value)}
-            className="w-full pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-emerald-600 font-medium"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/10 font-semibold transition-all"
           />
         </div>
 
         {/* Bulk pointage triggers */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => openRapideModal('Présent')}
-            className="px-3.5 py-1.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold shadow-soft flex items-center gap-1.5 active:scale-95 transition-all"
+            className="flex-1 sm:flex-none px-4 py-2.5 bg-emerald-800 hover:bg-emerald-700 active:scale-95 text-white rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-200" />
-            <span>Pointer les Présents</span>
+            <CheckCircle2 className="w-4 h-4 text-emerald-200" />
+            <span>Pointer Présents</span>
           </button>
 
           <button
             onClick={() => openRapideModal('En retard')}
-            className="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-soft flex items-center gap-1.5 active:scale-95 transition-all"
+            className="flex-1 sm:flex-none px-4 py-2.5 bg-amber-600 hover:bg-amber-500 active:scale-95 text-white rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
           >
-            <Clock className="w-3.5 h-3.5 text-amber-200" />
-            <span>Pointer les Retards</span>
+            <Clock className="w-4 h-4 text-amber-200" />
+            <span>Pointer Retards</span>
           </button>
         </div>
+      </div>
 
-        {/* Mobile Pointage Card List (Touch-First with Large Buttons) */}
-        <div className="md:hidden divide-y divide-slate-100">
-          {filteredMembers.map((membre) => {
+      {/* Mobile Pointage Card List (Touch-First with Large Buttons) */}
+      <div className="md:hidden divide-y divide-slate-100">
+        {filteredMembers.length > 0 ? (
+          filteredMembers.map((membre) => {
             const presence = seance.presences?.find((p) => p.membre_id === membre.id);
             const currentStatut = presence?.statut || 'Non pointé';
             const heureArrivee = presence?.heure_arrivee || '';
 
             return (
               <div key={membre.id} className="p-4 bg-white space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-2xl bg-emerald-900 text-white flex items-center justify-center font-black text-xs shadow-xs">
-                      {membre.prenom[0]}{membre.nom[0]}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-2xl bg-emerald-900 text-white flex items-center justify-center font-black text-xs shadow-xs flex-shrink-0">
+                      {membre.prenom?.[0] || 'M'}{membre.nom?.[0] || 'B'}
                     </div>
-                    <div>
-                      <h4 className="font-display font-black text-sm text-slate-900 leading-tight">
+                    <div className="min-w-0">
+                      <h4 className="font-display font-black text-sm text-slate-900 leading-tight truncate">
                         {membre.prenom} {membre.nom}
                       </h4>
-                      <p className="text-[11px] text-slate-500 font-medium">{membre.telephone || 'Membre'}</p>
+                      <p className="text-[11px] text-slate-500 font-medium truncate">{membre.telephone || 'Membre Kourel'}</p>
                     </div>
                   </div>
 
                   <span
-                    className={`px-2.5 py-1 text-[11px] font-black rounded-lg inline-flex items-center gap-1 ${
+                    className={`px-2.5 py-1 text-[11px] font-black rounded-lg inline-flex items-center gap-1 flex-shrink-0 ${
                       currentStatut === 'Présent'
                         ? 'bg-emerald-100 text-emerald-900'
                         : currentStatut === 'En retard'
                         ? 'bg-amber-100 text-amber-900'
                         : currentStatut === 'Absent'
                         ? 'bg-rose-100 text-rose-900'
-                        : 'bg-slate-100 text-slate-500'
+                        : 'bg-slate-100 text-slate-600'
                     }`}
                   >
-                    {currentStatut === 'Présent' && <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
-                    {currentStatut === 'En retard' && <Clock className="w-3 h-3 text-amber-600" />}
-                    {currentStatut === 'Absent' && <XCircle className="w-3 h-3 text-rose-600" />}
+                    {currentStatut === 'Présent' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
+                    {currentStatut === 'En retard' && <Clock className="w-3.5 h-3.5 text-amber-600" />}
+                    {currentStatut === 'Absent' && <XCircle className="w-3.5 h-3.5 text-rose-600" />}
                     <span>{currentStatut}</span>
                   </span>
                 </div>
 
                 {/* 3 Touch-First Action Buttons (44px target) */}
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-3 gap-2 pt-1">
                   <button
                     onClick={() => updatePointage(seance.id, membre.id, 'Présent')}
-                    className={`py-2.5 rounded-xl font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1 ${
+                    className={`py-3 rounded-xl font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer ${
                       currentStatut === 'Présent'
                         ? 'bg-emerald-800 text-white shadow-sm'
                         : 'bg-emerald-50 text-emerald-900 border border-emerald-200/80 hover:bg-emerald-100'
                     }`}
                   >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <CheckCircle2 className="w-4 h-4" />
                     <span>Présent</span>
                   </button>
 
                   <button
                     onClick={() => updatePointage(seance.id, membre.id, 'En retard', '20:15')}
-                    className={`py-2.5 rounded-xl font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1 ${
+                    className={`py-3 rounded-xl font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer ${
                       currentStatut === 'En retard'
                         ? 'bg-amber-600 text-white shadow-sm'
                         : 'bg-amber-50 text-amber-900 border border-amber-200/80 hover:bg-amber-100'
                     }`}
                   >
-                    <Clock className="w-3.5 h-3.5" />
+                    <Clock className="w-4 h-4" />
                     <span>Retard</span>
                   </button>
 
                   <button
                     onClick={() => updatePointage(seance.id, membre.id, 'Absent')}
-                    className={`py-2.5 rounded-xl font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1 ${
+                    className={`py-3 rounded-xl font-black text-xs transition-all active:scale-95 flex items-center justify-center gap-1.5 cursor-pointer ${
                       currentStatut === 'Absent'
                         ? 'bg-rose-600 text-white shadow-sm'
                         : 'bg-rose-50 text-rose-900 border border-rose-200/80 hover:bg-rose-100'
                     }`}
                   >
-                    <XCircle className="w-3.5 h-3.5" />
+                    <XCircle className="w-4 h-4" />
                     <span>Absent</span>
                   </button>
                 </div>
               </div>
             );
-          })}
-        </div>
+          })
+        ) : (
+          <div className="p-8 text-center text-slate-400 text-xs italic">
+            Aucun membre trouvé pour cette recherche.
+          </div>
+        )}
       </div>
 
       {/* Desktop Pointage Members Table */}
@@ -206,98 +212,114 @@ export const PointageTable = ({ seance, membersOfKourel }) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 text-xs text-slate-800 font-medium">
-            {filteredMembers.map((membre) => {
-              const presence = seance.presences?.find((p) => p.membre_id === membre.id);
-              const currentStatut = presence?.statut || 'Non pointé';
-              const heureArrivee = presence?.heure_arrivee || '';
+            {filteredMembers.length > 0 ? (
+              filteredMembers.map((membre) => {
+                const presence = seance.presences?.find((p) => p.membre_id === membre.id);
+                const currentStatut = presence?.statut || 'Non pointé';
+                const heureArrivee = presence?.heure_arrivee || '';
 
-              return (
-                <tr key={membre.id} className="hover:bg-emerald-50/40 transition-colors">
-                  {/* Membre details */}
-                  <td className="py-3.5 px-6">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs border border-slate-200">
-                        {membre.prenom[0]}{membre.nom[0]}
-                      </div>
-                      <div>
-                        <div className="font-bold text-slate-900">
-                          {membre.prenom} {membre.nom}
+                return (
+                  <tr key={membre.id} className="hover:bg-emerald-50/40 transition-colors">
+                    {/* Membre details */}
+                    <td className="py-3.5 px-6">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xs border border-slate-200">
+                          {membre.prenom?.[0] || 'M'}{membre.nom?.[0] || 'B'}
                         </div>
-                        <div className="text-[10px] text-slate-400 font-medium">{membre.telephone || membre.matricule}</div>
+                        <div>
+                          <div className="font-bold text-slate-900">
+                            {membre.prenom} {membre.nom}
+                          </div>
+                          <div className="text-[11px] text-slate-400">
+                            {membre.telephone || 'Non renseigné'}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </td>
+                    </td>
 
-                  {/* Heure d'arrivée */}
-                  <td className="py-3.5 px-6">
-                    <input
-                      type="time"
-                      value={heureArrivee}
-                      onChange={(e) => updatePointage(seance.id, membre.id, 'En retard', e.target.value)}
-                      className="px-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:bg-white focus:border-emerald-600"
-                    />
-                  </td>
+                    {/* Heure d'arrivée */}
+                    <td className="py-3.5 px-6">
+                      {currentStatut === 'En retard' ? (
+                        <span className="font-mono font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200">
+                          {heureArrivee || '20:15'}
+                        </span>
+                      ) : currentStatut === 'Présent' ? (
+                        <span className="font-mono text-slate-500">
+                          {heureArrivee || seance.heure_debut || '20:00'}
+                        </span>
+                      ) : (
+                        <span className="text-slate-400 italic">—</span>
+                      )}
+                    </td>
 
-                  {/* Current Statut Badge */}
-                  <td className="py-3.5 px-6">
-                    <span
-                      className={`px-2.5 py-1 text-xs font-bold rounded-full inline-flex items-center gap-1.5 ${
-                        currentStatut === 'Présent'
-                          ? 'badge-present'
-                          : currentStatut === 'En retard'
-                          ? 'badge-retard'
-                          : currentStatut === 'Absent'
-                          ? 'badge-absent'
-                          : 'bg-slate-100 text-slate-500'
-                      }`}
-                    >
-                      {currentStatut === 'Présent' && <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
-                      {currentStatut === 'En retard' && <Clock className="w-3 h-3 text-amber-600" />}
-                      {currentStatut === 'Absent' && <XCircle className="w-3 h-3 text-rose-600" />}
-                      <span>{currentStatut}</span>
-                    </span>
-                  </td>
-
-                  {/* 1-Click Action Buttons */}
-                  <td className="py-3.5 px-6 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <button
-                        onClick={() => updatePointage(seance.id, membre.id, 'Présent')}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
+                    {/* Statut Badge */}
+                    <td className="py-3.5 px-6">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold ${
                           currentStatut === 'Présent'
-                            ? 'bg-emerald-800 text-white shadow-soft-xs'
-                            : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            : currentStatut === 'En retard'
+                            ? 'bg-amber-50 text-amber-800 border border-amber-200'
+                            : currentStatut === 'Absent'
+                            ? 'bg-rose-50 text-rose-800 border border-rose-200'
+                            : 'bg-slate-100 text-slate-500'
                         }`}
                       >
-                        Présent
-                      </button>
+                        {currentStatut === 'Présent' && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />}
+                        {currentStatut === 'En retard' && <Clock className="w-3.5 h-3.5 text-amber-600" />}
+                        {currentStatut === 'Absent' && <XCircle className="w-3.5 h-3.5 text-rose-600" />}
+                        <span>{currentStatut}</span>
+                      </span>
+                    </td>
 
-                      <button
-                        onClick={() => updatePointage(seance.id, membre.id, 'En retard', '20:15')}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                          currentStatut === 'En retard'
-                            ? 'bg-amber-600 text-white shadow-soft-xs'
-                            : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
-                        }`}
-                      >
-                        Retard
-                      </button>
-
-                      <button
-                        onClick={() => updatePointage(seance.id, membre.id, 'Absent')}
-                        className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
-                          currentStatut === 'Absent'
-                            ? 'bg-rose-600 text-white shadow-soft-xs'
-                            : 'bg-rose-50 text-rose-800 hover:bg-rose-100 border border-rose-200'
-                        }`}
-                      >
-                        Absent
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
+                    {/* Quick 1-Click Action Buttons */}
+                    <td className="py-3.5 px-6 text-right">
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => updatePointage(seance.id, membre.id, 'Présent')}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            currentStatut === 'Présent'
+                              ? 'bg-emerald-800 text-white shadow-xs'
+                              : 'bg-slate-50 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200'
+                          }`}
+                          title="Marquer Présent"
+                        >
+                          P
+                        </button>
+                        <button
+                          onClick={() => updatePointage(seance.id, membre.id, 'En retard', '20:15')}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            currentStatut === 'En retard'
+                              ? 'bg-amber-600 text-white shadow-xs'
+                              : 'bg-slate-50 hover:bg-amber-50 text-slate-700 hover:text-amber-800 border border-slate-200'
+                          }`}
+                          title="Marquer En Retard"
+                        >
+                          R
+                        </button>
+                        <button
+                          onClick={() => updatePointage(seance.id, membre.id, 'Absent')}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                            currentStatut === 'Absent'
+                              ? 'bg-rose-600 text-white shadow-xs'
+                              : 'bg-slate-50 hover:bg-rose-50 text-slate-700 hover:text-rose-800 border border-slate-200'
+                          }`}
+                          title="Marquer Absent"
+                        >
+                          A
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan={4} className="py-8 text-center text-slate-400 text-xs italic">
+                  Aucun membre ne correspond à cette recherche.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
@@ -306,9 +328,9 @@ export const PointageTable = ({ seance, membersOfKourel }) => {
       <PointageRapideModal
         isOpen={isRapideModalOpen}
         onClose={() => setIsRapideModalOpen(false)}
-        seanceId={seance.id}
+        seance={seance}
         membersOfKourel={membersOfKourel}
-        statut={targetStatut}
+        statutTarget={targetStatut}
       />
     </div>
   );

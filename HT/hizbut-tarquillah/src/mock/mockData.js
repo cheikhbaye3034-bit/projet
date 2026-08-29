@@ -210,13 +210,13 @@ export const INITIAL_SONS_AUDIO = [
     khassida_id: 'kh3',
     recitateur: 'Kourel Miftahoul Mouna',
     duree: '14:20',
-    qualite: 'HQ 320 kbps',
+    qualite: 'HQ 128 kbps',
     audio_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     date_enregistrement: '19/08/2023',
     pages_count: 2,
     audios_count: 2,
     vues_count: 12,
-    taille: '16.4 Mo'
+    taille: '2.4 Mo'
   },
   {
     id: 'son2',
@@ -225,13 +225,13 @@ export const INITIAL_SONS_AUDIO = [
     khassida_id: 'kh1',
     recitateur: 'Serigne Modou Kara',
     duree: '15:10',
-    qualite: 'HQ 256 kbps',
+    qualite: 'HQ 128 kbps',
     audio_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
     date_enregistrement: '19/07/2026',
     pages_count: 3,
     audios_count: 1,
     vues_count: 6,
-    taille: '12.8 Mo'
+    taille: '2.1 Mo'
   },
   {
     id: 'son3',
@@ -240,13 +240,13 @@ export const INITIAL_SONS_AUDIO = [
     khassida_id: 'kh7',
     recitateur: 'Kourel Touba Central',
     duree: '24:15',
-    qualite: 'HQ 320 kbps',
+    qualite: 'HQ 128 kbps',
     audio_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
     date_enregistrement: '12/08/2026',
     pages_count: 24,
     audios_count: 3,
     vues_count: 24,
-    taille: '18.4 Mo'
+    taille: '3.8 Mo'
   },
   {
     id: 'son4',
@@ -255,13 +255,13 @@ export const INITIAL_SONS_AUDIO = [
     khassida_id: 'kh8',
     recitateur: 'Cheikh Ahmadou Ndiaye',
     duree: '17:40',
-    qualite: 'HQ 256 kbps',
+    qualite: 'HQ 128 kbps',
     audio_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
     date_enregistrement: '05/08/2026',
     pages_count: 16,
     audios_count: 2,
     vues_count: 18,
-    taille: '13.2 Mo'
+    taille: '2.8 Mo'
   },
   {
     id: 'son5',
@@ -270,13 +270,13 @@ export const INITIAL_SONS_AUDIO = [
     khassida_id: 'kh9',
     recitateur: 'Kourel Nurou Darayni',
     duree: '29:50',
-    qualite: 'HQ 320 kbps',
+    qualite: 'HQ 128 kbps',
     audio_url: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
     date_enregistrement: '01/08/2026',
     pages_count: 32,
     audios_count: 4,
     vues_count: 31,
-    taille: '22.1 Mo'
+    taille: '4.2 Mo'
   }
 ];
 
@@ -288,8 +288,8 @@ export const INITIAL_SEANCES = [
     heure_debut: '20:00',
     heure_fin: '22:00',
     khassida_id: 'kh1',
-    audio_reference_url: 'https://example.com/audio/mawahibou_ref.mp3',
-    recording_url: 'https://example.com/audio/seance_12aug.mp3',
+    audio_reference_url: '',
+    recording_url: '',
     superviseur: 'Serigne Modou Kara',
     statut: 'Terminée',
     notes: 'Excellente maîtrise du rythme sur les couplets 4 à 12.',
@@ -307,7 +307,7 @@ export const INITIAL_SEANCES = [
     heure_debut: '20:00',
     heure_fin: '22:00',
     khassida_id: 'kh2',
-    audio_reference_url: 'https://example.com/audio/jalibatul_ref.mp3',
+    audio_reference_url: '',
     recording_url: '',
     superviseur: 'Cheikh Ahmadou Ndiaye',
     statut: 'Planifiée',
@@ -326,8 +326,8 @@ export const INITIAL_SEANCES = [
     heure_debut: '18:30',
     heure_fin: '20:30',
     khassida_id: 'kh3',
-    audio_reference_url: 'https://example.com/audio/assirou_ref.mp3',
-    recording_url: 'https://example.com/audio/seance_k2_14aug.mp3',
+    audio_reference_url: '',
+    recording_url: '',
     superviseur: 'Serigne Fallou Seck',
     statut: 'Terminée',
     notes: 'Bonne présence générale.',

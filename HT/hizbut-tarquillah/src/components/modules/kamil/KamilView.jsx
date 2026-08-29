@@ -4,7 +4,7 @@ import { useApp } from '../../../context/AppContext';
 import { JuzGrid } from './JuzGrid';
 import { NouveauCycleModal } from './NouveauCycleModal';
 import { AttributionJukiModal } from './AttributionJukiModal';
-import { KamilDetailsModal } from './KamilDetailsModal';
+import { KamilDetailFullView } from './KamilDetailFullView';
 import { KamilHistoryChart } from './KamilHistoryChart';
 import kamilHeroQuran from '../../../assets/images/kamil_hero_quran.jpg';
 
@@ -13,9 +13,8 @@ export const KamilView = () => {
   const [isNouveauCycleModalOpen, setIsNouveauCycleModalOpen] = useState(false);
   const [isAttributionModalOpen, setIsAttributionModalOpen] = useState(false);
   
-  // Details Modal state
-  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
-  const [detailsTab, setDetailsTab] = useState('membres'); // 'membres' | 'termines'
+  // Full-page Details Tab state ('termines' | 'encours' | 'membres' | 'cycles' | null)
+  const [selectedDetailTab, setSelectedDetailTab] = useState(null);
 
   const termines = kamilCycle ? kamilCycle.assignations.filter((a) => a.statut === 'Terminé').length : 0;
   const enCours = kamilCycle ? kamilCycle.assignations.filter((a) => a.statut === 'En cours').length : 0;
@@ -28,10 +27,22 @@ export const KamilView = () => {
   const diffTime = endDate - today;
   const daysRemaining = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
 
-  const handleOpenDetails = (tab = 'membres') => {
-    setDetailsTab(tab);
-    setIsDetailsModalOpen(true);
-  };
+  // If a detail tab is selected, display the full page view directly in-page (like MembreDetailDrawer)
+  if (selectedDetailTab) {
+    return (
+      <div className="pb-12 animate-fade-in">
+        <KamilDetailFullView
+          initialTab={selectedDetailTab}
+          onClose={() => setSelectedDetailTab(null)}
+          onOpenAttribution={() => setIsAttributionModalOpen(true)}
+        />
+        <AttributionJukiModal
+          isOpen={isAttributionModalOpen}
+          onClose={() => setIsAttributionModalOpen(false)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 pb-12 animate-fade-in select-none">
@@ -84,9 +95,9 @@ export const KamilView = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {/* Stat Card 1: Parties terminées */}
         <div
-          onClick={() => handleOpenDetails('termines')}
+          onClick={() => setSelectedDetailTab('termines')}
           className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
-          title="Cliquer pour voir le détail des Jukis terminés"
+          title="Cliquer pour ouvrir le détail complet des Jukis terminés"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold border border-emerald-200/80 group-hover:scale-105 transition-transform">
@@ -110,9 +121,9 @@ export const KamilView = () => {
 
         {/* Stat Card 2: Membres impliqués */}
         <div
-          onClick={() => handleOpenDetails('membres')}
+          onClick={() => setSelectedDetailTab('membres')}
           className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
-          title="Cliquer pour voir la liste des membres impliqués"
+          title="Cliquer pour ouvrir la liste complète des lecteurs et affectations"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center font-bold border border-blue-200/80 group-hover:scale-105 transition-transform">
@@ -136,9 +147,9 @@ export const KamilView = () => {
 
         {/* Stat Card 3: Parties en cours */}
         <div
-          onClick={() => handleOpenDetails('encours')}
+          onClick={() => setSelectedDetailTab('encours')}
           className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
-          title="Cliquer pour voir les Jukis en cours"
+          title="Cliquer pour voir tous les Jukis restants"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center font-bold border border-amber-200/80 group-hover:scale-105 transition-transform">
@@ -162,9 +173,9 @@ export const KamilView = () => {
 
         {/* Stat Card 4: Cycles terminés */}
         <div
-          onClick={() => handleOpenDetails('cycles')}
+          onClick={() => setSelectedDetailTab('cycles')}
           className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
-          title="Cliquer pour voir l'historique des cycles"
+          title="Cliquer pour voir l'historique complet des cycles"
         >
           <div className="flex items-center justify-between">
             <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-800 flex items-center justify-center font-bold border border-purple-200/80 group-hover:scale-105 transition-transform">
@@ -202,12 +213,6 @@ export const KamilView = () => {
       <AttributionJukiModal
         isOpen={isAttributionModalOpen}
         onClose={() => setIsAttributionModalOpen(false)}
-      />
-
-      <KamilDetailsModal
-        isOpen={isDetailsModalOpen}
-        onClose={() => setIsDetailsModalOpen(false)}
-        initialTab={detailsTab}
       />
     </div>
   );

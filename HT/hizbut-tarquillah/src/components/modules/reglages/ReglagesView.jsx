@@ -44,52 +44,107 @@ const FieldInput = ({ label, value, onChange, placeholder, type = 'text', classN
 );
 
 // ─── General Settings Tab ────────────────────────────────────────────────────
-const TabGeneral = ({ appSettings, updateAppSettings }) => {
-  const [name, setName] = useState(appSettings.daaraName);
-  const isDark = appSettings.theme === 'dark';
+const TabGeneral = ({ appSettings, updateAppSettings, showToast }) => {
+  const [formData, setFormData] = useState({
+    daaraName: appSettings?.daaraName || 'Daara Hizbut-Tarqiyyah',
+    siegeVille: appSettings?.siegeVille || 'Touba / Dakar',
+    contactPhone: appSettings?.contactPhone || '+221 77 500 12 34',
+    contactEmail: appSettings?.contactEmail || 'contact@hizbut-tarquillah.sn',
+    slogan: appSettings?.slogan || 'Portail Officiel de Gestion & Dévotion'
+  });
 
-  const handleSaveName = () => {
-    if (name.trim()) updateAppSettings({ daaraName: name.trim() });
+  const isDark = appSettings?.theme === 'dark';
+
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveAll = (e) => {
+    e.preventDefault();
+    updateAppSettings(formData);
+    showToast && showToast('✅ Paramètres généraux du Daara enregistrés avec succès !');
   };
 
   return (
     <div className="space-y-6">
       <SectionTitle
         icon={Building2}
-        title="Identité du Daara"
-        subtitle="Configurez le nom et l'apparence générale de votre plateforme."
+        title="Identité & Paramètres Généraux"
+        subtitle="Configurez le nom, les coordonnées officielles et l'apparence générale de votre plateforme."
       />
 
-      {/* Daara Name */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
-        <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-3">Nom du Daara</h3>
-        <div className="flex items-end gap-3">
+      {/* Daara Identity Form */}
+      <form onSubmit={handleSaveAll} className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-5">
+        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 className="text-sm font-black text-slate-800">Informations Générales</h3>
+          <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+            Enregistrement Direct
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FieldInput
-            label="Nom affiché sur la plateforme"
-            value={name}
-            onChange={setName}
+            label="Nom officiel du Daara"
+            value={formData.daaraName}
+            onChange={(val) => handleChange('daaraName', val)}
             placeholder="ex: Daara Hizbut-Tarqiyyah"
-            className="flex-1"
           />
+
+          <FieldInput
+            label="Slogan / Sous-titre"
+            value={formData.slogan}
+            onChange={(val) => handleChange('slogan', val)}
+            placeholder="ex: Portail de Gestion & Dévotion"
+          />
+
+          <FieldInput
+            label="Siège / Ville Principale"
+            value={formData.siegeVille}
+            onChange={(val) => handleChange('siegeVille', val)}
+            placeholder="ex: Touba Mosquée / Dakar"
+          />
+
+          <FieldInput
+            label="Téléphone de Contact Officiel"
+            value={formData.contactPhone}
+            onChange={(val) => handleChange('contactPhone', val)}
+            placeholder="ex: +221 77 000 00 00"
+          />
+
+          <FieldInput
+            label="Email Officiel de l'Association"
+            value={formData.contactEmail}
+            onChange={(val) => handleChange('contactEmail', val)}
+            placeholder="ex: contact@hizbut-tarquillah.sn"
+            type="email"
+            className="sm:col-span-2"
+          />
+        </div>
+
+        <div className="pt-2 flex items-center justify-between border-t border-slate-100">
+          <p className="text-[11px] text-slate-400">Ces informations seront reflétées sur la barre latérale, l'accueil et les fiches.</p>
           <button
-            onClick={handleSaveName}
-            className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-sm flex-shrink-0"
+            type="submit"
+            className="px-5 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-all active:scale-95 shadow-sm cursor-pointer"
           >
-            <Save className="w-3.5 h-3.5" />
-            Sauvegarder
+            <Save className="w-4 h-4 text-emerald-200" />
+            <span>Sauvegarder les modifications</span>
           </button>
         </div>
-        <p className="text-[11px] text-slate-400">Ce nom apparaîtra dans la barre latérale, l'en-tête et tous les documents exportés.</p>
-      </div>
+      </form>
 
       {/* Theme Toggle */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm">
-        <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-3 mb-4">Thème d'affichage</h3>
+      <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
+        <h3 className="text-sm font-black text-slate-800 border-b border-slate-100 pb-3 mb-4">Thème d'affichage</h3>
         <div className="grid grid-cols-2 gap-4">
           {/* Light Mode */}
           <button
-            onClick={() => updateAppSettings({ theme: 'light' })}
-            className={`relative p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${
+            type="button"
+            onClick={() => {
+              updateAppSettings({ theme: 'light' });
+              showToast && showToast('☀️ Mode Clair activé !');
+            }}
+            className={`relative p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 cursor-pointer ${
               !isDark ? 'border-emerald-600 bg-emerald-50/60 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-slate-50'
             }`}
           >
@@ -109,8 +164,12 @@ const TabGeneral = ({ appSettings, updateAppSettings }) => {
 
           {/* Dark Mode */}
           <button
-            onClick={() => updateAppSettings({ theme: 'dark' })}
-            className={`relative p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 ${
+            type="button"
+            onClick={() => {
+              updateAppSettings({ theme: 'dark' });
+              showToast && showToast('🌙 Mode Sombre activé !');
+            }}
+            className={`relative p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 cursor-pointer ${
               isDark ? 'border-emerald-600 bg-emerald-50/60 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-slate-50'
             }`}
           >
@@ -556,7 +615,7 @@ export const ReglagesView = () => {
     kourels, addKourel, updateKourel, deleteKourel,
     secteurs, addSecteur, deleteSecteur,
     responsables, addResponsable, deleteResponsable,
-    currentUser
+    currentUser, showToast
   } = useApp();
 
   const [activeTab, setActiveTab] = useState('general');
@@ -620,8 +679,8 @@ export const ReglagesView = () => {
 
       {/* Tab Content */}
       <div>
-        {activeTab === 'general' && <TabGeneral appSettings={appSettings} updateAppSettings={updateAppSettings} />}
-        {activeTab === 'security' && <TabSecurity appSettings={appSettings} updateAppSettings={updateAppSettings} />}
+        {activeTab === 'general' && <TabGeneral appSettings={appSettings} updateAppSettings={updateAppSettings} showToast={showToast} />}
+        {activeTab === 'security' && <TabSecurity appSettings={appSettings} updateAppSettings={updateAppSettings} showToast={showToast} />}
         {activeTab === 'kourels' && <TabKourels kourels={kourels} addKourel={addKourel} updateKourel={updateKourel} deleteKourel={deleteKourel} />}
         {activeTab === 'secteurs' && <TabSecteurs secteurs={secteurs} addSecteur={addSecteur} deleteSecteur={deleteSecteur} />}
         {activeTab === 'responsables' && <TabResponsables responsables={responsables} addResponsable={addResponsable} deleteResponsable={deleteResponsable} />}
