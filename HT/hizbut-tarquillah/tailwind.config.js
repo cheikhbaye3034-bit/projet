@@ -8,7 +8,7 @@ export default {
     extend: {
       colors: {
         ht: {
-          page: '#F8FAF9',
+          page: '#FFFFFF',
           card: '#FFFFFF',
           mist: '#F0F7F3',
           mint: '#DCEDE2',
