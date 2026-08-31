@@ -41,6 +41,15 @@ export const AppProvider = ({ children }) => {
   const [kamilCycle, setKamilCycle] = useState(INITIAL_KAMIL_CYCLE);
   const [pastKamilCycles] = useState(PAST_KAMIL_CYCLES);
   const [informations, setInformations] = useState(INITIAL_INFORMATIONS);
+
+  // Absence requests from members
+  const [absenceRequests, setAbsenceRequests] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ht_absence_requests');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return [];
+  });
   
   // App Settings & Customization
   const [appSettings, setAppSettings] = useState(() => {
@@ -49,7 +58,7 @@ export const AppProvider = ({ children }) => {
       if (saved) return JSON.parse(saved);
     } catch (e) {}
     return {
-      daaraName: 'Daara Hizbut-Tarqiyyah',
+      daaraName: 'Sama daara',
       logoUrl: '',
       memberAccessCode: '188828',
       responsableAccessCode: '994201',
@@ -310,7 +319,7 @@ export const AppProvider = ({ children }) => {
       });
       setActiveTab('accueil');
     }
-    showToast('Connexion réussie. Bienvenue sur Hizbut-Tarqiyyah !');
+    showToast('Connexion réussie. Bienvenue sur Sama daara !');
   };
 
   const logout = () => {
@@ -762,6 +771,33 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  // ─── Absence Requests ──────────────────────────────────────────────────────
+  const addAbsenceRequest = (request) => {
+    const newRequest = {
+      id: `abs_${Date.now()}`,
+      membre_id: currentUser?.id || 'unknown',
+      membre_nom: currentUser ? `${currentUser.prenom} ${currentUser.nom}` : 'Inconnu',
+      kourel_id: currentUser?.kourel_id || '',
+      date_soumission: new Date().toISOString().split('T')[0],
+      statut: 'En attente',
+      ...request
+    };
+    setAbsenceRequests(prev => {
+      const updated = [newRequest, ...prev];
+      try { localStorage.setItem('ht_absence_requests', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
+    showToast('✅ Votre demande d\'absence a été soumise avec succès.');
+  };
+
+  const updateAbsenceRequest = (id, updates) => {
+    setAbsenceRequests(prev => {
+      const updated = prev.map(r => r.id === id ? { ...r, ...updates } : r);
+      try { localStorage.setItem('ht_absence_requests', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -818,7 +854,10 @@ export const AppProvider = ({ children }) => {
         deleteSecteur,
         responsables,
         addResponsable,
-        deleteResponsable
+        deleteResponsable,
+        absenceRequests,
+        addAbsenceRequest,
+        updateAbsenceRequest
       }}
     >
       {children}

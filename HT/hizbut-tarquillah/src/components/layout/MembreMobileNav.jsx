@@ -14,17 +14,17 @@ import { useApp } from '../../context/AppContext';
 import logoImg from '../../assets/images/logo.png';
 
 export const MembreMobileNav = ({ isOpen, onClose, activeMemberTab, setActiveMemberTab }) => {
-  const { currentUser, logout } = useApp();
-
-  if (!isOpen) return null;
+  const { currentUser, logout, appSettings } = useApp();
 
   const navItems = [
     { id: 'accueil', label: 'Accueil', icon: Home },
-    { id: 'repetition', label: 'Mes Répétitions', icon: Mic },
-    { id: 'kamil', label: 'Mon Kamil (Coran)', icon: BookOpen },
-    { id: 'info', label: 'Actualités & Fil', icon: Newspaper },
+    { id: 'repetition', label: 'Répétitions & Khassidas', icon: Mic },
+    { id: 'kamil', label: 'Suivi Kamil (Coran)', icon: BookOpen },
+    { id: 'info', label: 'Informations & Actualités', icon: Newspaper },
     { id: 'profil', label: 'Mon Profil & Carte', icon: User },
   ];
+
+  if (!isOpen) return null;
 
   const handleNavClick = (tabId) => {
     setActiveMemberTab(tabId);
@@ -52,8 +52,8 @@ export const MembreMobileNav = ({ isOpen, onClose, activeMemberTab, setActiveMem
                 <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
               </div>
               <div>
-                <h3 className="font-display font-black text-sm text-slate-900">
-                  Hizbut-Tarqiyyah
+                <h3 className="font-display font-black text-sm text-slate-900 truncate max-w-[130px]">
+                  {appSettings?.daaraName || 'Sama daara'}
                 </h3>
                 <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded">
                   PORTAIL MEMBRE

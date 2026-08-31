@@ -6,27 +6,27 @@ import {
 import { useApp } from '../../context/AppContext';
 
 export const MembreHeader = ({ onOpenMobileMenu, activeMemberTab, setActiveMemberTab }) => {
-  const { logout, setCurrentUser } = useApp();
+  const { logout, setCurrentUser, appSettings } = useApp();
 
   const getPageTitle = () => {
     switch (activeMemberTab) {
-      case 'accueil': return 'Accueil Membre';
+      case 'accueil': return 'Espace Membre';
       case 'repetition': return 'Répétitions & Khassidas';
-      case 'kamil': return 'Récitation du Saint Coran (Kamil)';
-      case 'info': return 'Fil des Actualités';
-      case 'profil': return 'Mon Profil & Carte Dahira';
-      default: return 'Espace Membre';
+      case 'kamil': return 'Suivi Kamil (Coran)';
+      case 'info': return 'Actualités & Annonces';
+      case 'profil': return 'Mon Profil & Carte';
+      default: return 'Portail Membre';
     }
   };
 
   return (
-    <header className="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-ht-line/80 px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between shadow-[0_4px_20px_-4px_rgba(16,91,60,0.03)] select-none">
+    <header className="bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-6 py-3.5 flex items-center justify-between sticky top-0 z-30 shadow-xs">
       
-      {/* Left: Mobile Toggle & Page Title */}
+      {/* Left: Mobile Menu Toggle & Title */}
       <div className="flex items-center gap-3">
         <button
           onClick={onOpenMobileMenu}
-          className="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-slate-100 transition-colors"
+          className="lg:hidden p-2 -ml-1 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
           aria-label="Menu"
         >
           <Menu className="w-5 h-5" />
@@ -37,7 +37,7 @@ export const MembreHeader = ({ onOpenMobileMenu, activeMemberTab, setActiveMembe
             {getPageTitle()}
           </h2>
           <p className="text-[11px] text-slate-500 font-semibold hidden sm:block">
-            Hizbut-Tarqiyyah • Portail Numérique des Membres
+            {appSettings?.daaraName || 'Sama daara'} • Portail Numérique des Membres
           </p>
         </div>
       </div>

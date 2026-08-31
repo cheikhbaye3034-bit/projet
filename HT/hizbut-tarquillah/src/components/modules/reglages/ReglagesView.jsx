@@ -46,10 +46,10 @@ const FieldInput = ({ label, value, onChange, placeholder, type = 'text', classN
 // ─── General Settings Tab ────────────────────────────────────────────────────
 const TabGeneral = ({ appSettings, updateAppSettings, showToast }) => {
   const [formData, setFormData] = useState({
-    daaraName: appSettings?.daaraName || 'Daara Hizbut-Tarqiyyah',
+    daaraName: appSettings?.daaraName || 'Sama daara',
     siegeVille: appSettings?.siegeVille || 'Touba / Dakar',
     contactPhone: appSettings?.contactPhone || '+221 77 500 12 34',
-    contactEmail: appSettings?.contactEmail || 'contact@hizbut-tarquillah.sn',
+    contactEmail: appSettings?.contactEmail || 'contact@samadaara.sn',
     slogan: appSettings?.slogan || 'Portail Officiel de Gestion & Dévotion'
   });
 
@@ -62,7 +62,7 @@ const TabGeneral = ({ appSettings, updateAppSettings, showToast }) => {
   const handleSaveAll = (e) => {
     e.preventDefault();
     updateAppSettings(formData);
-    showToast && showToast('✅ Paramètres généraux du Daara enregistrés avec succès !');
+    showToast && showToast('✅ Paramètres généraux de Sama daara enregistrés avec succès !');
   };
 
   return (
@@ -87,7 +87,7 @@ const TabGeneral = ({ appSettings, updateAppSettings, showToast }) => {
             label="Nom officiel du Daara"
             value={formData.daaraName}
             onChange={(val) => handleChange('daaraName', val)}
-            placeholder="ex: Daara Hizbut-Tarqiyyah"
+            placeholder="ex: Sama daara"
           />
 
           <FieldInput

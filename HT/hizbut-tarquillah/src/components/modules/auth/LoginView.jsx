@@ -179,7 +179,7 @@ export const LoginView = ({ onBack }) => {
             <div className="w-full max-w-[240px] sm:max-w-[280px] h-20 sm:h-24 flex items-center justify-center p-1 mb-2 group transition-transform duration-300 hover:scale-105">
               <img 
                 src={logoOfficial} 
-                alt="Hizbut-Tarqiyyah" 
+                alt="Sama daara" 
                 className="max-h-full max-w-full object-contain filter drop-shadow-sm" 
               />
             </div>
@@ -505,7 +505,7 @@ export const LoginView = ({ onBack }) => {
                     Vérification d'accès • {role === 'responsable' ? 'Espace Responsable / Superviseur' : 'Espace Membre du Kourel'}
                   </p>
                   <p className="text-slate-600 leading-relaxed">
-                    Veuillez saisir le code d'accès confidentiel attribué par la Daara Hizbut-Tarqiyyah pour sécuriser et valider votre session.
+                    Veuillez saisir le code d'accès confidentiel attribué par Sama daara pour sécuriser et valider votre session.
                   </p>
                 </div>
               </div>
@@ -573,7 +573,7 @@ export const LoginView = ({ onBack }) => {
       {/* Discrete Footer */}
       <footer className="relative z-20 text-center pt-4">
         <p className="text-xs text-slate-400 font-semibold">
-          Hizbut-Tarqiyyah • Système Sécurisé de Gestion Associative
+          Sama daara • Système Sécurisé de Gestion Associative
         </p>
       </footer>
 

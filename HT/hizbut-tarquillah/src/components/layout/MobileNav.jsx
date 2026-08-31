@@ -9,24 +9,29 @@ import {
   X,
   LogOut,
   ShieldCheck,
-  ChevronRight
+  ChevronRight,
+  Settings
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import logoImg from '../../assets/images/logo.png';
 
 export const MobileNav = ({ isOpen, onClose }) => {
-  const { activeTab, setActiveTab, currentUser, logout, membres, jukis } = useApp();
+  const { activeTab, setActiveTab, currentUser, logout, membres, jukis, appSettings } = useApp();
 
-  if (!isOpen) return null;
+  const isResponsable = currentUser?.role !== 'Membre';
+  const activeJukisCount = (jukis || []).filter(j => j.statut === 'Terminé' || j.statut === 'En cours').length;
 
   const navItems = [
-    { id: 'accueil', label: 'Accueil', icon: Home },
+    { id: 'accueil', label: 'Vue d\'ensemble', icon: Home },
     { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
     { id: 'membres', label: 'Membres', icon: Users, badge: membres?.length },
-    { id: 'repetition', label: 'Répétition & Pointage', icon: Mic, badge: 'Live' },
-    { id: 'kamil', label: 'Suivi Kamil Coran', icon: BookOpen },
+    { id: 'repetition', label: 'Répétitions', icon: Mic, badge: 'Live' },
+    { id: 'kamil', label: 'Kamil', icon: BookOpen, badge: `${activeJukisCount}/60` },
     { id: 'info', label: 'Informations', icon: Newspaper },
+    ...(isResponsable ? [{ id: 'reglages', label: 'Réglages', icon: Settings }] : []),
   ];
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[500] lg:hidden flex animate-fade-in">
@@ -45,7 +50,9 @@ export const MobileNav = ({ isOpen, onClose }) => {
               <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
             </div>
             <div>
-              <h1 className="font-display font-bold text-sm text-white">Hizbut-Tarqiyyah</h1>
+              <h1 className="font-display font-bold text-sm text-white truncate max-w-[140px]">
+                {appSettings?.daaraName || 'Sama daara'}
+              </h1>
               <p className="text-[10px] text-emerald-200 font-bold">Portail Gestion Pro</p>
             </div>
           </div>

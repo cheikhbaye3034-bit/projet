@@ -17,16 +17,15 @@ import { useApp } from '../../context/AppContext';
 import logoImg from '../../assets/images/logo.png';
 
 export const Sidebar = () => {
-  const { activeTab, setActiveTab, currentUser, logout, membres, seances, jukis } = useApp();
+  const { activeTab, setActiveTab, currentUser, logout, membres, seances, jukis, appSettings } = useApp();
 
-  const activeJukisCount = jukis ? jukis.filter(j => j.statut === 'Attribué').length : 0;
-  const membresCount = membres ? membres.length : 0;
   const isResponsable = currentUser?.role !== 'Membre';
+  const activeJukisCount = (jukis || []).filter(j => j.statut === 'Terminé' || j.statut === 'En cours').length;
 
   const navItems = [
-    { id: 'accueil', label: 'Accueil', icon: Home, badge: null },
-    { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard, badge: 'Pro' },
-    { id: 'membres', label: 'Membres', icon: Users, badge: membresCount },
+    { id: 'accueil', label: 'Vue d\'ensemble', icon: Home, badge: null },
+    { id: 'dashboard', label: 'Tableau de Bord', icon: LayoutDashboard, badge: null },
+    { id: 'membres', label: 'Membres & Dahira', icon: Users, badge: membres?.length },
     { id: 'repetition', label: 'Répétition & Pointage', icon: Mic, badge: 'Live' },
     { id: 'kamil', label: 'Suivi Kamil Coran', icon: BookOpen, badge: `${activeJukisCount}/60` },
     { id: 'info', label: 'Informations', icon: Newspaper, badge: null },
@@ -38,15 +37,15 @@ export const Sidebar = () => {
       {/* Brand Header */}
       <div className="p-5 border-b border-ht-line/80 flex items-center gap-3.5 bg-gradient-to-r from-emerald-50/50 via-white to-white">
         <div className="w-11 h-11 rounded-2xl bg-white border border-emerald-200/80 p-1.5 flex items-center justify-center shadow-soft overflow-hidden flex-shrink-0 relative group">
-          <img src={logoImg} alt="Hizbut Tarquillah Logo" className="w-full h-full object-contain transform group-hover:scale-105 transition-transform" />
+          <img src={logoImg} alt="Sama daara" className="w-full h-full object-contain transform group-hover:scale-105 transition-transform" />
           <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
         </div>
         <div>
           <div className="flex items-center gap-1.5">
-            <h1 className="font-display font-black text-sm text-ht-ink tracking-tight">
-              Hizbut-Tarqiyyah
+            <h1 className="font-display font-black text-sm text-ht-ink tracking-tight truncate max-w-[140px]">
+              {appSettings?.daaraName || 'Sama daara'}
             </h1>
-            <span className="bg-emerald-100/80 text-emerald-800 text-[10px] font-extrabold px-1.5 py-0.2 rounded-md">PRO</span>
+            <span className="bg-emerald-100/80 text-emerald-800 text-[10px] font-extrabold px-1.5 py-0.2 rounded-md flex-shrink-0">PRO</span>
           </div>
           <p className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1 mt-0.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>

@@ -47,7 +47,7 @@ export const AccueilView = () => {
         <div className="relative z-10 p-6 sm:p-10 lg:p-12 text-white max-w-3xl space-y-6">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-emerald-200">
             <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-            <span>Portail Officiel • Hizbut-Tarqiyyah Pro</span>
+            <span>Portail Officiel • Sama daara Pro</span>
           </div>
 
           <h1 className="font-display font-black text-2xl sm:text-4xl lg:text-5xl tracking-tight leading-[1.2]">

@@ -15,7 +15,7 @@ import { useApp } from '../../context/AppContext';
 import logoImg from '../../assets/images/logo.png';
 
 export const MembreSidebar = ({ activeMemberTab, setActiveMemberTab }) => {
-  const { currentUser, logout, seances, kamilCycle, informations } = useApp();
+  const { currentUser, logout, seances, kamilCycle, informations, appSettings } = useApp();
 
   const myAssignedCount = kamilCycle?.assignations?.filter(a => a.membre_id === currentUser?.id).length || 1;
 
@@ -33,14 +33,14 @@ export const MembreSidebar = ({ activeMemberTab, setActiveMemberTab }) => {
       {/* Brand Header */}
       <div className="p-5 border-b border-ht-line/80 flex items-center gap-3.5 bg-gradient-to-r from-emerald-50/50 via-white to-white">
         <div className="w-11 h-11 rounded-2xl bg-white border border-emerald-200/80 p-1.5 flex items-center justify-center shadow-soft overflow-hidden flex-shrink-0 relative group">
-          <img src={logoImg} alt="Hizbut Tarquillah Logo" className="w-full h-full object-contain transform group-hover:scale-105 transition-transform" />
+          <img src={logoImg} alt="Sama daara" className="w-full h-full object-contain transform group-hover:scale-105 transition-transform" />
         </div>
         <div>
           <div className="flex items-center gap-1.5">
-            <h1 className="font-display font-black text-sm text-ht-ink tracking-tight">
-              Hizbut-Tarqiyyah
+            <h1 className="font-display font-black text-sm text-ht-ink tracking-tight truncate max-w-[140px]">
+              {appSettings?.daaraName || 'Sama daara'}
             </h1>
-            <span className="bg-amber-100 text-amber-900 text-[10px] font-extrabold px-1.5 py-0.2 rounded-md">MEMBRE</span>
+            <span className="bg-amber-100 text-amber-900 text-[10px] font-extrabold px-1.5 py-0.2 rounded-md flex-shrink-0">MEMBRE</span>
           </div>
           <p className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1 mt-0.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>

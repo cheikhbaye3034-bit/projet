@@ -23,15 +23,17 @@ import {
   Bookmark,
   Layers,
   Filter,
-  CheckCircle
+  CheckCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
+import { MembreAbsenceSection } from './MembreAbsenceSection';
 import heroMicBg from '../../../assets/images/repetition_hero_mic.jpg';
 
 export const MembreRepetitionTab = () => {
   const { currentUser, seances, khassidas, sonsAudio, kourels, showToast } = useApp();
   
-  const [activeSubTab, setActiveSubTab] = useState('khassidas'); // 'khassidas' | 'audios' | 'enregistrements'
+  const [activeSubTab, setActiveSubTab] = useState('khassidas'); // 'khassidas' | 'audios' | 'enregistrements' | 'absences'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all'); // 'all' | 'bess_bi' | 'downloaded' | 'with_audio'
   const [selectedKhassidaForReading, setSelectedKhassidaForReading] = useState(null);
@@ -151,6 +153,18 @@ export const MembreRepetitionTab = () => {
           >
             <Mic className="w-3.5 h-3.5" />
             <span>Enregistrements ({pastRecordings.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveSubTab('absences')}
+            className={`flex-1 min-w-[120px] py-2 sm:py-2.5 px-3 rounded-xl text-xs sm:text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap ${
+              activeSubTab === 'absences'
+                ? 'bg-amber-700 text-white shadow-sm font-extrabold'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <AlertTriangle className="w-3.5 h-3.5" />
+            <span>Absences</span>
           </button>
         </div>
 
@@ -454,6 +468,13 @@ export const MembreRepetitionTab = () => {
             </div>
           )}
         </div>
+      )}
+
+      {/* =========================================================================
+          SECTION 4 : SIGNALEMENT D'ABSENCE
+      ========================================================================= */}
+      {activeSubTab === 'absences' && (
+        <MembreAbsenceSection />
       )}
 
       {/* =========================================================================

@@ -220,7 +220,7 @@ export const LandingView = ({ onStartLogin }) => {
           « Au service exclusif de Cheikh Ahmadou Bamba Khadimou Rassoul (R.T.A) »
         </p>
         <p className="text-[10px] text-slate-500 font-medium">
-          Hizbut-Tarqiyyah • Tous droits réservés • Système de Gestion v1.0
+          Sama daara • Tous droits réservés • Système de Gestion v1.0
         </p>
       </footer>
 

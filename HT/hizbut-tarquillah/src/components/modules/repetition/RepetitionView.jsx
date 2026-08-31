@@ -5,14 +5,15 @@ import { KhassidasSubView } from './KhassidasSubView';
 import { SonsSubView } from './SonsSubView';
 import { EnregistrementsSubView } from './EnregistrementsSubView';
 import { PointageTable } from './PointageTable';
+import { AbsencesSubView } from './AbsencesSubView';
 import { NouvelleSeanceModal } from './NouvelleSeanceModal';
 import { ResumeSeancesModal } from './ResumeSeancesModal';
 import heroMicBg from '../../../assets/images/repetition_hero_mic.jpg';
 
 export const RepetitionView = () => {
-  const { kourels, seances, khassidas, membres } = useApp();
+  const { kourels, seances, khassidas, membres, absenceRequests } = useApp();
 
-  // Active sub-section state: 'khassidas' | 'sons' | 'enregistrements' | 'pointage'
+  // Active sub-section state: 'khassidas' | 'sons' | 'enregistrements' | 'pointage' | 'absences'
   const [activeSubTab, setActiveSubTab] = useState('khassidas');
 
   const [selectedKourelId, setSelectedKourelId] = useState(kourels[0]?.id || 'k1');
@@ -29,11 +30,14 @@ export const RepetitionView = () => {
   const membersOfKourel = membres ? membres.filter((m) => m.kourel_id === selectedKourelId) : [];
   const selectedKourel = kourels ? kourels.find((k) => k.id === selectedKourelId) : null;
 
+  const pendingAbsencesCount = (absenceRequests || []).filter(r => r.statut === 'En attente').length;
+
   const subNavItems = [
     { id: 'khassidas', label: 'Khassidas à répéter', shortLabel: 'Khassidas', icon: BookOpen, count: khassidas?.length },
     { id: 'sons', label: 'Audios de Référence', shortLabel: 'Audios', icon: Music, count: 5 },
     { id: 'enregistrements', label: 'Enregistrements Live', shortLabel: 'Enregistrements', icon: Mic, count: 4 },
     { id: 'pointage', label: 'Feuilles de Pointage', shortLabel: 'Pointage Direct', icon: Calendar, badge: 'Direct' },
+    { id: 'absences', label: 'Demandes d\'Absences', shortLabel: 'Absences', icon: AlertTriangle, count: pendingAbsencesCount > 0 ? pendingAbsencesCount : undefined, badge: pendingAbsencesCount > 0 ? `${pendingAbsencesCount} new` : undefined },
   ];
 
   return (
@@ -212,6 +216,11 @@ export const RepetitionView = () => {
             </div>
           )}
         </div>
+      )}
+
+      {/* 5. Absence Requests Tab for Supervisors */}
+      {activeSubTab === 'absences' && (
+        <AbsencesSubView />
       )}
 
       {/* Modales */}

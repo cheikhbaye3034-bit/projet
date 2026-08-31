@@ -10,7 +10,7 @@ export const Header = ({ onOpenMobileMenu }) => {
   const [showNotifications, setShowNotifications] = useState(false);
 
   const titles = {
-    accueil:    { title: 'Vue d\'Ensemble',               subtitle: 'Bienvenue sur la plateforme Hizbut-Tarqiyyah' },
+    accueil:    { title: 'Vue d\'Ensemble',               subtitle: 'Bienvenue sur la plateforme Sama daara' },
     dashboard:  { title: 'Tableau de Bord',               subtitle: 'Statistiques analytiques et indicateurs clés' },
     membres:    { title: 'Annuaire des Membres',          subtitle: 'Répertoire complet, assiduité et affectations' },
     repetition: { title: 'Répétition & Pointage',        subtitle: 'Séances, feuilles d\'émargement et historique' },
@@ -20,7 +20,7 @@ export const Header = ({ onOpenMobileMenu }) => {
   };
 
   const currentInfo = titles[activeTab] || titles.accueil;
-  const daaraName   = appSettings?.daaraName || 'Hizbut-Tarqiyyah';
+  const daaraName   = appSettings?.daaraName || 'Sama daara';
 
   const formattedDate = new Date().toLocaleDateString('fr-FR', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
