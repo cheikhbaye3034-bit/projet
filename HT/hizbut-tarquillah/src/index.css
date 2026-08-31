@@ -105,3 +105,69 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* =========================================================================
+   DARK THEME GLOBAL ADAPTATIONS
+   Instantly transforms backgrounds, text colors, cards, and borders
+========================================================================= */
+html.dark, body.dark {
+  background-color: #061911 !important;
+  color: #E2E8F0 !important;
+}
+
+html.dark body {
+  background-color: #061911 !important;
+  color: #E2E8F0 !important;
+}
+
+html.dark .bg-white {
+  background-color: #0C261B !important;
+  color: #F8FAFC !important;
+  border-color: #174230 !important;
+}
+
+html.dark .bg-ht-page {
+  background-color: #061911 !important;
+}
+
+html.dark .bg-slate-50,
+html.dark .bg-slate-100 {
+  background-color: #0F2D20 !important;
+  border-color: #1A4734 !important;
+}
+
+html.dark .bg-slate-200 {
+  background-color: #174230 !important;
+}
+
+html.dark .text-slate-900,
+html.dark .text-slate-800,
+html.dark .text-ht-ink {
+  color: #F8FAFC !important;
+}
+
+html.dark .text-slate-700,
+html.dark .text-slate-600,
+html.dark .text-slate-500,
+html.dark .text-ht-inkSoft {
+  color: #94A3B8 !important;
+}
+
+html.dark .border-slate-200,
+html.dark .border-slate-100,
+html.dark .border-ht-line {
+  border-color: #174230 !important;
+}
+
+html.dark input,
+html.dark select,
+html.dark textarea {
+  background-color: #0A2218 !important;
+  color: #FFFFFF !important;
+  border-color: #1D4C38 !important;
+}
+
+html.dark .pro-card {
+  background-color: #0C261B !important;
+  border-color: #174230 !important;
+}

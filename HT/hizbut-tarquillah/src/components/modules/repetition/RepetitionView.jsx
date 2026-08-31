@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Music, Mic, BookOpen, Volume2, CheckCircle2, Clock, Users, Plus, ChevronRight, BarChart3, Filter } from 'lucide-react';
+import { Calendar, Music, Mic, BookOpen, Volume2, CheckCircle2, Clock, Users, Plus, ChevronRight, BarChart3, Filter, AlertTriangle } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { KhassidasSubView } from './KhassidasSubView';
 import { SonsSubView } from './SonsSubView';

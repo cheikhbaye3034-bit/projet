@@ -81,10 +81,13 @@ export const AppProvider = ({ children }) => {
 
   // Apply theme to document element
   useEffect(() => {
-    if (appSettings.theme === 'dark') {
+    const isDark = appSettings.theme === 'dark';
+    if (isDark) {
       document.documentElement.classList.add('dark');
+      document.body.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark');
     }
   }, [appSettings.theme]);
 
@@ -357,6 +360,38 @@ export const AppProvider = ({ children }) => {
     } catch (e) {
       console.error('Erreur Supabase deleteMembre:', e);
     }
+  };
+
+  // ─── Cotisation Management Actions ─────────────────────────────────────────
+  const toggleMembreCotisation = (membreId) => {
+    setMembres((prev) =>
+      prev.map((m) => {
+        if (m.id === membreId) {
+          const isCurrentlyRegle = m.cotisation_statut === 'À jour';
+          const newStatut = isCurrentlyRegle ? 'En retard' : 'À jour';
+          showToast && showToast(
+            newStatut === 'À jour'
+              ? `✅ ${m.prenom} ${m.nom} marqué en règle.`
+              : `⚠️ ${m.prenom} ${m.nom} marqué en retard.`
+          );
+          return { ...m, cotisation_statut: newStatut };
+        }
+        return m;
+      })
+    );
+  };
+
+  const bulkUpdateCotisations = (enRegleMemberIds) => {
+    const idSet = new Set(enRegleMemberIds);
+    setMembres((prev) =>
+      prev.map((m) => ({
+        ...m,
+        cotisation_statut: idSet.has(m.id) ? 'À jour' : 'En retard'
+      }))
+    );
+    const regleCount = enRegleMemberIds.length;
+    const retardCount = (membres?.length || 0) - regleCount;
+    showToast && showToast(`✅ Cotisations enregistrées : ${regleCount} membre(s) en règle, ${Math.max(0, retardCount)} en retard.`);
   };
 
   // Seance Pointage Actions
@@ -857,7 +892,9 @@ export const AppProvider = ({ children }) => {
         deleteResponsable,
         absenceRequests,
         addAbsenceRequest,
-        updateAbsenceRequest
+        updateAbsenceRequest,
+        toggleMembreCotisation,
+        bulkUpdateCotisations
       }}
     >
       {children}

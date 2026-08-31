@@ -97,20 +97,20 @@ export const MembreRepetitionTab = () => {
       ========================================================================= */}
       <div className="space-y-4">
         
-        {/* Search Input Bar */}
+        {/* Search Input Bar (Kaggu PDF Style) */}
         <div className="relative">
-          <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-amber-500 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
-            placeholder="Rechercher une Khassida (ex: Fa-sayakfîkahumul, Achkurul lâha, فسيكفيهم...)"
+            placeholder="Chercher..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200/90 rounded-2xl text-xs sm:text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-500/10 shadow-soft-xs font-medium transition-all"
+            className="w-full pl-11 pr-4 py-3 bg-[#131A29] border border-[#232F46] rounded-2xl text-xs sm:text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-amber-500/80 shadow-md font-medium transition-all"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white rounded-full hover:bg-[#20293D]"
             >
               <X className="w-4 h-4" />
             </button>
@@ -171,107 +171,56 @@ export const MembreRepetitionTab = () => {
       </div>
 
       {/* =========================================================================
-          SECTION 1 : NOUVEAU DESIGN ÉLÉGANT DES CARTES KHASSIDAS
+          SECTION 1 : DESIGN KAGGU PDF (CARTES SOMBRES AVEC BADGE DATE UNIQUE)
       ========================================================================= */}
       {activeSubTab === 'khassidas' && (
-        <div className="space-y-3 sm:space-y-4 animate-fade-in">
+        <div className="space-y-2.5 animate-fade-in">
           {filteredKhassidas.length > 0 ? (
-            filteredKhassidas.map((kh, index) => {
-              const isDownloaded = !!downloadedKhassidas[kh.id];
-              const isBessBi = !!kh.is_bess_bi;
+            filteredKhassidas.map((kh) => {
+              const isDownloaded = !downloadedKhassidas[kh.id];
 
               return (
                 <div
                   key={kh.id}
                   onClick={() => setSelectedKhassidaForReading(kh)}
-                  className={`group relative bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-5 border transition-all duration-200 cursor-pointer shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_28px_rgba(16,91,60,0.09)] hover:-translate-y-0.5 ${
-                    isBessBi 
-                      ? 'border-l-[6px] border-l-emerald-600 border-slate-200/90 bg-gradient-to-r from-emerald-50/30 via-white to-white' 
-                      : 'border-slate-200/90 hover:border-emerald-300'
-                  }`}
+                  className="group relative bg-[#161E2E] hover:bg-[#1C273C] rounded-2xl p-4 sm:p-5 border border-[#232F46] hover:border-slate-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md active:scale-[0.99]"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center justify-between gap-3">
                     
-                    {/* Left: Emblem + Titles & Calligraphy */}
-                    <div className="flex items-start gap-3.5 sm:gap-4 min-w-0 flex-1">
+                    {/* Left: Title + Date Badge Only */}
+                    <div className="min-w-0 flex-1 space-y-2">
                       
-                      {/* Islamic Medallion / Icon Badge */}
-                      <div className={`w-11 h-11 sm:w-13 sm:h-13 rounded-2xl flex items-center justify-center font-bold flex-shrink-0 transition-transform group-hover:scale-105 shadow-xs ${
-                        isBessBi 
-                          ? 'bg-gradient-to-br from-emerald-800 to-emerald-950 text-emerald-200 border border-emerald-600/40' 
-                          : 'bg-emerald-50 text-emerald-800 border border-emerald-200/70'
-                      }`}>
-                        <BookOpen className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2]" />
-                      </div>
-
-                      {/* Main Title & Subtitle */}
-                      <div className="min-w-0 flex-1 space-y-1">
-                        
-                        {/* Top Meta Chips (Bess Bi, Level, Author) */}
-                        <div className="flex flex-wrap items-center gap-2">
-                          {isBessBi && (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-wider text-emerald-800 bg-emerald-100/90 px-2 py-0.5 rounded-md border border-emerald-300/60">
-                              <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                              <span>Khassida Bess Bi</span>
-                            </span>
-                          )}
-
-                          <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">
-                            {kh.niveau || 'Intermédiaire'}
-                          </span>
-
-                          <span className="text-[10px] font-medium text-slate-400 hidden md:inline">
-                            {kh.auteur || 'Cheikh Ahmadou Bamba'}
-                          </span>
-                        </div>
-
-                        {/* Latin Title (Bold & Clean) */}
-                        <h3 className="font-display font-black text-base sm:text-lg text-slate-900 group-hover:text-emerald-800 transition-colors leading-snug truncate">
+                      {/* Main Title (Bold Uppercase) */}
+                      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                        <h3 className="font-display font-extrabold text-sm sm:text-base text-white tracking-wide uppercase group-hover:text-amber-400 transition-colors">
                           {kh.titre}
                         </h3>
-
-                        {/* Arabic Title (Calligraphy with Amiri Font in Emerald Green) */}
                         {kh.titre_arabe && (
-                          <p className="font-serif text-lg sm:text-2xl font-bold text-emerald-700 font-['Amiri',serif] leading-tight tracking-wide">
+                          <span className="font-serif text-sm sm:text-base font-bold text-emerald-400/90 font-['Amiri',serif]">
                             {kh.titre_arabe}
-                          </p>
+                          </span>
                         )}
+                      </div>
 
-                        {/* Metadata Pills Row */}
-                        <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-1.5 text-xs text-slate-500 font-medium">
-                          
-                          {/* 📄 Page count */}
-                          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80">
-                            <FileText className="w-3.5 h-3.5 text-emerald-700" />
-                            <span className="font-semibold text-slate-700">{kh.pages_count || 3} pages</span>
-                          </div>
+                      {/* Single Date Badge Only */}
+                      <div className="flex items-center gap-2 pt-0.5">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#20293D] border border-[#2B3752] text-[11px] sm:text-xs font-semibold text-slate-300">
+                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                          <span>{kh.date_ajout || '01/10/2024'}</span>
+                        </span>
 
-                          {/* 🎵 Audio count */}
-                          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80">
-                            <Music className="w-3.5 h-3.5 text-emerald-700" />
-                            <span className="font-semibold text-slate-700">{kh.audios_count || 0} audio(s)</span>
-                          </div>
-
-                          {/* ⏱️ Versets / Durée */}
-                          <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200/80">
-                            <Clock className="w-3.5 h-3.5 text-slate-400" />
-                            <span className="text-slate-600">{kh.duree_estimee || '20 min'}</span>
-                          </div>
-
-                          {/* 👁️ Views */}
-                          <div className="inline-flex items-center gap-1 text-slate-400 text-[11px] ml-auto sm:ml-0">
-                            <Eye className="w-3.5 h-3.5 text-slate-400" />
-                            <span>{kh.vues_count || 0}</span>
-                          </div>
-
-                        </div>
-
+                        {kh.is_bess_bi && (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300">
+                            <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
+                            <span>Bess Bi</span>
+                          </span>
+                        )}
                       </div>
 
                     </div>
 
-                    {/* Right Actions: Read CTA + Download Button */}
-                    <div className="flex items-center gap-2 self-end sm:self-center flex-shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100 w-full sm:w-auto justify-between sm:justify-end">
+                    {/* Right Actions: Read + Download */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       
                       {/* Read Button */}
                       <button
@@ -279,9 +228,9 @@ export const MembreRepetitionTab = () => {
                           e.stopPropagation();
                           setSelectedKhassidaForReading(kh);
                         }}
-                        className="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+                        className="px-3.5 py-1.5 bg-[#20293D] hover:bg-emerald-800 text-slate-200 hover:text-white font-bold text-xs rounded-xl border border-[#2B3752] flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
                       >
-                        <FileText className="w-3.5 h-3.5 text-emerald-700" />
+                        <FileText className="w-3.5 h-3.5" />
                         <span>Lire</span>
                       </button>
 
@@ -289,19 +238,19 @@ export const MembreRepetitionTab = () => {
                       {isDownloaded ? (
                         <button
                           onClick={(e) => handleToggleDownload(e, kh.id, kh.titre)}
-                          className="px-3 py-2 rounded-xl bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-transform active:scale-95 cursor-pointer"
-                          title="Téléchargé hors-ligne • Cliquez pour retirer"
+                          className="px-3 py-1.5 rounded-xl bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-transform active:scale-95 cursor-pointer"
+                          title="Téléchargé hors-ligne"
                         >
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
-                          <span>Enregistré</span>
+                          <span className="text-[10px]">Prêt</span>
                         </button>
                       ) : (
                         <button
                           onClick={(e) => handleToggleDownload(e, kh.id, kh.titre)}
-                          className="p-2 text-slate-500 hover:text-emerald-800 hover:bg-emerald-50 rounded-xl border border-slate-200 transition-all active:scale-95 cursor-pointer"
+                          className="p-1.5 text-slate-400 hover:text-white hover:bg-[#20293D] rounded-xl border border-[#2B3752] transition-all active:scale-95 cursor-pointer"
                           title="Télécharger pour accès hors-ligne"
                         >
-                          <DownloadCloud className="w-5 h-5 text-slate-600 hover:text-emerald-700" />
+                          <DownloadCloud className="w-4 h-4" />
                         </button>
                       )}
 
@@ -313,8 +262,8 @@ export const MembreRepetitionTab = () => {
               );
             })
           ) : (
-            <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 text-sm italic">
-              Aucune Khassida ne correspond aux filtres sélectionnés.
+            <div className="p-12 text-center bg-[#161E2E] rounded-3xl border border-[#232F46] text-slate-400 text-sm italic">
+              Aucune Khassida ne correspond à votre recherche.
             </div>
           )}
         </div>

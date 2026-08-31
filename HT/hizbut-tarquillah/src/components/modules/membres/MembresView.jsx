@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
-import { Search, Plus, Filter, User, Phone, MapPin, ChevronRight, CheckCircle2, Clock, XCircle, Wallet, Trash2, ArrowRight, LayoutGrid, Briefcase, Download, Sparkles, Users } from 'lucide-react';
+import { Search, Plus, Filter, User, Phone, MapPin, ChevronRight, CheckCircle2, Clock, XCircle, Wallet, Trash2, ArrowRight, LayoutGrid, Briefcase, Download, Sparkles, Users, Check } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { MembreModal } from './MembreModal';
 import { MembreDetailDrawer } from './MembreDetailDrawer';
 import { RepartitionSecteursModal } from './RepartitionSecteursModal';
+import { EnregistrerCotisationModal } from './EnregistrerCotisationModal';
 
 export const MembresView = () => {
-  const { membres, zones, kourels, selectedMembreId, setSelectedMembreId, deleteMembre } = useApp();
+  const { membres, zones, kourels, selectedMembreId, setSelectedMembreId, deleteMembre, toggleMembreCotisation } = useApp();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedKourelFilter, setSelectedKourelFilter] = useState('all');
   const [selectedCotisationFilter, setSelectedCotisationFilter] = useState('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isRepartitionModalOpen, setIsRepartitionModalOpen] = useState(false);
+  const [isCotisationModalOpen, setIsCotisationModalOpen] = useState(false);
 
   // Delete modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -65,8 +67,8 @@ export const MembresView = () => {
     <div className="space-y-4 pb-4 animate-fade-in select-none">
 
       {/* ── TOP ACTION BAR ─────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2.5">
-        {/* Search Input — full width on mobile */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+        {/* Search Input */}
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
@@ -78,14 +80,26 @@ export const MembresView = () => {
           />
         </div>
 
-        {/* Add Button — icon only on mobile, text on sm+ */}
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-1.5 px-4 py-3 bg-emerald-800 hover:bg-emerald-900 text-white rounded-2xl text-sm font-bold shadow-sm active:scale-95 transition-all flex-shrink-0"
-        >
-          <Plus className="w-4 h-4 text-emerald-200" />
-          <span className="hidden sm:inline">Ajouter</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Enregistrer Cotisations Button */}
+          <button
+            onClick={() => setIsCotisationModalOpen(true)}
+            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-950 hover:from-emerald-800 hover:to-emerald-900 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-sm active:scale-95 transition-all flex-shrink-0 cursor-pointer border border-emerald-700/50"
+            title="Enregistrer la situation financière des membres"
+          >
+            <Wallet className="w-4 h-4 text-amber-300 flex-shrink-0" />
+            <span>Enregistrer membres en règle</span>
+          </button>
+
+          {/* Add Button */}
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex items-center justify-center gap-1.5 px-4 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-sm active:scale-95 transition-all flex-shrink-0 cursor-pointer"
+          >
+            <Plus className="w-4 h-4 text-emerald-200" />
+            <span className="hidden sm:inline">Ajouter</span>
+          </button>
+        </div>
       </div>
 
       {/* ── FILTER CHIPS (horizontal scroll) ──────────────────────────────── */}
@@ -183,14 +197,22 @@ export const MembresView = () => {
                     <span className="px-2 py-0.5 bg-slate-100 text-slate-700 font-bold text-[10px] rounded-lg">
                       {kourel ? (kourel.nom.split('—')[1]?.trim() || kourel.nom) : 'N/A'}
                     </span>
-                    <span className={`px-2 py-0.5 font-bold text-[10px] rounded-lg inline-flex items-center gap-1 ${
-                      isEnRegle
-                        ? 'bg-emerald-50 text-emerald-800'
-                        : 'bg-rose-50 text-rose-700'
-                    }`}>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleMembreCotisation(membre.id);
+                      }}
+                      className={`px-2.5 py-0.5 font-bold text-[10px] rounded-lg inline-flex items-center gap-1 cursor-pointer transition-all active:scale-95 ${
+                        isEnRegle
+                          ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200'
+                          : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+                      }`}
+                      title="Cliquer pour basculer : En règle / En retard"
+                    >
                       {isEnRegle ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
-                      {isEnRegle ? 'À jour' : 'En retard'}
-                    </span>
+                      {isEnRegle ? 'En règle' : 'En retard'}
+                    </button>
                   </div>
                 </div>
 
@@ -255,10 +277,22 @@ export const MembresView = () => {
                         </span>
                       </td>
                       <td className="py-3.5 px-6 whitespace-nowrap">
-                        <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full inline-flex items-center gap-1 ${isEnRegle ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleMembreCotisation(membre.id);
+                          }}
+                          className={`px-2.5 py-1 text-xs font-bold rounded-full inline-flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 ${
+                            isEnRegle 
+                              ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200' 
+                              : 'bg-rose-50 hover:bg-rose-100 text-rose-800 border border-rose-200'
+                          }`}
+                          title="Cliquer pour basculer la cotisation : En règle / En retard"
+                        >
                           {isEnRegle ? <CheckCircle2 className="w-3 h-3 text-emerald-600" /> : <Clock className="w-3 h-3 text-rose-600" />}
-                          {isEnRegle ? 'À jour' : 'En retard'}
-                        </span>
+                          <span>{isEnRegle ? 'En règle' : 'En retard'}</span>
+                        </button>
                       </td>
                       <td className="py-3.5 px-6 whitespace-nowrap">
                         <span className={`px-2.5 py-0.5 text-xs font-bold rounded-full inline-flex items-center gap-1.5 ${membre.statut === 'Actif' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-rose-50 text-rose-800 border border-rose-200'}`}>
@@ -370,6 +404,12 @@ export const MembresView = () => {
       <RepartitionSecteursModal
         isOpen={isRepartitionModalOpen}
         onClose={() => setIsRepartitionModalOpen(false)}
+      />
+
+      {/* Enregistrer Cotisations Modal */}
+      <EnregistrerCotisationModal
+        isOpen={isCotisationModalOpen}
+        onClose={() => setIsCotisationModalOpen(false)}
       />
     </div>
   );

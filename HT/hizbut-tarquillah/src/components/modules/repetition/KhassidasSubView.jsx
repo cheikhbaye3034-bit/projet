@@ -80,148 +80,94 @@ export const KhassidasSubView = () => {
   return (
     <div className="space-y-4 animate-fade-in select-none">
       
-      {/* ── Top Header & Search Bar ── */}
-      <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-soft space-y-3">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3.5">
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Rechercher une Khassida (titre latin, arabe, auteur)..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:outline-none focus:border-emerald-600 font-semibold"
-            />
-          </div>
+      {/* ── Top Header & Search Bar (Rich Emerald / Forest Palette) ── */}
+      <div className="bg-[#072418] rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 border border-emerald-800/60 shadow-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-amber-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Chercher..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-[#0D3625] border border-emerald-700/60 rounded-xl text-xs sm:text-sm text-white placeholder:text-emerald-300/60 focus:outline-none focus:border-amber-400 font-medium transition-all"
+          />
+        </div>
 
-          <div className="flex items-center gap-2.5 justify-between sm:justify-end">
-            <span className="text-xs text-slate-500 font-medium hidden md:inline">
-              <strong className="text-slate-900">{filteredKhassidas.length}</strong> Khassida(s)
-            </span>
+        <div className="flex items-center gap-2 justify-between sm:justify-end">
+          <span className="text-xs text-emerald-200/90 font-medium px-2">
+            <strong className="text-white">{filteredKhassidas.length}</strong> Khassida(s)
+          </span>
 
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Ajouter une Khassida</span>
-            </button>
-          </div>
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-2 cursor-pointer active:scale-95 transition-all border border-emerald-400/30"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Ajouter</span>
+          </button>
         </div>
       </div>
 
-      {/* ── Grid of Khassida Cards (Modern, Light & Refined Aesthetic) ── */}
+      {/* ── List of Khassida Cards (Exquisite Deep Islamic Emerald Green) ── */}
       <div className="space-y-2.5">
         {filteredKhassidas.length > 0 ? (
           filteredKhassidas.map((kh) => {
-            const isDownloaded = !downloadedKhassidas[kh.id];
-            const isBessBi = !kh.is_bess_bi;
-
             return (
               <div
                 key={kh.id}
                 onClick={() => setSelectedKhassidaForReading(kh)}
-                className={`group relative bg-white rounded-2xl p-3.5 sm:p-4 border transition-all duration-200 cursor-pointer shadow-xs hover:shadow-md hover:border-emerald-300 hover:-translate-y-0.5 ${
-                  isBessBi 
-                    ? 'border-l-4 border-l-emerald-600 border-slate-200/90 bg-gradient-to-r from-emerald-50/20 via-white to-white' 
-                    : 'border-slate-200/90'
-                }`}
+                className="group relative bg-gradient-to-r from-[#092B1D] via-[#0E3827] to-[#0A2D1F] hover:from-[#0E3D2B] hover:to-[#0F422E] rounded-2xl p-4 sm:p-5 border border-emerald-800/50 hover:border-emerald-400/80 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg active:scale-[0.99]"
               >
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center justify-between gap-3">
                   
-                  {/* Left: Medallion + Titles & Meta */}
-                  <div className="flex items-center gap-3.5 min-w-0 flex-1">
+                  {/* Left: Title & Date Only */}
+                  <div className="min-w-0 flex-1 space-y-2">
                     
-                    {/* Compact Icon Badge */}
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold flex-shrink-0 transition-transform group-hover:scale-105 ${
-                      isBessBi 
-                        ? 'bg-emerald-800 text-emerald-200 shadow-xs' 
-                        : 'bg-emerald-50 text-emerald-800 border border-emerald-200/60'
-                    }`}>
-                      <BookOpen className="w-5 h-5 stroke-[2]" />
+                    {/* Main Title (Clean, Bold, Uppercase) */}
+                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                      <h3 className="font-display font-extrabold text-sm sm:text-base text-white tracking-wide uppercase group-hover:text-amber-300 transition-colors">
+                        {kh.titre}
+                      </h3>
+                      {kh.titre_arabe && (
+                        <span className="font-serif text-sm sm:text-base font-bold text-amber-300/95 font-['Amiri',serif]">
+                          {kh.titre_arabe}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Titles and Subtitle */}
-                    <div className="min-w-0 flex-1 space-y-0.5">
-                      
-                      <div className="flex flex-wrap items-center gap-1.5">
-                        {isBessBi && (
-                          <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded border border-emerald-300/50">
-                            <Sparkles className="w-2.5 h-2.5 text-emerald-600" />
-                            <span>Bess Bi</span>
-                          </span>
-                        )}
+                    {/* Single Date Pill Badge in Emerald */}
+                    <div className="flex items-center gap-2 pt-0.5">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#13422F] border border-emerald-700/60 text-[11px] sm:text-xs font-semibold text-emerald-100 shadow-xs">
+                        <Calendar className="w-3.5 h-3.5 text-emerald-300" />
+                        <span>{kh.date_ajout || '01/10/2024'}</span>
+                      </span>
 
-                        <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded">
-                          {kh.niveau || 'Intermédiaire'}
+                      {kh.is_bess_bi && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-500/50 text-amber-300">
+                          <Sparkles className="w-2.5 h-2.5 text-amber-400" />
+                          <span>Bess Bi</span>
                         </span>
-                      </div>
-
-                      {/* Latin Title & Arabic Calligraphy */}
-                      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
-                        <h3 className="font-display font-black text-sm sm:text-base text-slate-900 group-hover:text-emerald-800 transition-colors leading-snug">
-                          {kh.titre}
-                        </h3>
-                        {kh.titre_arabe && (
-                          <span className="font-serif text-base sm:text-lg font-bold text-emerald-700 font-['Amiri',serif]">
-                            {kh.titre_arabe}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Metadata Chips (Light & Compact) */}
-                      <div className="flex flex-wrap items-center gap-2 pt-0.5 text-[11px] text-slate-500 font-medium">
-                        <span className="text-slate-600 font-semibold">{kh.pages_count || 2} pages</span>
-                        <span>•</span>
-                        <span className="font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200/60">1.2 Mo</span>
-                        <span>•</span>
-                        <span>{kh.versets_count || 64} versets</span>
-                        <span>•</span>
-                        <span className="text-slate-400">{kh.duree_estimee || '15 min'}</span>
-                      </div>
-
+                      )}
                     </div>
 
                   </div>
 
-                  {/* Right Actions: Read + Download + Delete */}
-                  <div className="flex items-center gap-2 self-end sm:self-center flex-shrink-0 pt-1.5 sm:pt-0 border-t sm:border-t-0 border-slate-100 w-full sm:w-auto justify-between sm:justify-end">
-                    
-                    {/* Read Button */}
+                  {/* Right: Actions */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setSelectedKhassidaForReading(kh);
                       }}
-                      className="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold text-xs rounded-xl border border-emerald-200 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-2xs"
+                      className="px-3.5 py-1.5 bg-[#13422F] hover:bg-emerald-700 text-emerald-100 hover:text-white rounded-xl border border-emerald-600/50 text-xs font-bold transition-all cursor-pointer hidden sm:flex items-center gap-1.5 shadow-xs"
                     >
-                      <FileText className="w-3.5 h-3.5 text-emerald-700" />
+                      <FileText className="w-3.5 h-3.5" />
                       <span>Lire</span>
                     </button>
 
-                    {/* Download / Saved Button */}
-                    {isDownloaded ? (
-                      <button
-                        onClick={(e) => handleToggleDownload(e, kh.id, kh.titre)}
-                        className="px-2.5 py-1.5 rounded-xl bg-emerald-700 text-white font-bold text-xs flex items-center gap-1 shadow-2xs transition-transform active:scale-95 cursor-pointer"
-                        title="Enregistré hors-ligne"
-                      >
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
-                        <span className="text-[10px]">Prêt</span>
-                      </button>
-                    ) : (
-                      <button
-                        onClick={(e) => handleToggleDownload(e, kh.id, kh.titre)}
-                        className="p-1.5 text-slate-400 hover:text-emerald-800 hover:bg-emerald-50 rounded-xl border border-slate-200 transition-all active:scale-95 cursor-pointer"
-                        title="Télécharger hors-ligne"
-                      >
-                        <DownloadCloud className="w-4 h-4" />
-                      </button>
-                    )}
-
                     <button
                       onClick={(e) => handleDelete(e, kh.id, kh.titre)}
-                      className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                      className="p-2 text-emerald-300 hover:text-rose-400 hover:bg-rose-950/40 rounded-xl transition-colors cursor-pointer"
                       title="Supprimer la Khassida"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -234,8 +180,8 @@ export const KhassidasSubView = () => {
             );
           })
         ) : (
-          <div className="p-12 text-center bg-white rounded-3xl border border-slate-200 text-slate-400 text-sm italic">
-            Aucune Khassida ne correspond aux filtres sélectionnés.
+          <div className="p-12 text-center bg-[#092B1D] rounded-3xl border border-emerald-800/60 text-emerald-200 text-sm italic">
+            Aucune Khassida ne correspond à votre recherche.
           </div>
         )}
       </div>
