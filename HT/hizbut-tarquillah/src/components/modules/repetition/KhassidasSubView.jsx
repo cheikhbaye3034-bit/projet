@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   BookOpen, 
   Search, 
@@ -13,19 +13,98 @@ import {
   DownloadCloud, 
   Sparkles,
   ChevronRight,
-  Sparkle
+  Sparkle,
+  Upload
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { KhassidaModal } from './KhassidaModal';
 import { KhassidaDetailFullView } from './KhassidaDetailFullView';
 
 export const KhassidasSubView = () => {
-  const { khassidas, deleteKhassida, showToast } = useApp();
+  const { khassidas, addKhassida, deleteKhassida, showToast } = useApp();
+  const fileInputRef = useRef(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all'); // 'all' | 'bess_bi' | 'downloaded' | 'with_audio'
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedKhassidaForReading, setSelectedKhassidaForReading] = useState(null);
   const [downloadedKhassidas, setDownloadedKhassidas] = useState({ kh2: true, kh7: true, kh9: true });
+
+  const handleTriggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Extract clean title from filename
+    const cleanTitle = file.name
+      .replace(/\.[^/.]+$/, '')
+      .replace(/[-_]/g, ' ')
+      .trim();
+
+    const formattedDate = new Date().toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+
+    const fileBlobUrl = URL.createObjectURL(file);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result;
+
+      const newKhassida = {
+        titre: cleanTitle.toUpperCase(),
+        titre_arabe: '',
+        date_ajout: formattedDate,
+        auteur: 'Cheikh Ahmadou Bamba Khadimou Rassoul',
+        file_url: fileBlobUrl,
+        file_data_url: dataUrl,
+        file_name: file.name,
+        file_type: file.type || 'application/pdf',
+        file_size: (file.size / (1024 * 1024)).toFixed(1) + ' Mo',
+        pages_count: 5,
+        versets_count: 60,
+        duree_estimee: '15 min',
+        is_bess_bi: false
+      };
+
+      addKhassida(newKhassida);
+      showToast && showToast(`✅ Khassida "${cleanTitle}" importée avec succès depuis votre appareil !`);
+    };
+
+    if (file.type.includes('text') || file.name.endsWith('.txt')) {
+      const textReader = new FileReader();
+      textReader.onload = (tEvt) => {
+        const textContent = tEvt.target?.result;
+        const newKhassida = {
+          titre: cleanTitle.toUpperCase(),
+          titre_arabe: '',
+          date_ajout: formattedDate,
+          auteur: 'Cheikh Ahmadou Bamba Khadimou Rassoul',
+          file_url: fileBlobUrl,
+          file_name: file.name,
+          text_content: textContent,
+          file_type: 'text/plain',
+          file_size: (file.size / (1024 * 1024)).toFixed(1) + ' Mo',
+          pages_count: 1,
+          versets_count: 10,
+          duree_estimee: '10 min',
+          is_bess_bi: false
+        };
+        addKhassida(newKhassida);
+        showToast && showToast(`✅ Khassida "${cleanTitle}" importée avec succès !`);
+      };
+      textReader.readAsText(file);
+    } else {
+      reader.readAsDataURL(file);
+    }
+  };
 
   const filteredKhassidas = (khassidas || []).filter((kh) => {
     const query = searchQuery.toLowerCase().trim();
@@ -79,6 +158,15 @@ export const KhassidasSubView = () => {
 
   return (
     <div className="space-y-4 animate-fade-in select-none">
+
+      {/* Hidden Native File Input for Direct Device / Phone File Manager */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileUpload}
+        accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword"
+        className="hidden"
+      />
       
       {/* ── Top Header & Search Bar (Rich Emerald / Forest Palette) ── */}
       <div className="bg-[#072418] rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 border border-emerald-800/60 shadow-md flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
@@ -99,11 +187,13 @@ export const KhassidasSubView = () => {
           </span>
 
           <button
-            onClick={() => setIsAddModalOpen(true)}
+            type="button"
+            onClick={handleTriggerFileInput}
             className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow-sm flex items-center gap-2 cursor-pointer active:scale-95 transition-all border border-emerald-400/30"
+            title="Sélectionner un fichier PDF / Document depuis votre appareil"
           >
-            <Plus className="w-4 h-4" />
-            <span>Ajouter</span>
+            <Upload className="w-4 h-4" />
+            <span>Ajouter une Khassida</span>
           </button>
         </div>
       </div>
@@ -180,8 +270,26 @@ export const KhassidasSubView = () => {
             );
           })
         ) : (
-          <div className="p-12 text-center bg-[#092B1D] rounded-3xl border border-emerald-800/60 text-emerald-200 text-sm italic">
-            Aucune Khassida ne correspond à votre recherche.
+          <div className="p-10 sm:p-14 text-center bg-[#072418] rounded-3xl border border-emerald-800/60 text-emerald-200/90 space-y-3.5">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-900/60 border border-emerald-700/50 flex items-center justify-center mx-auto text-emerald-300">
+              <BookOpen className="w-7 h-7" />
+            </div>
+            <h4 className="font-display font-bold text-base text-white">
+              {searchQuery ? 'Aucune Khassida ne correspond à votre recherche.' : 'Aucune Khassida dans le répertoire'}
+            </h4>
+            <p className="text-xs text-emerald-300/70 max-w-md mx-auto leading-relaxed">
+              {searchQuery ? 'Essayez un autre mot-clé ou réinitialisez la recherche.' : 'Cliquez sur « Ajouter une Khassida » pour sélectionner et importer vos fichiers PDF ou documents directement depuis votre appareil.'}
+            </p>
+            {!searchQuery && (
+              <button
+                type="button"
+                onClick={handleTriggerFileInput}
+                className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl inline-flex items-center gap-2 cursor-pointer transition-all shadow-md mt-2"
+              >
+                <Upload className="w-4 h-4" />
+                <span>Importer une Khassida depuis votre appareil</span>
+              </button>
+            )}
           </div>
         )}
       </div>

@@ -34,22 +34,32 @@ export const Sidebar = () => {
 
   return (
     <aside className="hidden lg:flex flex-col w-72 bg-white/95 backdrop-blur-xl border-r border-ht-line min-h-screen sticky top-0 z-30 select-none shadow-[4px_0_24px_-4px_rgba(16,91,60,0.03)]">
-      {/* Brand Header */}
-      <div className="p-5 border-b border-ht-line/80 flex items-center gap-3.5 bg-gradient-to-r from-emerald-50/50 via-white to-white">
-        <div className="w-11 h-11 rounded-2xl bg-white border border-emerald-200/80 p-1.5 flex items-center justify-center shadow-soft overflow-hidden flex-shrink-0 relative group">
-          <img src={logoImg} alt="Sama daara" className="w-full h-full object-contain transform group-hover:scale-105 transition-transform" />
-          <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 rounded-2xl transition-opacity"></div>
+      {/* Brand Header — Ultra Professional & Full Circle Logo */}
+      <div className="p-5 border-b border-emerald-900/10 flex items-center gap-3.5 bg-gradient-to-r from-emerald-50/80 via-white to-emerald-50/30">
+        {/* Full Circle Logo Container */}
+        <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-emerald-600/50 ring-4 ring-emerald-500/15 flex items-center justify-center shadow-md overflow-hidden flex-shrink-0 relative group transition-all duration-300 hover:border-emerald-600 hover:shadow-lg">
+          <img 
+            src={logoImg} 
+            alt="Sama daara" 
+            className="w-full h-full object-cover scale-[1.75] transform transition-transform duration-300 group-hover:scale-[1.95]" 
+          />
+          <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 rounded-full transition-opacity pointer-events-none"></div>
         </div>
-        <div>
-          <div className="flex items-center gap-1.5">
-            <h1 className="font-display font-black text-sm text-ht-ink tracking-tight truncate max-w-[140px]">
+
+        {/* Stylish Typography */}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h1 className="font-serif font-black text-lg sm:text-[19px] tracking-wide text-slate-900 truncate drop-shadow-xs">
               {appSettings?.daaraName || 'Sama daara'}
             </h1>
-            <span className="bg-emerald-100/80 text-emerald-800 text-[10px] font-extrabold px-1.5 py-0.2 rounded-md flex-shrink-0">PRO</span>
+            <span className="bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[9px] font-black tracking-widest px-2 py-0.5 rounded-md shadow-xs uppercase border border-amber-400/40 flex-shrink-0">
+              PRO
+            </span>
           </div>
-          <p className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1 mt-0.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            Portail de Gestion
+
+          <p className="font-serif italic text-xs font-semibold text-emerald-800 tracking-wide flex items-center gap-1.5 mt-0.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-300 animate-pulse flex-shrink-0"></span>
+            <span>Portail de Gestion</span>
           </p>
         </div>
       </div>

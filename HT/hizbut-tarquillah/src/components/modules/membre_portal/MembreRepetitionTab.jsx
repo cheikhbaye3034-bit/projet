@@ -97,20 +97,20 @@ export const MembreRepetitionTab = () => {
       ========================================================================= */}
       <div className="space-y-4">
         
-        {/* Search Input Bar (Kaggu PDF Style) */}
+        {/* Search Input Bar (Kaggu PDF Style with Islamic Emerald Theme) */}
         <div className="relative">
-          <Search className="w-4 h-4 text-amber-500 absolute left-4 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-amber-400 absolute left-4 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Chercher..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 bg-[#131A29] border border-[#232F46] rounded-2xl text-xs sm:text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-amber-500/80 shadow-md font-medium transition-all"
+            className="w-full pl-11 pr-4 py-3 bg-[#072418] border border-emerald-800/60 rounded-2xl text-xs sm:text-sm text-white placeholder:text-emerald-300/60 focus:outline-none focus:border-amber-400 shadow-md font-medium transition-all"
           />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-white rounded-full hover:bg-[#20293D]"
+              className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-emerald-300 hover:text-white rounded-full hover:bg-emerald-800/50"
             >
               <X className="w-4 h-4" />
             </button>
@@ -171,7 +171,7 @@ export const MembreRepetitionTab = () => {
       </div>
 
       {/* =========================================================================
-          SECTION 1 : DESIGN KAGGU PDF (CARTES SOMBRES AVEC BADGE DATE UNIQUE)
+          SECTION 1 : DESIGN KAGGU PDF (VERT ÉMERAUDE PROFOND & BADGE DATE UNIQUE)
       ========================================================================= */}
       {activeSubTab === 'khassidas' && (
         <div className="space-y-2.5 animate-fade-in">
@@ -183,7 +183,7 @@ export const MembreRepetitionTab = () => {
                 <div
                   key={kh.id}
                   onClick={() => setSelectedKhassidaForReading(kh)}
-                  className="group relative bg-[#161E2E] hover:bg-[#1C273C] rounded-2xl p-4 sm:p-5 border border-[#232F46] hover:border-slate-600 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-md active:scale-[0.99]"
+                  className="group relative bg-gradient-to-r from-[#092B1D] via-[#0E3827] to-[#0A2D1F] hover:from-[#0E3D2B] hover:to-[#0F422E] rounded-2xl p-4 sm:p-5 border border-emerald-800/50 hover:border-emerald-400/80 transition-all duration-200 cursor-pointer shadow-sm hover:shadow-lg active:scale-[0.99]"
                 >
                   <div className="flex items-center justify-between gap-3">
                     
@@ -192,11 +192,11 @@ export const MembreRepetitionTab = () => {
                       
                       {/* Main Title (Bold Uppercase) */}
                       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                        <h3 className="font-display font-extrabold text-sm sm:text-base text-white tracking-wide uppercase group-hover:text-amber-400 transition-colors">
+                        <h3 className="font-display font-extrabold text-sm sm:text-base text-white tracking-wide uppercase group-hover:text-amber-300 transition-colors">
                           {kh.titre}
                         </h3>
                         {kh.titre_arabe && (
-                          <span className="font-serif text-sm sm:text-base font-bold text-emerald-400/90 font-['Amiri',serif]">
+                          <span className="font-serif text-sm sm:text-base font-bold text-amber-300/95 font-['Amiri',serif]">
                             {kh.titre_arabe}
                           </span>
                         )}
@@ -204,14 +204,14 @@ export const MembreRepetitionTab = () => {
 
                       {/* Single Date Badge Only */}
                       <div className="flex items-center gap-2 pt-0.5">
-                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#20293D] border border-[#2B3752] text-[11px] sm:text-xs font-semibold text-slate-300">
-                          <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#13422F] border border-emerald-700/60 text-[11px] sm:text-xs font-semibold text-emerald-100 shadow-xs">
+                          <Calendar className="w-3.5 h-3.5 text-emerald-300" />
                           <span>{kh.date_ajout || '01/10/2024'}</span>
                         </span>
 
                         {kh.is_bess_bi && (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 text-emerald-300">
-                            <Sparkles className="w-2.5 h-2.5 text-emerald-400" />
+                          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full bg-amber-950/80 border border-amber-500/50 text-amber-300">
+                            <Sparkles className="w-2.5 h-2.5 text-amber-400" />
                             <span>Bess Bi</span>
                           </span>
                         )}
@@ -228,7 +228,7 @@ export const MembreRepetitionTab = () => {
                           e.stopPropagation();
                           setSelectedKhassidaForReading(kh);
                         }}
-                        className="px-3.5 py-1.5 bg-[#20293D] hover:bg-emerald-800 text-slate-200 hover:text-white font-bold text-xs rounded-xl border border-[#2B3752] flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
+                        className="px-3.5 py-1.5 bg-[#13422F] hover:bg-emerald-700 text-emerald-100 hover:text-white font-bold text-xs rounded-xl border border-emerald-600/50 flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-xs"
                       >
                         <FileText className="w-3.5 h-3.5" />
                         <span>Lire</span>
@@ -238,7 +238,7 @@ export const MembreRepetitionTab = () => {
                       {isDownloaded ? (
                         <button
                           onClick={(e) => handleToggleDownload(e, kh.id, kh.titre)}
-                          className="px-3 py-1.5 rounded-xl bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-transform active:scale-95 cursor-pointer"
+                          className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-transform active:scale-95 cursor-pointer border border-emerald-400/30"
                           title="Téléchargé hors-ligne"
                         >
                           <Check className="w-3.5 h-3.5 stroke-[3]" />
@@ -247,7 +247,7 @@ export const MembreRepetitionTab = () => {
                       ) : (
                         <button
                           onClick={(e) => handleToggleDownload(e, kh.id, kh.titre)}
-                          className="p-1.5 text-slate-400 hover:text-white hover:bg-[#20293D] rounded-xl border border-[#2B3752] transition-all active:scale-95 cursor-pointer"
+                          className="p-1.5 text-emerald-300 hover:text-white hover:bg-[#13422F] rounded-xl border border-emerald-700/50 transition-all active:scale-95 cursor-pointer"
                           title="Télécharger pour accès hors-ligne"
                         >
                           <DownloadCloud className="w-4 h-4" />
@@ -262,7 +262,7 @@ export const MembreRepetitionTab = () => {
               );
             })
           ) : (
-            <div className="p-12 text-center bg-[#161E2E] rounded-3xl border border-[#232F46] text-slate-400 text-sm italic">
+            <div className="p-12 text-center bg-[#092B1D] rounded-3xl border border-emerald-800/60 text-emerald-200 text-sm italic">
               Aucune Khassida ne correspond à votre recherche.
             </div>
           )}

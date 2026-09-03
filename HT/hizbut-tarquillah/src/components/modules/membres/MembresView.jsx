@@ -80,21 +80,33 @@ export const MembresView = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+          {/* Répartir par Secteur Button */}
+          <button
+            onClick={() => setIsRepartitionModalOpen(true)}
+            className="flex items-center justify-center gap-1.5 px-3.5 py-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-2xl text-xs sm:text-sm font-bold shadow-xs active:scale-95 transition-all flex-shrink-0 cursor-pointer"
+            title="Répartir les membres dans les commissions et secteurs de travail"
+          >
+            <Briefcase className="w-4 h-4 text-emerald-700 flex-shrink-0" />
+            <span className="hidden sm:inline">Répartir par Secteur</span>
+            <span className="sm:hidden">Secteurs</span>
+          </button>
+
           {/* Enregistrer Cotisations Button */}
           <button
             onClick={() => setIsCotisationModalOpen(true)}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-950 hover:from-emerald-800 hover:to-emerald-900 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-sm active:scale-95 transition-all flex-shrink-0 cursor-pointer border border-emerald-700/50"
+            className="flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-3 bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-950 hover:from-emerald-800 hover:to-emerald-900 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-sm active:scale-95 transition-all flex-shrink-0 cursor-pointer border border-emerald-700/50"
             title="Enregistrer la situation financière des membres"
           >
             <Wallet className="w-4 h-4 text-amber-300 flex-shrink-0" />
-            <span>Enregistrer membres en règle</span>
+            <span className="hidden md:inline">Enregistrer membres en règle</span>
+            <span className="md:hidden">Cotisations</span>
           </button>
 
           {/* Add Button */}
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center justify-center gap-1.5 px-4 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-sm active:scale-95 transition-all flex-shrink-0 cursor-pointer"
+            className="flex items-center justify-center gap-1.5 px-3.5 sm:px-4 py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs sm:text-sm font-bold shadow-sm active:scale-95 transition-all flex-shrink-0 cursor-pointer"
           >
             <Plus className="w-4 h-4 text-emerald-200" />
             <span className="hidden sm:inline">Ajouter</span>

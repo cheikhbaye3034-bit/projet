@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Music, 
   Play, 
@@ -11,19 +11,56 @@ import {
   Search, 
   Sparkles, 
   Check,
-  Disc
+  Disc,
+  Upload
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { AudioModal } from './AudioModal';
 
 export const SonsSubView = () => {
-  const { sonsAudio, deleteSonAudio, showToast } = useApp();
+  const { sonsAudio, addSonAudio, deleteSonAudio, showToast } = useApp();
+  const audioInputRef = useRef(null);
   const [playingSonId, setPlayingSonId] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [audioProgress, setAudioProgress] = useState(35);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
+
+  const handleTriggerAudioInput = () => {
+    if (audioInputRef.current) {
+      audioInputRef.current.value = '';
+      audioInputRef.current.click();
+    }
+  };
+
+  const handleAudioFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const cleanTitle = file.name
+      .replace(/\.[^/.]+$/, '')
+      .replace(/[-_]/g, ' ')
+      .trim();
+
+    const formattedDate = new Date().toISOString().split('T')[0];
+
+    const newAudio = {
+      titre: cleanTitle,
+      titre_arabe: '',
+      recitateur: 'Kourel Officiel Hizbut-Tarqiyyah',
+      duree: '08:45',
+      date: formattedDate,
+      taille: (file.size / (1024 * 1024)).toFixed(1) + ' Mo',
+      url: URL.createObjectURL(file),
+      kourel_id: 'k1',
+      audio_officiel: true,
+      format: file.type || 'audio/mp3'
+    };
+
+    addSonAudio(newAudio);
+    showToast && showToast(`🎙️ Piste audio "${cleanTitle}" importée directement depuis votre appareil !`);
+  };
 
   const filteredSons = (sonsAudio || []).filter((s) => {
     const query = searchQuery.toLowerCase().trim();
@@ -53,6 +90,15 @@ export const SonsSubView = () => {
 
   return (
     <div className="space-y-4 animate-fade-in select-none">
+
+      {/* Hidden Native File Input for Direct Audio File Picker */}
+      <input
+        type="file"
+        ref={audioInputRef}
+        onChange={handleAudioFileUpload}
+        accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac"
+        className="hidden"
+      />
       
       {/* ── Header & Search Toolbar ── */}
       <div className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-200 shadow-soft space-y-3">
@@ -74,10 +120,12 @@ export const SonsSubView = () => {
             </span>
 
             <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
+              type="button"
+              onClick={handleTriggerAudioInput}
+              className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-2 cursor-pointer transition-all"
+              title="Sélectionner un fichier audio MP3 / M4A depuis votre appareil"
             >
-              <Plus className="w-4 h-4" />
+              <Upload className="w-4 h-4" />
               <span>Ajouter un Audio</span>
             </button>
           </div>

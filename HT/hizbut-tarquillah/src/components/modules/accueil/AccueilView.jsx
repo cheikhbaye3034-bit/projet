@@ -44,24 +44,77 @@ export const AccueilView = () => {
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-900/90 to-slate-900/80 backdrop-blur-[2px]" />
 
         {/* Hero Content */}
-        <div className="relative z-10 p-6 sm:p-10 lg:p-12 text-white max-w-3xl space-y-6">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-emerald-200">
-            <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-            <span>Portail Officiel • Sama daara Pro</span>
+        <div className="relative z-10 p-6 sm:p-10 lg:p-12 text-white max-w-4xl space-y-6">
+          
+          {/* Top Bismillah & Badge */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="font-serif text-lg sm:text-xl text-amber-300/90 font-bold tracking-widest font-['Amiri',serif]">
+              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            </span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-emerald-200 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span>Portail Officiel • Sama daara Pro</span>
+            </div>
           </div>
 
-          <h1 className="font-display font-black text-2xl sm:text-4xl lg:text-5xl tracking-tight leading-[1.2]">
-            Tableau de Bord & Pilotage Spirituel
+          {/* Majestic Title */}
+          <h1 className="font-serif font-bold text-2xl sm:text-4xl lg:text-5xl tracking-wide text-white leading-[1.2] drop-shadow-sm">
+            Sanctuaire Numérique de Dévotion & de Gestion
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed max-w-2xl">
-            Gestion centralisée des répétitions de Khassidas, coordination automatisée des cycles de Kamil (60 Jukis) et suivi rigoureux de l'assiduité des membres.
+          {/* Poetic & Clear Italicized Feature Summary (Arabique / Serif Italique Lisible & Espacé) */}
+          <p className="font-serif italic text-sm sm:text-base lg:text-[17px] text-emerald-100/95 font-medium leading-relaxed tracking-wide max-w-3xl drop-shadow-xs">
+            « Une plateforme d'excellence dédiée à la psalmodie des <span className="text-amber-300 font-bold not-italic">Khassidas bénis</span> de Cheikh Ahmadou Bamba, à l'accomplissement perpétuel du <span className="text-amber-300 font-bold not-italic">Saint Coran</span> (60 Jukis), à l'émargement rigoureux des répétitions et à la cohésion fraternelle des membres du Daara. »
           </p>
 
+          {/* 4 Feature Micro-Highlights */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+            <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 hover:bg-white/15 transition-all">
+              <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                <BookOpen className="w-4 h-4" />
+                <span>Saint Coran</span>
+              </div>
+              <p className="text-[11px] text-emerald-100/80 font-medium mt-1 leading-tight">
+                60 Jukis synchronisés
+              </p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 hover:bg-white/15 transition-all">
+              <div className="flex items-center gap-2 text-emerald-300 font-bold text-xs">
+                <Mic className="w-4 h-4" />
+                <span>Répétitions</span>
+              </div>
+              <p className="text-[11px] text-emerald-100/80 font-medium mt-1 leading-tight">
+                Chants & Audios live
+              </p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 hover:bg-white/15 transition-all">
+              <div className="flex items-center gap-2 text-amber-300 font-bold text-xs">
+                <Users className="w-4 h-4" />
+                <span>Membres</span>
+              </div>
+              <p className="text-[11px] text-emerald-100/80 font-medium mt-1 leading-tight">
+                Annuaire & Kourels
+              </p>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-white/10 backdrop-blur-md border border-white/15 hover:bg-white/15 transition-all">
+              <div className="flex items-center gap-2 text-emerald-300 font-bold text-xs">
+                <Calendar className="w-4 h-4" />
+                <span>Pointage</span>
+              </div>
+              <p className="text-[11px] text-emerald-100/80 font-medium mt-1 leading-tight">
+                Présences & Absences
+              </p>
+            </div>
+          </div>
+
+          {/* Quick Action Buttons */}
           <div className="flex flex-wrap items-center gap-3.5 pt-2">
             <button
               onClick={() => setActiveTab('repetition')}
-              className="px-5 py-3 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 group active:scale-95"
+              className="px-5 py-3 bg-emerald-700 hover:bg-emerald-600 text-white font-bold text-xs rounded-xl shadow-lg transition-all flex items-center gap-2 group active:scale-95 cursor-pointer border border-emerald-500/40"
             >
               <Mic className="w-4 h-4 text-emerald-200" />
               <span>Gérer les Répétitions</span>
@@ -70,10 +123,10 @@ export const AccueilView = () => {
 
             <button
               onClick={() => setActiveTab('kamil')}
-              className="px-5 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 active:scale-95"
+              className="px-5 py-3 bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white font-bold text-xs rounded-xl transition-all flex items-center gap-2 active:scale-95 cursor-pointer"
             >
               <BookOpen className="w-4 h-4 text-amber-400" />
-              <span>Suivi Kamil ({totalJukisLus}/60)</span>
+              <span>Suivi Kamil Coran ({totalJukisLus}/60)</span>
             </button>
           </div>
         </div>

@@ -46,18 +46,21 @@ export const MembreMobileNav = ({ isOpen, onClose, activeMemberTab, setActiveMem
         
         <div>
           {/* Header */}
-          <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-emerald-50 to-white">
+          <div className="p-4 border-b border-emerald-900/10 flex items-center justify-between bg-gradient-to-r from-emerald-50 via-white to-emerald-50">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white border border-emerald-200 p-1 flex items-center justify-center">
-                <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
+              <div className="w-12 h-12 rounded-full bg-white border-2 border-emerald-600/40 ring-2 ring-emerald-500/10 flex items-center justify-center shadow-md overflow-hidden flex-shrink-0">
+                <img src={logoImg} alt="Logo" className="w-full h-full object-cover scale-[1.75]" />
               </div>
               <div>
-                <h3 className="font-display font-black text-sm text-slate-900 truncate max-w-[130px]">
-                  {appSettings?.daaraName || 'Sama daara'}
-                </h3>
-                <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-1.5 py-0.2 rounded">
-                  PORTAIL MEMBRE
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <h3 className="font-serif font-black text-base text-slate-900 truncate max-w-[130px]">
+                    {appSettings?.daaraName || 'Sama daara'}
+                  </h3>
+                  <span className="text-[8px] font-black text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded uppercase">
+                    MEMBRE
+                  </span>
+                </div>
+                <p className="font-serif italic text-[11px] text-emerald-800 font-medium">Espace Personnel</p>
               </div>
             </div>
 

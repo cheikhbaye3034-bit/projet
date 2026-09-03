@@ -44,16 +44,19 @@ export const MobileNav = ({ isOpen, onClose }) => {
       {/* Drawer content */}
       <div className="relative w-4/5 max-w-xs bg-white h-full shadow-2xl flex flex-col z-10">
         {/* Header */}
-        <div className="p-4 border-b border-ht-line flex items-center justify-between bg-emerald-900 text-white">
+        <div className="p-4 border-b border-emerald-950/40 flex items-center justify-between bg-gradient-to-r from-emerald-950 via-emerald-900 to-slate-900 text-white">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white p-1 flex items-center justify-center shadow-soft">
-              <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
+            <div className="w-12 h-12 rounded-full bg-white border-2 border-emerald-400/50 ring-2 ring-emerald-500/20 flex items-center justify-center shadow-md overflow-hidden flex-shrink-0">
+              <img src={logoImg} alt="Logo" className="w-full h-full object-cover scale-[1.75]" />
             </div>
             <div>
-              <h1 className="font-display font-bold text-sm text-white truncate max-w-[140px]">
-                {appSettings?.daaraName || 'Sama daara'}
-              </h1>
-              <p className="text-[10px] text-emerald-200 font-bold">Portail Gestion Pro</p>
+              <div className="flex items-center gap-1.5">
+                <h1 className="font-serif font-black text-base text-white tracking-wide truncate max-w-[130px]">
+                  {appSettings?.daaraName || 'Sama daara'}
+                </h1>
+                <span className="bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">PRO</span>
+              </div>
+              <p className="font-serif italic text-[11px] text-emerald-200/90 font-medium">Portail de Gestion</p>
             </div>
           </div>
           <button
