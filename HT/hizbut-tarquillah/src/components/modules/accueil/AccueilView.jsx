@@ -28,9 +28,10 @@ export const AccueilView = () => {
   const pinnedInfo = informations ? (informations.find(i => i.epingle) || informations[0]) : null;
 
   // Calculs Kamil
-  const totalJukisLus = jukis ? jukis.filter(j => j.statut === 'Lu' || j.statut === 'Validé').length : 0;
-  const totalJukisAttribues = jukis ? jukis.filter(j => j.statut === 'Attribué').length : 0;
-  const kamilCompletionPercent = Math.round((totalJukisLus / 60) * 100);
+  const kamilAssignations = kamilCycle?.assignations || [];
+  const totalJukisLus = kamilAssignations.filter(j => j.statut === 'Terminé' || j.statut === 'Validé').length;
+  const totalJukisAttribues = kamilAssignations.filter(j => j.statut === 'En cours' || (j.membre_id && j.statut !== 'Libre' && j.statut !== 'À faire')).length;
+  const kamilCompletionPercent = Math.round((totalJukisLus / 30) * 100);
 
   return (
     <div className="space-y-8 pb-12 animate-fade-in select-none">
@@ -302,7 +303,7 @@ export const AccueilView = () => {
               <div className="flex items-center justify-between text-xs font-bold">
                 <span className="text-slate-300">Avancement des lectures</span>
                 <span className="text-amber-400">
-                  {totalJukisLus} / 60 Jukis complétés ({kamilCompletionPercent}%)
+                  {totalJukisLus} / 30 Jukis complétés ({kamilCompletionPercent}%)
                 </span>
               </div>
               <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/10">

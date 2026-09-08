@@ -525,50 +525,138 @@ export const AppProvider = ({ children }) => {
   };
 
   // Kamil Actions
+  const claimJukis = (jukiNumbers, customMembre = null) => {
+    if (!jukiNumbers || !Array.isArray(jukiNumbers) || jukiNumbers.length === 0) return;
+    const target = customMembre || currentUser || { id: 'm2', prenom: 'Cheikh Ahmadou', nom: 'NDIAYE' };
+    const membreId = target.id || 'm2';
+    const membreNom = `${target.prenom || ''} ${target.nom || ''}`.trim() || 'Membre';
+
+    setKamilCycle((prev) => {
+      const currentAssignations = prev?.assignations || INITIAL_KAMIL_CYCLE.assignations;
+      const updatedAssignations = currentAssignations.map((a) => {
+        if (jukiNumbers.includes(a.juz)) {
+          return {
+            ...a,
+            membre_id: membreId,
+            membre_nom: membreNom,
+            statut: 'En cours',
+            date_assignee: new Date().toISOString().split('T')[0]
+          };
+        }
+        return a;
+      });
+      const updatedCycle = {
+        ...prev,
+        assignations: updatedAssignations
+      };
+      try {
+        localStorage.setItem('ht_kamil_cycle', JSON.stringify(updatedCycle));
+      } catch (e) {}
+      return updatedCycle;
+    });
+
+    showToast(`Félicitations ! Les Jukis ${jukiNumbers.join(', ')} vous ont été assignés.`);
+  };
+
+  const markJukiCompleted = (jukiNumber, membreId = null) => {
+    setKamilCycle((prev) => {
+      const currentAssignations = prev?.assignations || [];
+      const updatedAssignations = currentAssignations.map((a) => {
+        const matchesMembre = !membreId || a.membre_id === membreId;
+        if (a.juz === jukiNumber && matchesMembre) {
+          return {
+            ...a,
+            statut: 'Terminé',
+            date_validee: new Date().toISOString().split('T')[0]
+          };
+        }
+        return a;
+      });
+      const updatedCycle = {
+        ...prev,
+        assignations: updatedAssignations
+      };
+      try {
+        localStorage.setItem('ht_kamil_cycle', JSON.stringify(updatedCycle));
+      } catch (e) {}
+      return updatedCycle;
+    });
+
+    showToast(`Barak'Allah fik ! Votre lecture du Juki ${jukiNumber} a été validée.`);
+  };
+
   const updateJuzStatut = async (juzNumber, newStatut) => {
-    const valideeDate = newStatut === 'Terminé' ? new Date().toISOString().split('T')[0] : '';
-    setKamilCycle((prev) => ({
-      ...prev,
-      assignations: prev.assignations.map((item) => {
-        if (item.juz !== juzNumber) return item;
-        return {
-          ...item,
-          statut: newStatut,
-          date_validee: valideeDate
-        };
-      })
-    }));
-    showToast(`Juz' ${juzNumber} marqué comme "${newStatut}"`);
+    const valideeDate = (newStatut === 'Terminé' || newStatut === 'Validé') ? new Date().toISOString().split('T')[0] : '';
+    setKamilCycle((prev) => {
+      const updated = {
+        ...prev,
+        assignations: prev.assignations.map((item) => {
+          if (item.juz !== juzNumber) return item;
+          return {
+            ...item,
+            statut: newStatut,
+            date_validee: valideeDate
+          };
+        })
+      };
+      try {
+        localStorage.setItem('ht_kamil_cycle', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+    showToast(`Juki ${juzNumber} marqué comme "${newStatut}"`);
 
     try {
-      await supabase
-        .from('juz_assignations')
-        .update({ statut: newStatut, date_validee: valideeDate })
-        .eq('cycle_id', kamilCycle.id)
-        .eq('juz', juzNumber);
+      if (kamilCycle?.id) {
+        await supabase
+          .from('juz_assignations')
+          .update({ statut: newStatut, date_validee: valideeDate })
+          .eq('cycle_id', kamilCycle.id)
+          .eq('juz', juzNumber);
+      }
     } catch (e) {
       console.error('Erreur Supabase updateJuzStatut:', e);
     }
   };
 
   const assignJuzToMembre = async (juzNumber, membreId) => {
-    setKamilCycle(prev => ({
-      ...prev,
-      assignations: prev.assignations.map(item => {
-        if (item.juz !== juzNumber) return item;
-        return { ...item, membre_id: membreId };
-      })
-    }));
-    const m = membres.find(mem => mem.id === membreId);
-    const name = m ? `${m.prenom} ${m.nom}` : 'Membre';
-    showToast(`Juz' ${juzNumber} attribué à ${name}`);
+    const m = membres.find((mem) => mem.id === membreId);
+    const name = m ? `${m.prenom} ${m.nom}` : (membreId ? 'Membre' : '');
+    const newStatut = membreId ? 'En cours' : 'À faire';
+
+    setKamilCycle((prev) => {
+      const updated = {
+        ...prev,
+        assignations: prev.assignations.map((item) => {
+          if (item.juz !== juzNumber) return item;
+          return { 
+            ...item, 
+            membre_id: membreId || null,
+            membre_nom: name || null,
+            statut: newStatut 
+          };
+        })
+      };
+      try {
+        localStorage.setItem('ht_kamil_cycle', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+
+    if (membreId) {
+      showToast(`Juki ${juzNumber} attribué à ${name}`);
+    } else {
+      showToast(`Juki ${juzNumber} libéré`, 'info');
+    }
 
     try {
-      await supabase
-        .from('juz_assignations')
-        .update({ membre_id: membreId })
-        .eq('cycle_id', kamilCycle.id)
-        .eq('juz', juzNumber);
+      if (kamilCycle?.id) {
+        await supabase
+          .from('juz_assignations')
+          .update({ membre_id: membreId, statut: newStatut })
+          .eq('cycle_id', kamilCycle.id)
+          .eq('juz', juzNumber);
+      }
     } catch (e) {
       console.error('Erreur Supabase assignJuzToMembre:', e);
     }
@@ -869,7 +957,10 @@ export const AppProvider = ({ children }) => {
         sonsAudio,
         seances,
         kamilCycle,
+        setKamilCycle,
         pastKamilCycles,
+        claimJukis,
+        markJukiCompleted,
         informations,
         selectedMembreId,
         setSelectedMembreId,

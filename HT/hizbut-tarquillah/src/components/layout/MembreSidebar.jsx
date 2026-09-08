@@ -17,7 +17,8 @@ import logoImg from '../../assets/images/logo.png';
 export const MembreSidebar = ({ activeMemberTab, setActiveMemberTab }) => {
   const { currentUser, logout, seances, kamilCycle, informations, appSettings } = useApp();
 
-  const myAssignedCount = kamilCycle?.assignations?.filter(a => a.membre_id === currentUser?.id).length || 1;
+  const memberId = currentUser?.id || 'm2';
+  const myAssignedCount = kamilCycle?.assignations?.filter(a => a.membre_id === memberId).length || 0;
 
   const navItems = [
     { id: 'accueil', label: 'Accueil', icon: Home, badge: null },

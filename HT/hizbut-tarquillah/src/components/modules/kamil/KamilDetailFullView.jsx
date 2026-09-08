@@ -40,6 +40,7 @@ export const KamilDetailFullView = ({ initialTab = 'termines', onClose, onOpenAt
   // Group assignations by member
   const memberAssignmentsMap = {};
   assignations.forEach((a) => {
+    if (!a.membre_id || a.statut === 'Libre' || a.statut === 'À faire') return;
     if (!memberAssignmentsMap[a.membre_id]) {
       memberAssignmentsMap[a.membre_id] = [];
     }
@@ -47,7 +48,20 @@ export const KamilDetailFullView = ({ initialTab = 'termines', onClose, onOpenAt
   });
 
   const involvedMemberIds = Object.keys(memberAssignmentsMap);
-  const involvedMembers = (membres || []).filter((m) => involvedMemberIds.includes(m.id));
+  const involvedMembers = involvedMemberIds.map((mId) => {
+    const existing = (membres || []).find((m) => m.id === mId);
+    if (existing) return existing;
+    const sample = memberAssignmentsMap[mId]?.[0];
+    const nameParts = (sample?.membre_nom || 'Membre Dahira').split(' ');
+    return {
+      id: mId,
+      prenom: nameParts[0] || 'Membre',
+      nom: nameParts.slice(1).join(' ') || '',
+      telephone: '+221 78 234 56 78',
+      kourel_id: 'k1',
+      statut: 'Actif'
+    };
+  });
 
   // Filtered members list
   const filteredMembers = involvedMembers.filter((m) => {
@@ -63,7 +77,7 @@ export const KamilDetailFullView = ({ initialTab = 'termines', onClose, onOpenAt
   const filteredTermines = terminesList.filter((a) => {
     const q = searchQuery.toLowerCase();
     const m = membres.find((mem) => mem.id === a.membre_id);
-    const memberName = m ? `${m.prenom} ${m.nom}`.toLowerCase() : '';
+    const memberName = (a.membre_nom || (m ? `${m.prenom} ${m.nom}` : '')).toLowerCase();
     const matchesKourel = filterKourel === 'all' || (m && m.kourel_id === filterKourel);
     return (
       (`juki ${a.juz}`.includes(q) ||
@@ -77,7 +91,7 @@ export const KamilDetailFullView = ({ initialTab = 'termines', onClose, onOpenAt
   const filteredRestants = restantsList.filter((a) => {
     const q = searchQuery.toLowerCase();
     const m = membres.find((mem) => mem.id === a.membre_id);
-    const memberName = m ? `${m.prenom} ${m.nom}`.toLowerCase() : '';
+    const memberName = (a.membre_nom || (m ? `${m.prenom} ${m.nom}` : '')).toLowerCase();
     const matchesKourel = filterKourel === 'all' || (m && m.kourel_id === filterKourel);
     return (
       (`juki ${a.juz}`.includes(q) ||

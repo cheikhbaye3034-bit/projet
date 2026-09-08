@@ -17,17 +17,17 @@ import { useApp } from '../../context/AppContext';
 import logoImg from '../../assets/images/logo.png';
 
 export const Sidebar = () => {
-  const { activeTab, setActiveTab, currentUser, logout, membres, seances, jukis, appSettings } = useApp();
+  const { activeTab, setActiveTab, currentUser, logout, membres, seances, kamilCycle, appSettings } = useApp();
 
   const isResponsable = currentUser?.role !== 'Membre';
-  const activeJukisCount = (jukis || []).filter(j => j.statut === 'Terminé' || j.statut === 'En cours').length;
+  const activeJukisCount = (kamilCycle?.assignations || []).filter(j => j.statut === 'Terminé' || j.statut === 'Validé' || j.statut === 'En cours').length;
 
   const navItems = [
     { id: 'accueil', label: 'Vue d\'ensemble', icon: Home, badge: null },
     { id: 'dashboard', label: 'Tableau de Bord', icon: LayoutDashboard, badge: null },
     { id: 'membres', label: 'Membres & Dahira', icon: Users, badge: membres?.length },
     { id: 'repetition', label: 'Répétition & Pointage', icon: Mic, badge: 'Live' },
-    { id: 'kamil', label: 'Suivi Kamil Coran', icon: BookOpen, badge: `${activeJukisCount}/60` },
+    { id: 'kamil', label: 'Suivi Kamil Coran', icon: BookOpen, badge: `${activeJukisCount}/30` },
     { id: 'info', label: 'Informations', icon: Newspaper, badge: null },
     ...(isResponsable ? [{ id: 'reglages', label: 'Réglages', icon: Settings, badge: null }] : []),
   ];

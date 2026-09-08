@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 import { MembreAbsenceSection } from './MembreAbsenceSection';
+import { KhassidaDetailFullView } from '../repetition/KhassidaDetailFullView';
 import heroMicBg from '../../../assets/images/repetition_hero_mic.jpg';
 
 export const MembreRepetitionTab = () => {
@@ -430,119 +431,10 @@ export const MembreRepetitionTab = () => {
           MODAL DE LECTURE DU TEXTE DE KHASSIDA (AMIRI CALLIGRAPHIE VERT ÉMERAUDE)
       ========================================================================= */}
       {selectedKhassidaForReading && (
-        <div className="fixed inset-0 z-[500] flex items-center justify-center p-3 sm:p-4 bg-slate-900/15 backdrop-blur-xs animate-fade-in select-text">
-          <div className="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl border border-slate-200">
-            
-            {/* Modal Header with Hero Background Banner */}
-            <div className="relative p-5 sm:p-6 bg-gradient-to-r from-emerald-950 via-[#144631] to-[#0A261A] text-white flex items-center justify-between overflow-hidden">
-              <div 
-                className="absolute inset-0 opacity-20 bg-cover bg-center" 
-                style={{ backgroundImage: `url(${heroMicBg})` }}
-              />
-              <div className="relative z-10">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-emerald-300">
-                  Texte Intégral & Paroles
-                </span>
-                <h3 className="font-display font-black text-lg sm:text-xl text-white mt-0.5">
-                  {selectedKhassidaForReading.titre}
-                </h3>
-                {selectedKhassidaForReading.titre_arabe && (
-                  <p className="font-serif text-emerald-300 text-lg font-bold font-['Amiri',serif]">
-                    {selectedKhassidaForReading.titre_arabe}
-                  </p>
-                )}
-              </div>
-              
-              <button
-                onClick={() => setSelectedKhassidaForReading(null)}
-                className="relative z-10 w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Body: Arab Verses + Translation */}
-            <div className="p-5 sm:p-8 overflow-y-auto space-y-6 text-slate-800 leading-relaxed font-sans text-sm sm:text-base">
-              
-              <div className="text-center py-3 border-b border-slate-100">
-                <span className="font-serif text-2xl sm:text-3xl text-emerald-950 font-bold font-['Amiri',serif]">
-                  بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
-                </span>
-              </div>
-
-              <div className="space-y-4">
-                
-                {/* Couplet 1 */}
-                <div className="bg-emerald-50/50 p-4 sm:p-5 rounded-2xl border border-emerald-200/70 space-y-2">
-                  <p className="font-serif text-xl sm:text-2xl text-emerald-950 leading-loose text-right font-['Amiri',serif]" dir="rtl">
-                    يَا رَبِّ بِالْمُصْطَفَى بَلِّغْ مَقَاصِدَنَا • وَاغْفِرْ لَنَا مَا مَضَى يَا وَاسِعَ الْكَرَمِ
-                  </p>
-                  <p className="text-xs text-emerald-800 font-semibold font-mono">
-                    Yâ Rabbi bil Mustafâ balligh maqâssidanâ • Waghfir lanâ mâ madâ yâ wâssi'al karami
-                  </p>
-                  <p className="text-xs text-slate-600 italic">
-                    « Ô Seigneur ! Par l'Élu (Mouhammad PSL), exauce nos desseins, et pardonne-nous nos fautes passées, Ô Toi dont la générosité est infinie. »
-                  </p>
-                </div>
-
-                {/* Couplet 2 */}
-                <div className="bg-emerald-50/50 p-4 sm:p-5 rounded-2xl border border-emerald-200/70 space-y-2">
-                  <p className="font-serif text-xl sm:text-2xl text-emerald-950 leading-loose text-right font-['Amiri',serif]" dir="rtl">
-                    حَمِدْتُ مَنْ جَلَّ عَنِ الشَّرِيكِ • وَقَادَنِي لِلْمَسْلَكِ السَّالِيكِ
-                  </p>
-                  <p className="text-xs text-emerald-800 font-semibold font-mono">
-                    Hamidtu man jalla 'anich-charîki • Wa qâdanî lil maslakis-sâlîki
-                  </p>
-                  <p className="text-xs text-slate-600 italic">
-                    « Je rends grâce à Celui qui est exempt de tout associé, et qui m'a guidé sur la voie droite et pure. »
-                  </p>
-                </div>
-
-                {/* Couplet 3 */}
-                <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl border border-slate-200 space-y-2">
-                  <p className="font-serif text-xl sm:text-2xl text-emerald-950 leading-loose text-right font-['Amiri',serif]" dir="rtl">
-                    فَسَيَكْفِيكَهُمُ اللَّهُ وَهُوَ السَّمِيعُ الْعَلِيمُ
-                  </p>
-                  <p className="text-xs text-slate-700 font-semibold font-mono">
-                    Fa-sayakfîkahumul Lâhu wa huwas-samî'ul 'alîm
-                  </p>
-                  <p className="text-xs text-slate-600 italic">
-                    « Allah te suffira contre eux, et c'est Lui l'Audient, l'Omniscient. »
-                  </p>
-                </div>
-
-              </div>
-
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs text-slate-500 font-semibold">
-                {selectedKhassidaForReading.versets_count || 72} versets • {selectedKhassidaForReading.pages_count || 3} pages
-              </span>
-              
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setSelectedKhassidaForReading(null)}
-                  className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-xl cursor-pointer"
-                >
-                  Fermer
-                </button>
-
-                <button
-                  onClick={() => {
-                    showToast && showToast(`Khassida "${selectedKhassidaForReading.titre}" prête pour la répétition !`);
-                    setSelectedKhassidaForReading(null);
-                  }}
-                  className="px-5 py-2 bg-emerald-800 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl cursor-pointer shadow"
-                >
-                  Valider
-                </button>
-              </div>
-            </div>
-
-          </div>
-        </div>
+        <KhassidaDetailFullView
+          khassida={selectedKhassidaForReading}
+          onClose={() => setSelectedKhassidaForReading(null)}
+        />
       )}
 
     </div>

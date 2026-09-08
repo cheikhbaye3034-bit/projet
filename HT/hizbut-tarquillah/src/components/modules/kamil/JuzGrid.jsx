@@ -17,9 +17,9 @@ export const JuzGrid = () => {
 
   const assignations = kamilCycle?.assignations || [];
 
-  const terminesCount = assignations.filter(a => a.statut === 'Terminé').length;
+  const terminesCount = assignations.filter(a => a.statut === 'Terminé' || a.statut === 'Validé').length;
   const enCoursCount = assignations.filter(a => a.statut === 'En cours').length;
-  const aFaireCount = assignations.filter(a => a.statut === 'À faire' || !a.membre_id).length;
+  const aFaireCount = assignations.filter(a => !a.membre_id || a.statut === 'À faire' || a.statut === 'Libre').length;
 
   return (
     <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-soft space-y-6 select-none">
@@ -63,13 +63,13 @@ export const JuzGrid = () => {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3.5 sm:gap-4">
         {assignations.map((item) => {
           const membre = membres.find((m) => m.id === item.membre_id);
-          const isCompleted = item.statut === 'Terminé';
+          const isCompleted = item.statut === 'Terminé' || item.statut === 'Validé';
           const isInProgress = item.statut === 'En cours';
-          const isAssigned = !!item.membre_id && item.statut !== 'Libre';
+          const isAssigned = !!item.membre_id && item.statut !== 'Libre' && item.statut !== 'À faire';
 
           let memberDisplayName = 'Disponible';
-          if (isAssigned && membre) {
-            memberDisplayName = `${membre.prenom} ${membre.nom}`;
+          if (isAssigned) {
+            memberDisplayName = item.membre_nom || (membre ? `${membre.prenom} ${membre.nom}` : 'Membre');
           }
 
           return (
@@ -108,7 +108,7 @@ export const JuzGrid = () => {
 
               {/* Center: Member Name / Taken info */}
               <div className="min-w-0 w-full py-1">
-                {isAssigned && membre ? (
+                {isAssigned ? (
                   <div className="space-y-0.5">
                     <p className={`font-display font-bold text-xs sm:text-sm truncate ${
                       isCompleted ? 'text-white' : 'text-slate-900'
@@ -142,7 +142,7 @@ export const JuzGrid = () => {
                     ? 'text-amber-800'
                     : 'text-slate-400'
                 }`}>
-                  {isCompleted ? 'Terminé' : isInProgress ? 'Pris' : 'Disponible'}
+                  {isCompleted ? 'Validé' : isInProgress ? 'En cours' : 'Non attribué'}
                 </span>
               </div>
             </div>

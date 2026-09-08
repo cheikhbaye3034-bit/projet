@@ -16,17 +16,17 @@ import { useApp } from '../../context/AppContext';
 import logoImg from '../../assets/images/logo.png';
 
 export const MobileNav = ({ isOpen, onClose }) => {
-  const { activeTab, setActiveTab, currentUser, logout, membres, jukis, appSettings } = useApp();
+  const { activeTab, setActiveTab, currentUser, logout, membres, kamilCycle, appSettings } = useApp();
 
   const isResponsable = currentUser?.role !== 'Membre';
-  const activeJukisCount = (jukis || []).filter(j => j.statut === 'Terminé' || j.statut === 'En cours').length;
+  const activeJukisCount = (kamilCycle?.assignations || []).filter(j => j.statut === 'Terminé' || j.statut === 'Validé' || j.statut === 'En cours').length;
 
   const navItems = [
     { id: 'accueil', label: 'Vue d\'ensemble', icon: Home },
     { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
     { id: 'membres', label: 'Membres', icon: Users, badge: membres?.length },
     { id: 'repetition', label: 'Répétitions', icon: Mic, badge: 'Live' },
-    { id: 'kamil', label: 'Kamil', icon: BookOpen, badge: `${activeJukisCount}/60` },
+    { id: 'kamil', label: 'Kamil', icon: BookOpen, badge: `${activeJukisCount}/30` },
     { id: 'info', label: 'Informations', icon: Newspaper },
     ...(isResponsable ? [{ id: 'reglages', label: 'Réglages', icon: Settings }] : []),
   ];

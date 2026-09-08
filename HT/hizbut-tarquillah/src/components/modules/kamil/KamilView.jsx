@@ -16,11 +16,11 @@ export const KamilView = () => {
   // Full-page Details Tab state ('termines' | 'encours' | 'membres' | 'cycles' | null)
   const [selectedDetailTab, setSelectedDetailTab] = useState(null);
 
-  const termines = kamilCycle ? kamilCycle.assignations.filter((a) => a.statut === 'Terminé').length : 0;
+  const termines = kamilCycle ? kamilCycle.assignations.filter((a) => a.statut === 'Terminé' || a.statut === 'Validé').length : 0;
   const enCours = kamilCycle ? kamilCycle.assignations.filter((a) => a.statut === 'En cours').length : 0;
-  const aFaire = kamilCycle ? kamilCycle.assignations.filter((a) => a.statut === 'À faire').length : 0;
+  const aFaire = kamilCycle ? kamilCycle.assignations.filter((a) => !a.membre_id || a.statut === 'À faire' || a.statut === 'Libre').length : 0;
 
-  const membersInvolvedCount = kamilCycle ? new Set(kamilCycle.assignations.map(a => a.membre_id)).size : 0;
+  const membersInvolvedCount = kamilCycle ? new Set(kamilCycle.assignations.filter(a => a.membre_id && a.statut !== 'Libre' && a.statut !== 'À faire').map(a => a.membre_id)).size : 0;
 
   const today = new Date();
   const endDate = new Date(kamilCycle?.date_fin_prevue || Date.now());

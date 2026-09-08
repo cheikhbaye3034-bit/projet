@@ -19,18 +19,21 @@ import { useApp } from '../../../context/AppContext';
 import kamilHeroQuran from '../../../assets/images/kamil_hero_quran.jpg';
 
 export const MembreKamilTab = () => {
-  const { currentUser, kamilCycle, setKamilCycle, showToast } = useApp();
+  const { currentUser, kamilCycle, setKamilCycle, claimJukis, markJukiCompleted, showToast } = useApp();
   
   const [selectedJukiForClaim, setSelectedJukiForClaim] = useState([]);
   const [isClaiming, setIsClaiming] = useState(false);
 
   const assignations = kamilCycle?.assignations || [];
 
+  const memberId = currentUser?.id || 'm2';
+  const memberName = currentUser ? `${currentUser.prenom} ${currentUser.nom}` : 'Cheikh Ahmadou NDIAYE';
+
   // Member's assigned Jukis
-  const myAssignedJuki = assignations.filter(a => a.membre_id === currentUser?.id);
+  const myAssignedJuki = assignations.filter(a => a.membre_id === memberId);
   
   // Available (unassigned or free) Jukis
-  const availableJukiCount = assignations.filter(a => !a.membre_id || a.statut === 'À faire').length;
+  const availableJukiCount = assignations.filter(a => (!a.membre_id || a.statut === 'À faire' || a.statut === 'Libre') && a.membre_id !== memberId).length;
 
   // Days remaining
   const remainingDays = 4;
@@ -58,52 +61,57 @@ export const MembreKamilTab = () => {
     if (selectedJukiForClaim.length === 0) return;
     setIsClaiming(true);
 
-    setTimeout(() => {
+    if (claimJukis) {
+      claimJukis(selectedJukiForClaim, currentUser || { id: memberId, prenom: 'Cheikh Ahmadou', nom: 'NDIAYE' });
+    } else if (setKamilCycle) {
       const updatedAssignations = assignations.map(a => {
         if (selectedJukiForClaim.includes(a.juz)) {
           return {
             ...a,
-            membre_id: currentUser?.id,
-            statut: 'En cours'
+            membre_id: memberId,
+            membre_nom: memberName,
+            statut: 'En cours',
+            date_assignee: new Date().toISOString().split('T')[0]
           };
         }
         return a;
       });
 
-      if (setKamilCycle) {
-        setKamilCycle(prev => ({
-          ...prev,
-          assignations: updatedAssignations
-        }));
-      }
-
-      showToast && showToast(`Félicitations ! Les Jukis ${selectedJukiForClaim.join(', ')} vous ont été assignés avec succès.`);
-      setSelectedJukiForClaim([]);
-      setIsClaiming(false);
-    }, 400);
-  };
-
-  // Mark reading completed
-  const handleMarkCompleted = (jukiNumber) => {
-    const updatedAssignations = assignations.map(a => {
-      if (a.juz === jukiNumber && a.membre_id === currentUser?.id) {
-        return {
-          ...a,
-          statut: 'Terminé',
-          date_validee: new Date().toISOString().split('T')[0]
-        };
-      }
-      return a;
-    });
-
-    if (setKamilCycle) {
       setKamilCycle(prev => ({
         ...prev,
         assignations: updatedAssignations
       }));
+
+      showToast && showToast(`Félicitations ! Les Jukis ${selectedJukiForClaim.join(', ')} vous ont été assignés.`);
     }
 
-    showToast && showToast(`Barak'Allah fik ! Votre lecture du Juki ${jukiNumber} a été validée avec succès.`);
+    setSelectedJukiForClaim([]);
+    setIsClaiming(false);
+  };
+
+  // Mark reading completed
+  const handleMarkCompleted = (jukiNumber) => {
+    if (markJukiCompleted) {
+      markJukiCompleted(jukiNumber, memberId);
+    } else if (setKamilCycle) {
+      const updatedAssignations = assignations.map(a => {
+        if (a.juz === jukiNumber && a.membre_id === memberId) {
+          return {
+            ...a,
+            statut: 'Terminé',
+            date_validee: new Date().toISOString().split('T')[0]
+          };
+        }
+        return a;
+      });
+
+      setKamilCycle(prev => ({
+        ...prev,
+        assignations: updatedAssignations
+      }));
+
+      showToast && showToast(`Barak'Allah fik ! Votre lecture du Juki ${jukiNumber} a été validée avec succès.`);
+    }
   };
 
   // Overall progress
@@ -280,9 +288,9 @@ export const MembreKamilTab = () => {
         {/* Professional 30-Juki Tile Grid */}
         <div className="grid grid-cols-5 sm:grid-cols-6 md:grid-cols-10 gap-2 sm:gap-2.5">
           {assignations.map((item) => {
-            const isMine = item.membre_id === currentUser?.id;
-            const isTaken = !!item.membre_id && !isMine;
-            const isAvailable = !item.membre_id || item.statut === 'À faire';
+            const isMine = item.membre_id === memberId;
+            const isTaken = !!item.membre_id && !isMine && item.statut !== 'Libre' && item.statut !== 'À faire';
+            const isAvailable = (!item.membre_id || item.statut === 'À faire' || item.statut === 'Libre') && !isMine;
             const isSelected = selectedJukiForClaim.includes(item.juz);
 
             return (

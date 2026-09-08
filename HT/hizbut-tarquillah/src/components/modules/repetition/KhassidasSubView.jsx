@@ -147,12 +147,10 @@ export const KhassidasSubView = () => {
   // If a Khassida is selected, open the full-page reader view
   if (selectedKhassidaForReading) {
     return (
-      <div className="pb-12 animate-fade-in">
-        <KhassidaDetailFullView
-          khassida={selectedKhassidaForReading}
-          onClose={() => setSelectedKhassidaForReading(null)}
-        />
-      </div>
+      <KhassidaDetailFullView
+        khassida={selectedKhassidaForReading}
+        onClose={() => setSelectedKhassidaForReading(null)}
+      />
     );
   }
 
