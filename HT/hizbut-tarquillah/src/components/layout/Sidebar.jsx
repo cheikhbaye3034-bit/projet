@@ -36,14 +36,13 @@ export const Sidebar = () => {
     <aside className="hidden lg:flex flex-col w-72 bg-white/95 backdrop-blur-xl border-r border-ht-line min-h-screen sticky top-0 z-30 select-none shadow-[4px_0_24px_-4px_rgba(16,91,60,0.03)]">
       {/* Brand Header — Ultra Professional & Full Circle Logo */}
       <div className="p-5 border-b border-emerald-900/10 flex items-center gap-3.5 bg-gradient-to-r from-emerald-50/80 via-white to-emerald-50/30">
-        {/* Full Circle Logo Container */}
-        <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-white border-2 border-emerald-600/50 ring-4 ring-emerald-500/15 flex items-center justify-center shadow-md overflow-hidden flex-shrink-0 relative group transition-all duration-300 hover:border-emerald-600 hover:shadow-lg">
+        {/* Logo Container — Agrandie & Fondue avec le blanc */}
+        <div className="w-16 h-16 sm:w-18 sm:h-18 flex items-center justify-center flex-shrink-0 relative group transition-transform duration-300 hover:scale-105">
           <img 
             src={logoImg} 
             alt="Sama daara" 
-            className="w-full h-full object-cover scale-[1.75] transform transition-transform duration-300 group-hover:scale-[1.95]" 
+            className="w-full h-full object-contain filter drop-shadow-xs" 
           />
-          <div className="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 rounded-full transition-opacity pointer-events-none"></div>
         </div>
 
         {/* Stylish Typography */}

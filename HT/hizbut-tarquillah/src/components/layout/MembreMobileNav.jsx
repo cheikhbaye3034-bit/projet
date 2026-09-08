@@ -48,8 +48,8 @@ export const MembreMobileNav = ({ isOpen, onClose, activeMemberTab, setActiveMem
           {/* Header */}
           <div className="p-4 border-b border-emerald-900/10 flex items-center justify-between bg-gradient-to-r from-emerald-50 via-white to-emerald-50">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-white border-2 border-emerald-600/40 ring-2 ring-emerald-500/10 flex items-center justify-center shadow-md overflow-hidden flex-shrink-0">
-                <img src={logoImg} alt="Logo" className="w-full h-full object-cover scale-[1.75]" />
+              <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
+                <img src={logoImg} alt="Logo" className="w-full h-full object-contain filter drop-shadow-xs" />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">

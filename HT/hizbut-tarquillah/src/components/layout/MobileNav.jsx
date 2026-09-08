@@ -46,8 +46,8 @@ export const MobileNav = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="p-4 border-b border-emerald-950/40 flex items-center justify-between bg-gradient-to-r from-emerald-950 via-emerald-900 to-slate-900 text-white">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-white border-2 border-emerald-400/50 ring-2 ring-emerald-500/20 flex items-center justify-center shadow-md overflow-hidden flex-shrink-0">
-              <img src={logoImg} alt="Logo" className="w-full h-full object-cover scale-[1.75]" />
+            <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
+              <img src={logoImg} alt="Logo" className="w-full h-full object-contain filter drop-shadow-sm" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">

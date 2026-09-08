@@ -38,8 +38,26 @@ export const AppProvider = ({ children }) => {
   const [khassidas, setKhassidas] = useState(INITIAL_KHASSIDAS);
   const [sonsAudio, setSonsAudio] = useState(INITIAL_SONS_AUDIO);
   const [seances, setSeances] = useState(INITIAL_SEANCES);
-  const [kamilCycle, setKamilCycle] = useState(INITIAL_KAMIL_CYCLE);
+  const [kamilCycle, setKamilCycle] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ht_kamil_cycle');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && Array.isArray(parsed.assignations)) return parsed;
+      }
+    } catch (e) {}
+    return INITIAL_KAMIL_CYCLE;
+  });
   const [pastKamilCycles] = useState(PAST_KAMIL_CYCLES);
+
+  // Synchronisation persistante du Cycle Kamil
+  useEffect(() => {
+    try {
+      if (kamilCycle) {
+        localStorage.setItem('ht_kamil_cycle', JSON.stringify(kamilCycle));
+      }
+    } catch (e) {}
+  }, [kamilCycle]);
   const [informations, setInformations] = useState(INITIAL_INFORMATIONS);
 
   // Absence requests from members

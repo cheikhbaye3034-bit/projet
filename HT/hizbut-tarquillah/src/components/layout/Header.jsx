@@ -55,8 +55,8 @@ export const Header = ({ onOpenMobileMenu }) => {
         {/* LEFT: Logo (mobile) + Title */}
         <div className="flex items-center gap-2.5 min-w-0">
           {/* Logo visible only on mobile */}
-          <div className="lg:hidden flex-shrink-0 w-9 h-9 rounded-xl bg-white border border-emerald-200/80 p-1 flex items-center justify-center shadow-sm overflow-hidden">
-            <img src={logoImg} alt="Logo" className="w-full h-full object-contain" />
+          <div className="lg:hidden flex-shrink-0 w-11 h-11 flex items-center justify-center">
+            <img src={logoImg} alt="Logo" className="w-full h-full object-contain filter drop-shadow-xs" />
           </div>
 
           <div className="min-w-0">
