@@ -15,6 +15,7 @@ import {
   Award
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
+import { NotificationSettings } from '../../settings/NotificationSettings';
 
 export const MembreProfilTab = () => {
   const { currentUser, logout, kourels, seances, kamilCycle } = useApp();
@@ -187,6 +188,11 @@ export const MembreProfilTab = () => {
 
         </div>
       </div>
+
+      {/* =========================================================================
+          BLOC 4 : MES NOTIFICATIONS & ALERTES SAMA DAARA
+      ========================================================================= */}
+      <NotificationSettings userId={currentUser?.id} title="Mes Préférences de Notifications" />
 
     </div>
   );

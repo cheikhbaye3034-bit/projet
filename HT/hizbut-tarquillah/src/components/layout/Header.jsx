@@ -150,12 +150,13 @@ export const Header = ({ onOpenMobileMenu }) => {
               setCurrentUser(prev => ({
                 ...prev,
                 role: 'Membre',
-                nom: 'Ndiaye',
-                prenom: 'Cheikh'
+                // Keep the responsable's actual identity and administrative access flag
+                hasResponsableAccess: true
               }));
+              setActiveTab('accueil');
             }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200 rounded-xl text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-xs"
-            title="Consulter l'application en tant que Membre"
+            title="Accéder à mon espace membre personnel"
           >
             <span className="hidden sm:inline">Espace Membre</span>
             <span className="sm:hidden">Membre</span>

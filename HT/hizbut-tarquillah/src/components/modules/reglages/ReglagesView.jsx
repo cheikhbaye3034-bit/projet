@@ -3,17 +3,19 @@ import {
   Settings, Building2, KeyRound, Users, Layers, Briefcase,
   Shield, Sun, Moon, Plus, Trash2, Edit3, Check, X,
   Copy, RefreshCw, Eye, EyeOff, ChevronRight, Upload,
-  UserCog, Crown, Save, Phone, Mail, Calendar, Lock
+  UserCog, Crown, Save, Phone, Mail, Calendar, Lock, Bell
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
+import { NotificationSettings } from '../../settings/NotificationSettings';
 
 // ─── Tab IDs ────────────────────────────────────────────────────────────────
 const TABS = [
-  { id: 'general',      label: 'Général',        icon: Building2 },
-  { id: 'security',     label: 'Codes d\'accès',  icon: KeyRound  },
-  { id: 'kourels',      label: 'Kourels',         icon: Layers    },
-  { id: 'secteurs',     label: 'Secteurs',        icon: Briefcase },
-  { id: 'responsables', label: 'Responsables',    icon: UserCog   },
+  { id: 'general',       label: 'Général',        icon: Building2 },
+  { id: 'notifications', label: 'Notifications',  icon: Bell      },
+  { id: 'security',      label: 'Codes d\'accès',  icon: KeyRound  },
+  { id: 'kourels',       label: 'Kourels',         icon: Layers    },
+  { id: 'secteurs',      label: 'Secteurs',        icon: Briefcase },
+  { id: 'responsables',  label: 'Responsables',    icon: UserCog   },
 ];
 
 // ─── Reusable Section Title ──────────────────────────────────────────────────
@@ -266,7 +268,7 @@ const TabSecurity = ({ appSettings, updateAppSettings }) => {
         <Shield className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
         <div className="text-xs text-amber-800">
           <p className="font-bold mb-1">Important — Sécurité des codes</p>
-          <p>Ces codes donnent accès à la plateforme. Ne les partagez qu'avec les personnes autorisées. Un membre utilise le <strong>code membre</strong>, un administrateur utilise le <strong>code responsable</strong>.</p>
+          <p>Ces codes protègent la plateforme. Le <strong>code membre</strong> est requis lors de la connexion pour valider l'adhésion à la Daara. Le <strong>code responsable</strong> sécurise l'accès à l'administration depuis l'espace membre.</p>
         </div>
       </div>
 
@@ -278,7 +280,7 @@ const TabSecurity = ({ appSettings, updateAppSettings }) => {
           show={showMemberCode}
           onToggle={() => setShowMemberCode(v => !v)}
           which="member"
-          description="Ce code est requis à l'étape finale de connexion pour tous les membres du Daara."
+          description="Ce code d'affiliation est requis à l'étape 4 de connexion pour tous les membres de la Daara."
         />
         <CodeField
           label="Code d'accès — Responsables"
@@ -287,7 +289,7 @@ const TabSecurity = ({ appSettings, updateAppSettings }) => {
           show={showRespCode}
           onToggle={() => setShowRespCode(v => !v)}
           which="resp"
-          description="Ce code est requis à l'étape finale de connexion pour les administrateurs et superviseurs."
+          description="Ce code secret permet de déverrouiller l'Espace Responsable depuis le portail Membre."
         />
       </div>
 
@@ -680,6 +682,7 @@ export const ReglagesView = () => {
       {/* Tab Content */}
       <div>
         {activeTab === 'general' && <TabGeneral appSettings={appSettings} updateAppSettings={updateAppSettings} showToast={showToast} />}
+        {activeTab === 'notifications' && <NotificationSettings userId={currentUser?.id} title="Notifications & Alertes du Daara" />}
         {activeTab === 'security' && <TabSecurity appSettings={appSettings} updateAppSettings={updateAppSettings} showToast={showToast} />}
         {activeTab === 'kourels' && <TabKourels kourels={kourels} addKourel={addKourel} updateKourel={updateKourel} deleteKourel={deleteKourel} />}
         {activeTab === 'secteurs' && <TabSecteurs secteurs={secteurs} addSecteur={addSecteur} deleteSecteur={deleteSecteur} />}

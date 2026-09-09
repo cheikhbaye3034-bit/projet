@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Lock, 
   ArrowRight, 
@@ -15,20 +15,16 @@ import {
   ShieldCheck, 
   Award, 
   AlertCircle, 
-  Sparkles,
-  RefreshCw,
-  MailCheck,
-  Send
+  Sparkles
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
-import { sendAccessCode, verifyAccessCode } from '../../../services/accessCodeService';
 import logoOfficial from '../../../assets/images/logo_ht_official.png';
 import audioQasidaMountakha from '../../../assets/audio/cheikh_mountakha_qasida.m4a';
 
 export const LoginView = ({ onBack }) => {
   const { login, appSettings } = useApp();
   
-  // Multi-step state: 1, 2, 3, 4
+  // Multi-step state: 1, 2, 3 (et 4 uniquement pour Membre)
   const [step, setStep] = useState(1);
   
   // Step 1: Role
@@ -46,27 +42,12 @@ export const LoginView = ({ onBack }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
-  // Step 4: Access Code
+  // Step 4: Access Code Membre Daara (requis pour être affilié membre)
   const [codeAcces, setCodeAcces] = useState('188828');
-
-  // Email Access Code states (Resend & Edge Function)
-  const [isSendingCode, setIsSendingCode] = useState(false);
-  const [codeSentMessage, setCodeSentMessage] = useState('');
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const [devCodeHint, setDevCodeHint] = useState('');
 
   // UI & Feedback states
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Cooldown countdown effect
-  useEffect(() => {
-    let timer;
-    if (resendCooldown > 0) {
-      timer = setTimeout(() => setResendCooldown((prev) => prev - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [resendCooldown]);
 
   // Advance to Step 2
   const handleStep1Next = () => {
@@ -93,8 +74,10 @@ export const LoginView = ({ onBack }) => {
     setStep(3);
   };
 
-  // Advance to Step 4 (Validation of Email & Password + Envoi automatique du Code d'accès par Email)
-  const handleStep3Next = async (e) => {
+  // Validation Étape 3 (Email & Mot de passe)
+  // - Si Responsable : Accès DIRECT à la plateforme (pas de code d'accès)
+  // - Si Membre : Passage à l'Étape 4 pour saisir le code d'accès membre Daara
+  const handleStep3Next = (e) => {
     if (e) e.preventDefault();
     setErrorMessage('');
 
@@ -111,105 +94,72 @@ export const LoginView = ({ onBack }) => {
       return;
     }
 
-    // Déclenchement de l'envoi du code d'accès par email (Resend / Supabase Edge Function)
-    setIsSendingCode(true);
-    try {
-      const res = await sendAccessCode({
-        email,
-        role,
-        prenom,
-        nom
-      });
-
-      if (res?.devCode) {
-        setDevCodeHint(res.devCode);
-        setCodeAcces(res.devCode);
+    // SI RESPONSABLE : Accès DIRECT à la plateforme sans étape 4 !
+    if (role === 'responsable') {
+      setIsSubmitting(true);
+      // Jouer l'audio officiel de Cheikh Mountakha
+      try {
+        const audio = new Audio(audioQasidaMountakha);
+        audio.volume = 0.9;
+        audio.play().catch((err) => console.log('Audio autoplay prevented:', err));
+      } catch (err) {
+        console.log('Audio init error:', err);
       }
-      setCodeSentMessage(res?.message || `Code d'accès envoyé à ${email}`);
-      setResendCooldown(60);
-    } catch (err) {
-      console.error("Erreur lors de l'envoi du code:", err);
-      // Règle de résilience : ne pas bloquer le passage à l'étape 4
-      setErrorMessage("Impossible d'envoyer l'email pour le moment. Vous pouvez réclamer un nouveau code à l'étape suivante.");
-    } finally {
-      setIsSendingCode(false);
-      setStep(4);
+
+      setTimeout(() => {
+        login(email, password, { 
+          role: 'responsable', 
+          prenom, 
+          nom, 
+          telephone, 
+          email 
+        });
+        setIsSubmitting(false);
+      }, 450);
+      return;
     }
+
+    // SI MEMBRE : Étape 4 obligatoire pour valider son affiliation avec le code membre Daara
+    setStep(4);
   };
 
-  // Renvoi manuel du code d'accès depuis l'Étape 4 (avec cooldown de 60 secondes anti-spam)
-  const handleResendCode = async () => {
-    if (resendCooldown > 0 || isSendingCode) return;
-    setErrorMessage('');
-    setIsSendingCode(true);
-
-    try {
-      const res = await sendAccessCode({
-        email,
-        role,
-        prenom,
-        nom
-      });
-
-      if (res?.devCode) {
-        setDevCodeHint(res.devCode);
-        setCodeAcces(res.devCode);
-      }
-      setCodeSentMessage(`Un nouveau code d'accès a été envoyé à ${email}`);
-      setResendCooldown(60);
-    } catch (err) {
-      console.error("Erreur renvoi de code:", err);
-      setErrorMessage("Impossible d'envoyer le code, réessayez dans quelques instants.");
-    } finally {
-      setIsSendingCode(false);
-    }
-  };
-
-  // Final Submit on Step 4 (Vérification sécurisée du code d'accès -> Audio -> Connexion)
-  const handleFinalSubmit = async (e) => {
+  // Validation Étape 4 : Code d'accès membre Daara (uniquement pour Membre)
+  const handleFinalSubmit = (e) => {
     if (e) e.preventDefault();
     setErrorMessage('');
 
     if (!codeAcces.trim()) {
-      setErrorMessage("Veuillez saisir votre code d'accès de sécurité.");
+      setErrorMessage("Veuillez saisir votre code d'accès membre Daara.");
+      return;
+    }
+
+    // Le membre doit renseigner le code d'accès officiel de la Daara
+    const expectedMemberCode = appSettings?.memberAccessCode || '188828';
+
+    if (codeAcces.trim() !== expectedMemberCode) {
+      setErrorMessage("Code d'accès membre incorrect. Veuillez contacter votre responsable de Dahira pour obtenir votre code d'affiliation.");
       return;
     }
 
     setIsSubmitting(true);
 
-    // Vérification via le service d'accès (Supabase RPC, table access_codes, ou codes démo)
-    const verification = await verifyAccessCode({
-      email,
-      code: codeAcces,
-      role,
-      appSettings
-    });
-
-    if (!verification.valid) {
-      setErrorMessage(verification.message || "Code d'accès incorrect ou expiré. Veuillez vérifier votre email.");
-      setIsSubmitting(false);
-      return;
-    }
-
-    // Jouer le fichier audio officiel lors de la connexion réussie
+    // Jouer le fichier audio officiel
     try {
       const audio = new Audio(audioQasidaMountakha);
       audio.volume = 0.9;
-      audio.play().catch((err) => {
-        console.log('Audio autoplay prevented or error:', err);
-      });
+      audio.play().catch((err) => console.log('Audio autoplay prevented:', err));
     } catch (err) {
       console.log('Audio init error:', err);
     }
 
     setTimeout(() => {
       login(email, password, { 
-        role, 
+        role: 'membre', 
         prenom, 
         nom, 
         telephone, 
         email, 
-        codeAcces 
+        codeAcces: codeAcces.trim() 
       });
       setIsSubmitting(false);
     }, 450);
@@ -235,12 +185,14 @@ export const LoginView = ({ onBack }) => {
           </button>
         ) : <div />}
 
-        {/* 4-Step Progress Indicator */}
-        <div className="flex items-center gap-1.5" title={`Étape ${step} sur 4`}>
+        {/* Progress Indicator (3 étapes pour Responsable, 4 étapes pour Membre) */}
+        <div className="flex items-center gap-1.5" title={`Étape ${step} sur ${role === 'responsable' ? 3 : 4}`}>
           <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 1 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
           <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 2 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
           <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 3 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
-          <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 4 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
+          {role === 'membre' && (
+            <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 4 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
+          )}
         </div>
       </header>
 
@@ -261,8 +213,8 @@ export const LoginView = ({ onBack }) => {
             <h1 className="font-display font-black text-2xl sm:text-3xl lg:text-3xl text-slate-900 tracking-tight mt-2">
               {step === 1 && "Êtes-vous Membre ou Responsable ?"}
               {step === 2 && "Renseignez vos coordonnées"}
-              {step === 3 && "Renseignez votre Email et Mot de passe"}
-              {step === 4 && "Saisissez votre Code d'accès"}
+              {step === 3 && (role === 'responsable' ? "Connexion Espace Responsable" : "Renseignez votre Email et Mot de passe")}
+              {step === 4 && "Validation de votre affiliation Membre"}
             </h1>
           </div>
 
@@ -554,17 +506,23 @@ export const LoginView = ({ onBack }) => {
 
                 <button
                   type="submit"
-                  disabled={isSendingCode}
+                  disabled={isSubmitting}
                   className="flex-1 py-4 sm:py-4.5 px-8 bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 hover:from-emerald-900 hover:to-emerald-800 text-white font-display font-bold text-sm sm:text-base rounded-2xl shadow-[0_12px_28px_-5px_rgba(22,91,60,0.35)] hover:shadow-[0_16px_34px_-5px_rgba(22,91,60,0.45)] transition-all duration-200 flex items-center justify-center gap-2 group active:scale-[0.98] cursor-pointer"
                 >
-                  {isSendingCode ? (
+                  {isSubmitting ? (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Envoi du code par email...</span>
+                      <span>Connexion en cours...</span>
                     </div>
+                  ) : role === 'responsable' ? (
+                    <>
+                      <ShieldCheck className="w-5 h-5 text-emerald-200" />
+                      <span>Accéder directement à la plateforme</span>
+                      <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
+                    </>
                   ) : (
                     <>
-                      <span>Valider & Recevoir le code</span>
+                      <span>Continuer vers le code membre</span>
                       <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
@@ -574,50 +532,30 @@ export const LoginView = ({ onBack }) => {
           )}
 
           {/* =========================================================================
-              ÉTAPE 4 : Code d'accès sécurisé (pour Membre et Responsable)
+              ÉTAPE 4 : Code d'accès membre Daara (uniquement pour Membre)
           ========================================================================= */}
-          {step === 4 && (
+          {step === 4 && role === 'membre' && (
             <form onSubmit={handleFinalSubmit} className="space-y-6 animate-fade-in">
               
-              {/* Badge d'envoi du code par email */}
-              <div className="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200/80 flex items-center justify-between gap-3 text-xs text-emerald-900 shadow-xs">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-7 h-7 rounded-lg bg-emerald-700 text-white flex items-center justify-center flex-shrink-0 shadow-xs">
-                    <MailCheck className="w-4 h-4" />
-                  </div>
-                  <div className="truncate">
-                    <p className="font-semibold text-emerald-950 truncate">
-                      Code envoyé à <span className="underline decoration-emerald-500 font-bold">{email}</span>
-                    </p>
-                    <p className="text-[11px] text-emerald-700">
-                      Consultez votre boîte de réception ou spams
-                    </p>
-                  </div>
-                </div>
-                <span className="flex-shrink-0 text-[10px] font-bold text-emerald-800 bg-white px-2.5 py-1 rounded-full border border-emerald-200 shadow-xs">
-                  ⏱️ 15 min
-                </span>
-              </div>
-
-              {/* Badge d'indication de sécurité */}
-              <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100 flex items-start gap-3">
-                <div className="w-8 h-8 rounded-xl bg-emerald-700 text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
+              {/* Badge d'indication d'affiliation Daara */}
+              <div className="p-4 rounded-2xl bg-emerald-50/90 border border-emerald-200 flex items-start gap-3.5 shadow-xs">
+                <div className="w-9 h-9 rounded-xl bg-emerald-800 text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div className="text-xs space-y-1">
-                  <p className="font-bold text-emerald-900">
-                    Vérification d'accès • {role === 'responsable' ? 'Espace Responsable / Superviseur' : 'Espace Membre du Kourel'}
+                  <p className="font-bold text-emerald-950 text-sm">
+                    Validation d'affiliation à la Daara
                   </p>
                   <p className="text-slate-600 leading-relaxed">
-                    Veuillez saisir le code d'accès à 6 chiffres reçu par email pour sécuriser et valider votre session.
+                    Pour être reconnu et enregistré comme <strong>membre officiel</strong> de la Daara, veuillez saisir le code d'accès confidentiel membre qui vous a été remis par votre responsable de Dahira.
                   </p>
                 </div>
               </div>
 
-              {/* Champ Code d'Accès */}
+              {/* Champ Code d'Accès Membre */}
               <div className="space-y-2">
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider text-center">
-                  Code d'accès confidentiel
+                  Code d'accès membre Daara
                 </label>
                 <div className="relative max-w-sm mx-auto">
                   <KeyRound className="w-6 h-6 text-emerald-700 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -633,32 +571,9 @@ export const LoginView = ({ onBack }) => {
                   />
                 </div>
                 
-                {/* Bouton Renvoyer le Code avec Cooldown 60s */}
-                <div className="flex flex-col items-center justify-center gap-1.5 pt-2">
-                  <button
-                    type="button"
-                    onClick={handleResendCode}
-                    disabled={resendCooldown > 0 || isSendingCode}
-                    className={`inline-flex items-center gap-2 text-xs font-bold transition-all py-1.5 px-4 rounded-full border ${
-                      resendCooldown > 0 || isSendingCode
-                        ? 'text-slate-400 bg-slate-100/70 border-slate-200 cursor-not-allowed'
-                        : 'text-emerald-700 bg-white hover:bg-emerald-50 border-emerald-200/90 shadow-soft-xs hover:border-emerald-300 cursor-pointer active:scale-95'
-                    }`}
-                  >
-                    <RefreshCw className={`w-3.5 h-3.5 ${isSendingCode ? 'animate-spin text-emerald-600' : ''}`} />
-                    <span>
-                      {isSendingCode 
-                        ? 'Envoi en cours...' 
-                        : resendCooldown > 0 
-                        ? `Renvoyer le code (${resendCooldown}s)` 
-                        : "Vous n'avez pas reçu le code ? Renvoyer"}
-                    </span>
-                  </button>
-
-                  <p className="text-[11px] text-slate-500 text-center font-medium">
-                    Code maître de secours : <span className="font-mono font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">{role === 'responsable' ? '994201' : '188828'}</span>
-                  </p>
-                </div>
+                <p className="text-[11px] text-slate-500 text-center pt-2 font-medium">
+                  Code membre officiel de la Daara : <span className="font-mono font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">{appSettings?.memberAccessCode || '188828'}</span>
+                </p>
               </div>
 
               {/* Navigation Buttons Step 4 */}
@@ -680,12 +595,12 @@ export const LoginView = ({ onBack }) => {
                   {isSubmitting ? (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Vérification du code...</span>
+                      <span>Vérification de l'affiliation...</span>
                     </div>
                   ) : (
                     <>
-                      <ShieldCheck className="w-5 h-5 text-emerald-200" />
-                      <span>Accéder à la plateforme</span>
+                      <UserCheck className="w-5 h-5 text-emerald-200" />
+                      <span>Valider mon affiliation & Accéder</span>
                       <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}

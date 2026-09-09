@@ -23,6 +23,8 @@ export const AppProvider = ({ children }) => {
     nom: 'Kara',
     prenom: 'Serigne Modou',
     role: 'Super Admin',
+    originalRole: 'responsable',
+    hasResponsableAccess: true,
     email: 'admin@hizbut-tarquillah.sn'
   });
   const [activeTab, setActiveTab] = useState('accueil'); // accueil, dashboard, membres, repetition, kamil, info, login
@@ -321,6 +323,8 @@ export const AppProvider = ({ children }) => {
         nom: profileData.nom || 'Kara',
         prenom: profileData.prenom || 'Serigne Modou',
         role: 'Super Admin',
+        originalRole: 'responsable',
+        hasResponsableAccess: true,
         email: profileData.email || 'admin@hizbut-tarquillah.sn',
         matricule: profileData.matricule || 'HT-RESP-001',
         telephone: profileData.telephone || '+221 77 500 12 34'
@@ -335,12 +339,33 @@ export const AppProvider = ({ children }) => {
         matricule: profileData.matricule || 'HT-MEM-0142',
         telephone: profileData.telephone || '+221 77 654 32 10',
         role: 'Membre',
+        originalRole: 'membre',
+        hasResponsableAccess: false,
         kourel_id: 'k1',
         cotisation_statut: 'À jour'
       });
       setActiveTab('accueil');
     }
     showToast('Connexion réussie. Bienvenue sur Sama daara !');
+  };
+
+  // Déverrouillage sécurisé de l'accès Responsable pour un membre avec le code secret
+  const unlockResponsableAccess = (code) => {
+    const expectedCode = appSettings?.responsableAccessCode || '994201';
+    if (code && code.trim() === expectedCode) {
+      setCurrentUser(prev => ({
+        ...prev,
+        role: 'Super Admin',
+        hasResponsableAccess: true
+      }));
+      setActiveTab('dashboard');
+      showToast('Accès Responsable déverrouillé avec succès !');
+      return { success: true };
+    }
+    return { 
+      success: false, 
+      message: "Code d'accès responsable incorrect. Veuillez contacter l'administration de la Daara." 
+    };
   };
 
   const logout = () => {
@@ -968,6 +993,7 @@ export const AppProvider = ({ children }) => {
         showToast,
         login,
         logout,
+        unlockResponsableAccess,
         addMembre,
         deleteMembre,
         addSeance,
