@@ -26,8 +26,8 @@ export const MembreKamilTab = () => {
 
   const assignations = kamilCycle?.assignations || [];
 
-  const memberId = currentUser?.id || 'm2';
-  const memberName = currentUser ? `${currentUser.prenom} ${currentUser.nom}` : 'Cheikh Ahmadou NDIAYE';
+  const memberId = currentUser?.id;
+  const memberName = currentUser ? `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim() : 'Membre';
 
   // Member's assigned Jukis
   const myAssignedJuki = assignations.filter(a => a.membre_id === memberId);
@@ -35,8 +35,12 @@ export const MembreKamilTab = () => {
   // Available (unassigned or free) Jukis
   const availableJukiCount = assignations.filter(a => (!a.membre_id || a.statut === 'À faire' || a.statut === 'Libre') && a.membre_id !== memberId).length;
 
-  // Days remaining
-  const remainingDays = 4;
+  // Days remaining computed from kamilCycle
+  const remainingDays = (() => {
+    if (!kamilCycle?.date_fin) return null;
+    const diff = new Date(kamilCycle.date_fin) - new Date();
+    return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+  })();
 
   // Toggle selection for claiming new Jukis (limit 1 to 3)
   const toggleSelectJuki = (jukiNumber, isAvailable) => {
@@ -62,7 +66,7 @@ export const MembreKamilTab = () => {
     setIsClaiming(true);
 
     if (claimJukis) {
-      claimJukis(selectedJukiForClaim, currentUser || { id: memberId, prenom: 'Cheikh Ahmadou', nom: 'NDIAYE' });
+      claimJukis(selectedJukiForClaim, currentUser);
     } else if (setKamilCycle) {
       const updatedAssignations = assignations.map(a => {
         if (selectedJukiForClaim.includes(a.juz)) {
@@ -135,7 +139,7 @@ export const MembreKamilTab = () => {
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="font-display font-black text-base sm:text-lg text-slate-900 leading-tight">
-                  Cycle #{kamilCycle?.numero_cycle || 42}
+                  Cycle #{kamilCycle?.numero_cycle || 1}
                 </h2>
                 <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-100/70 text-emerald-900">
                   En cours
@@ -151,7 +155,7 @@ export const MembreKamilTab = () => {
             {/* Days remaining badge */}
             <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-bold shadow-xs">
               <Clock className="w-3.5 h-3.5 text-amber-600" />
-              <span>{remainingDays} jours restants</span>
+              <span>{remainingDays !== null ? `${remainingDays} jours restants` : 'Cycle en cours'}</span>
             </div>
 
             {/* Percentage */}

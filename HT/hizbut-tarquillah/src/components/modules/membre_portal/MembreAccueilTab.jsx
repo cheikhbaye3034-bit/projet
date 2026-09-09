@@ -24,10 +24,10 @@ import slideRepetitionStudio from '../../../assets/images/slide_repetition_studi
 export const MembreAccueilTab = ({ onNavigateTab }) => {
   const { currentUser, seances, kamilCycle, informations, kourels } = useApp();
 
-  const memberKourel = kourels.find(k => k.id === currentUser?.kourel_id) || kourels[0];
+  const memberKourel = kourels.find(k => k.id === currentUser?.kourel_id);
 
   // Filter personal attendance statistics
-  const memberPresences = seances.reduce((acc, seance) => {
+  const memberPresences = (seances || []).reduce((acc, seance) => {
     const p = seance.presences?.find(item => item.membre_id === currentUser?.id);
     if (p) {
       acc.total++;
@@ -38,11 +38,23 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
     return acc;
   }, { total: 0, presents: 0, retards: 0, absents: 0 });
 
-  const effectiveStats = memberPresences.total > 0 ? memberPresences : { total: 12, presents: 11, retards: 1, absents: 0 };
-  const attendanceRate = Math.round(((effectiveStats.presents + effectiveStats.retards * 0.5) / effectiveStats.total) * 100);
+  const attendanceRate = memberPresences.total > 0 
+    ? Math.round(((memberPresences.presents + memberPresences.retards * 0.5) / memberPresences.total) * 100) 
+    : 0;
 
   // Next upcoming session
-  const upcomingSeance = seances.find(s => s.kourel_id === (currentUser?.kourel_id || 'k1') && (s.statut === 'Planifiée' || s.statut === 'En cours')) || seances[0];
+  const upcomingSeance = (seances || []).find(s => 
+    (!currentUser?.kourel_id || s.kourel_id === currentUser.kourel_id) && 
+    (s.statut === 'Planifiée' || s.statut === 'En cours')
+  ) || null;
+
+  // Remaining days to next seance
+  const remainingDaysToSeance = (() => {
+    if (!upcomingSeance?.date) return null;
+    const diffTime = new Date(upcomingSeance.date) - new Date();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return Math.max(0, diffDays);
+  })();
 
   // Pinned announcement
   const pinnedInfos = informations ? informations.filter(i => i.epingle) : [];
@@ -141,10 +153,10 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
                 PROCHAINE RÉPÉTITION
               </span>
               <h2 className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight leading-none pt-1">
-                {upcomingSeance?.titre || memberKourel?.nom?.split('—')[0]?.trim() || 'Kourel 1'}
+                {upcomingSeance?.titre || memberKourel?.nom || 'Prochaine séance'}
               </h2>
               <p className="text-sm sm:text-base font-semibold text-emerald-200 pt-1">
-                à {upcomingSeance?.heure_debut || '20:30'}
+                {upcomingSeance ? `à ${upcomingSeance.heure_debut || '20:30'}` : 'Aucune répétition planifiée'}
               </p>
             </div>
 
@@ -168,7 +180,7 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
                   className="stroke-white"
                   strokeWidth="7"
                   strokeDasharray="264"
-                  strokeDashoffset="75"
+                  strokeDashoffset={remainingDaysToSeance !== null ? "75" : "264"}
                   strokeLinecap="round"
                   fill="none"
                 />
@@ -176,10 +188,10 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
               
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center leading-tight">
                 <span className="font-display font-black text-lg sm:text-xl text-white tracking-tight">
-                  4 Jours
+                  {remainingDaysToSeance !== null ? `${remainingDaysToSeance} Jr${remainingDaysToSeance > 1 ? 's' : ''}` : '--'}
                 </span>
                 <span className="text-[9px] sm:text-[10px] text-emerald-200 font-semibold mt-0.5">
-                  restants
+                  {remainingDaysToSeance !== null ? 'restants' : 'En attente'}
                 </span>
               </div>
             </div>
@@ -189,13 +201,13 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
           {/* Bottom Row: 5 Rounded Stats Capsules (Présences, Retards, Absences, etc.) */}
           <div className="grid grid-cols-5 gap-2 pt-1 sm:pt-2">
             
-            {/* Box 1: Présences (Active white pill like in screenshot) */}
+            {/* Box 1: Présences */}
             <div className="rounded-2xl p-2 sm:p-3 bg-white text-[#144631] shadow-lg flex flex-col items-center justify-center text-center transition-transform transform active:scale-95">
               <span className="text-[10px] sm:text-xs font-bold opacity-90 truncate max-w-full">
                 Présences
               </span>
               <span className="text-sm sm:text-base font-display font-black leading-tight mt-0.5">
-                {effectiveStats.presents}
+                {memberPresences.presents}
               </span>
             </div>
 
@@ -205,7 +217,7 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
                 Retards
               </span>
               <span className="text-sm sm:text-base font-display font-black leading-tight mt-0.5">
-                {effectiveStats.retards}
+                {memberPresences.retards}
               </span>
             </div>
 
@@ -215,7 +227,7 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
                 Absences
               </span>
               <span className="text-sm sm:text-base font-display font-black leading-tight mt-0.5">
-                {effectiveStats.absents}
+                {memberPresences.absents}
               </span>
             </div>
 
@@ -235,7 +247,7 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
                 Total
               </span>
               <span className="text-sm sm:text-base font-display font-black leading-tight mt-0.5">
-                {effectiveStats.total}
+                {memberPresences.total}
               </span>
             </div>
 

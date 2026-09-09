@@ -31,19 +31,19 @@ export const LoginView = ({ onBack }) => {
   const [role, setRole] = useState('membre'); // 'membre' | 'responsable'
   
   // Step 2: Personal Identity & Contact
-  const [prenom, setPrenom] = useState('Cheikh');
-  const [nom, setNom] = useState('Ndiaye');
-  const [telephone, setTelephone] = useState('+221 77 654 32 10');
+  const [prenom, setPrenom] = useState('');
+  const [nom, setNom] = useState('');
+  const [telephone, setTelephone] = useState('');
   
   // Step 3: Email & Password
-  const [email, setEmail] = useState('cheikh.ndiaye@hizbut-tarquillah.sn');
-  const [password, setPassword] = useState('password123');
-  const [confirmPassword, setConfirmPassword] = useState('password123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   
   // Step 4: Access Code Membre Daara (requis pour être affilié membre)
-  const [codeAcces, setCodeAcces] = useState('188828');
+  const [codeAcces, setCodeAcces] = useState('');
 
   // UI & Feedback states
   const [errorMessage, setErrorMessage] = useState('');
@@ -237,11 +237,6 @@ export const LoginView = ({ onBack }) => {
                 <div
                   onClick={() => {
                     setRole('membre');
-                    setEmail('cheikh.ndiaye@hizbut-tarquillah.sn');
-                    setCodeAcces('188828');
-                    setPrenom('Cheikh');
-                    setNom('Ndiaye');
-                    setTelephone('+221 77 654 32 10');
                     setErrorMessage('');
                   }}
                   className={`p-5 sm:p-6 rounded-3xl border-2 transition-all cursor-pointer flex flex-col justify-between relative ${
@@ -275,11 +270,6 @@ export const LoginView = ({ onBack }) => {
                 <div
                   onClick={() => {
                     setRole('responsable');
-                    setEmail('admin.modou@hizbut-tarquillah.sn');
-                    setCodeAcces('994201');
-                    setPrenom('Serigne Modou');
-                    setNom('Kara');
-                    setTelephone('+221 77 500 12 34');
                     setErrorMessage('');
                   }}
                   className={`p-5 sm:p-6 rounded-3xl border-2 transition-all cursor-pointer flex flex-col justify-between relative ${
@@ -343,7 +333,7 @@ export const LoginView = ({ onBack }) => {
                       required
                       value={prenom}
                       onChange={(e) => setPrenom(e.target.value)}
-                      placeholder="ex: Cheikh"
+                      placeholder="Votre prénom"
                       className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-2xl text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                     />
                   </div>
@@ -361,7 +351,7 @@ export const LoginView = ({ onBack }) => {
                       required
                       value={nom}
                       onChange={(e) => setNom(e.target.value)}
-                      placeholder="ex: Ndiaye"
+                      placeholder="Votre nom"
                       className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-2xl text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                     />
                   </div>
@@ -380,7 +370,7 @@ export const LoginView = ({ onBack }) => {
                     required
                     value={telephone}
                     onChange={(e) => setTelephone(e.target.value)}
-                    placeholder="ex: +221 77 654 32 10"
+                    placeholder="ex: +221 77 000 00 00"
                     className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-2xl text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                   />
                 </div>
@@ -426,7 +416,7 @@ export const LoginView = ({ onBack }) => {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="ex: cheikh.ndiaye@hizbut-tarquillah.sn"
+                    placeholder="votre.email@domaine.com"
                     className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-2xl text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
                   />
                 </div>

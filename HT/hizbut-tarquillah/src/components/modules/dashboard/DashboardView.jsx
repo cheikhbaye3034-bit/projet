@@ -21,20 +21,28 @@ import { KamilDonutChart } from './KamilDonutChart';
 import bgDashboard from '../../../assets/images/bg_dashboard.jpg';
 
 export const DashboardView = () => {
-  const { membres, kamilCycle, informations, setActiveTab, kourels } = useApp();
+  const { membres, kamilCycle, informations, setActiveTab, kourels, khassidas, seances } = useApp();
 
   const totalMembresActifs = membres ? membres.filter(m => m.statut === 'Actif').length : 0;
-  const terminesKamil = kamilCycle ? kamilCycle.assignations.filter(a => a.statut === 'Terminé').length : 0;
+  const terminesKamil = kamilCycle ? kamilCycle.assignations.filter(a => a.statut === 'Terminé' || a.statut === 'Validé').length : 0;
   const enCoursKamil = kamilCycle ? kamilCycle.assignations.filter(a => a.statut === 'En cours').length : 0;
   const aFaireKamil = kamilCycle ? kamilCycle.assignations.filter(a => a.statut === 'À faire').length : 0;
   const totalEnRegle = membres ? membres.filter(m => m.cotisation_statut === 'À jour').length : 0;
 
-  const khassidaProgress = [
-    { titre: 'Mawahibou Nafi', percent: 85, color: 'bg-emerald-600' },
-    { titre: 'Jalibatul Maratib', percent: 65, color: 'bg-emerald-500' },
-    { titre: 'Assirou', percent: 92, color: 'bg-emerald-600' },
-    { titre: 'Matlabul Fawzayni', percent: 45, color: 'bg-amber-500' },
-  ];
+  // Dynamic attendance computation
+  let totalPointages = 0;
+  let totalPresents = 0;
+  if (seances && seances.length > 0) {
+    seances.forEach(s => {
+      (s.presences || []).forEach(p => {
+        totalPointages++;
+        if (p.statut === 'Présent' || p.statut === 'En retard') {
+          totalPresents++;
+        }
+      });
+    });
+  }
+  const assiduiteMoyenne = totalPointages > 0 ? Math.round((totalPresents / totalPointages) * 100) : 0;
 
   return (
     <div className="space-y-8 pb-12 animate-fade-in max-w-7xl mx-auto select-none">
@@ -92,17 +100,23 @@ export const DashboardView = () => {
             <span className="text-[11px] font-black text-slate-400 uppercase tracking-wider">
               ASSIDUITÉ MOYENNE
             </span>
-            <span className="px-2.5 py-0.5 bg-emerald-100/70 text-emerald-800 text-[10px] font-black rounded-full flex items-center gap-1">
-              <TrendingUp className="w-3 h-3 text-emerald-600" />
-              <span>+4%</span>
-            </span>
+            {totalPointages > 0 ? (
+              <span className="px-2.5 py-0.5 bg-emerald-100/70 text-emerald-800 text-[10px] font-black rounded-full flex items-center gap-1">
+                <TrendingUp className="w-3 h-3 text-emerald-600" />
+                <span>{assiduiteMoyenne}%</span>
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-full">
+                Nouveau
+              </span>
+            )}
           </div>
           <div className="mt-4">
             <div className="font-display font-black text-3xl sm:text-4xl text-slate-900 group-hover:text-emerald-800 transition-colors">
-              87%
+              {totalPointages > 0 ? `${assiduiteMoyenne}%` : '0%'}
             </div>
             <div className="text-xs text-slate-500 font-semibold mt-0.5">
-              Taux de présence global
+              {totalPointages > 0 ? 'Taux de présence global' : 'Aucun pointage enregistré'}
             </div>
           </div>
         </div>
@@ -205,20 +219,30 @@ export const DashboardView = () => {
             </h3>
 
             <div className="space-y-3">
-              {khassidaProgress.map((kh, idx) => (
-                <div key={idx} className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2 hover:border-emerald-200 transition-colors">
-                  <div className="flex justify-between items-center text-xs font-bold">
-                    <span className="text-slate-900">{kh.titre}</span>
-                    <span className="text-emerald-800 font-black">{kh.percent}%</span>
-                  </div>
-                  <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden p-0.5">
-                    <div
-                      className={`h-full ${kh.color} rounded-full transition-all duration-700`}
-                      style={{ width: `${kh.percent}%` }}
-                    ></div>
-                  </div>
+              {khassidas && khassidas.length > 0 ? (
+                khassidas.slice(0, 4).map((kh, idx) => {
+                  const percent = kh.progression || 0;
+                  const color = percent >= 80 ? 'bg-emerald-600' : percent >= 50 ? 'bg-emerald-500' : 'bg-amber-500';
+                  return (
+                    <div key={idx} className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 space-y-2 hover:border-emerald-200 transition-colors">
+                      <div className="flex justify-between items-center text-xs font-bold">
+                        <span className="text-slate-900">{kh.titre}</span>
+                        <span className="text-emerald-800 font-black">{percent}%</span>
+                      </div>
+                      <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden p-0.5">
+                        <div
+                          className={`h-full ${color} rounded-full transition-all duration-700`}
+                          style={{ width: `${percent}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                <div className="p-5 text-center text-slate-400 text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  Aucun Khassida enregistré au programme.
                 </div>
-              ))}
+              )}
             </div>
           </div>
 
@@ -230,28 +254,42 @@ export const DashboardView = () => {
             </h3>
 
             <div className="space-y-3">
-              {kourels && kourels.map((k) => {
-                const count = membres ? membres.filter(m => m.kourel_id === k.id).length : 0;
-                const percent = k.id === 'k1' ? 92 : (k.id === 'k2' ? 85 : (k.id === 'k3' ? 78 : 95));
-                const supervisor = k.superviseurs ? k.superviseurs[0] : 'Serigne Modou Kara';
+              {kourels && kourels.length > 0 ? (
+                kourels.map((k) => {
+                  const seancesKourel = seances ? seances.filter(s => s.kourel_id === k.id) : [];
+                  let kPointages = 0;
+                  let kPresents = 0;
+                  seancesKourel.forEach(s => {
+                    (s.presences || []).forEach(p => {
+                      kPointages++;
+                      if (p.statut === 'Présent' || p.statut === 'En retard') kPresents++;
+                    });
+                  });
+                  const percent = kPointages > 0 ? Math.round((kPresents / kPointages) * 100) : 0;
+                  const supervisor = k.superviseurs && k.superviseurs.length > 0 ? k.superviseurs[0] : 'Non assigné';
 
-                return (
-                  <div key={k.id} className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between gap-4 hover:border-emerald-200 transition-colors">
-                    <div>
-                      <div className="font-bold text-xs text-slate-900">{k.nom}</div>
-                      <div className="text-[11px] text-slate-500 font-medium">
-                        Superviseur : <span className="font-semibold text-slate-800">{supervisor}</span>
+                  return (
+                    <div key={k.id} className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200/80 flex items-center justify-between gap-4 hover:border-emerald-200 transition-colors">
+                      <div>
+                        <div className="font-bold text-xs text-slate-900">{k.nom}</div>
+                        <div className="text-[11px] text-slate-500 font-medium">
+                          Superviseur : <span className="font-semibold text-slate-800">{supervisor}</span>
+                        </div>
+                      </div>
+
+                      <div className="text-right flex-shrink-0">
+                        <span className="px-3 py-1 bg-emerald-100/80 text-emerald-800 text-xs font-black rounded-full">
+                          {percent}%
+                        </span>
                       </div>
                     </div>
-
-                    <div className="text-right flex-shrink-0">
-                      <span className="px-3 py-1 bg-emerald-100/80 text-emerald-800 text-xs font-black rounded-full">
-                        {percent}%
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <div className="p-5 text-center text-slate-400 text-xs bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                  Aucun Kourel configuré.
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -270,7 +308,7 @@ export const DashboardView = () => {
               </h3>
             </div>
             <div className="font-display font-black text-3xl text-emerald-800">
-              87%
+              {totalPointages > 0 ? `${assiduiteMoyenne}%` : '0%'}
             </div>
           </div>
           <PresenceTrendChart />

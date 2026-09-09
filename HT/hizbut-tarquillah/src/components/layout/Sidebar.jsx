@@ -131,15 +131,15 @@ export const Sidebar = () => {
         <div className="p-2.5 bg-white rounded-xl border border-ht-line flex items-center justify-between shadow-soft-xs hover:border-emerald-200 transition-colors">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-800 to-emerald-600 text-white font-black flex items-center justify-center text-xs shadow-soft-xs flex-shrink-0">
-              {currentUser?.nom ? currentUser.nom.substring(0, 2).toUpperCase() : 'SK'}
+              {currentUser ? `${currentUser.prenom?.[0] || ''}${currentUser.nom?.[0] || ''}`.toUpperCase() || 'U' : 'HT'}
             </div>
             <div className="min-w-0">
               <div className="font-bold text-xs text-ht-ink truncate">
-                {currentUser?.nom || 'Serigne Modou Kara'}
+                {currentUser ? `${currentUser.prenom || ''} ${currentUser.nom || ''}`.trim() || 'Utilisateur' : 'Non connecté'}
               </div>
               <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3 text-emerald-600" />
-                <span className="truncate">{currentUser?.role || 'Superviseur'}</span>
+                <span className="truncate">{currentUser?.role || 'Utilisateur'}</span>
               </div>
             </div>
           </div>

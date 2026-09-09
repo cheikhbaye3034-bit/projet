@@ -38,15 +38,21 @@ export const MembreRepetitionTab = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all'); // 'all' | 'bess_bi' | 'downloaded' | 'with_audio'
   const [selectedKhassidaForReading, setSelectedKhassidaForReading] = useState(null);
-  const [downloadedKhassidas, setDownloadedKhassidas] = useState({ kh2: true, kh7: true, kh9: true });
+  const [downloadedKhassidas, setDownloadedKhassidas] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ht_downloaded_khassidas');
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return {};
+  });
   
   // Audio Player State
   const [playingAudioId, setPlayingAudioId] = useState(null);
-  const [audioProgress, setAudioProgress] = useState(38);
+  const [audioProgress, setAudioProgress] = useState(0);
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
   // Past recordings
-  const pastRecordings = seances.filter(s => s.kourel_id === (currentUser?.kourel_id || 'k1') && s.recording_url);
+  const pastRecordings = (seances || []).filter(s => (!currentUser?.kourel_id || s.kourel_id === currentUser.kourel_id) && s.recording_url);
 
   // Filtered Khassidas
   const filteredKhassidas = (khassidas || []).filter(kh => {

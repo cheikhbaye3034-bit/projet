@@ -16,16 +16,20 @@ import {
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  // Navigation & Authentication
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
-  const [currentUser, setCurrentUser] = useState({
-    id: 'u1',
-    nom: 'Kara',
-    prenom: 'Serigne Modou',
-    role: 'Super Admin',
-    originalRole: 'responsable',
-    hasResponsableAccess: true,
-    email: 'admin@hizbut-tarquillah.sn'
+  // Navigation & Authentication - Vérification de la session existante
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try {
+      return localStorage.getItem('ht_auth') === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ht_current_user');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return null;
   });
   const [activeTab, setActiveTab] = useState('accueil'); // accueil, dashboard, membres, repetition, kamil, info, login
 
@@ -82,21 +86,27 @@ export const AppProvider = ({ children }) => {
       logoUrl: '',
       memberAccessCode: '188828',
       responsableAccessCode: '994201',
-      theme: 'light'
+      theme: 'light',
+      contactPhone: '',
+      contactEmail: '',
+      siegeVille: 'Touba'
     };
   });
 
-  // Responsables list
+  // Responsables list - Propre sans faux comptes de test
   const [responsables, setResponsables] = useState(() => {
     try {
       const saved = localStorage.getItem('ht_responsables');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.filter(r => 
+          r.email !== 'admin.modou@hizbut-tarquillah.sn' && 
+          r.email !== 'abdoulaye.diop@hizbut-tarquillah.sn' && 
+          r.email !== 'moustapha.fall@hizbut-tarquillah.sn'
+        );
+      }
     } catch (e) {}
-    return [
-      { id: 'r1', prenom: 'Serigne Modou', nom: 'Kara', email: 'admin.modou@hizbut-tarquillah.sn', telephone: '+221 77 500 12 34', role: 'Super Admin', date_creation: '2021-01-15' },
-      { id: 'r2', prenom: 'Cheikh Abdoulaye', nom: 'Diop', email: 'abdoulaye.diop@hizbut-tarquillah.sn', telephone: '+221 77 620 44 88', role: 'Superviseur Kourels', date_creation: '2022-03-20' },
-      { id: 'r3', prenom: 'Moustapha', nom: 'Fall', email: 'moustapha.fall@hizbut-tarquillah.sn', telephone: '+221 77 811 90 22', role: 'Responsable Kamil & Audios', date_creation: '2023-05-10' }
-    ];
+    return [];
   });
 
   // Apply theme to document element
@@ -317,35 +327,44 @@ export const AppProvider = ({ children }) => {
                           profileData.role === 'superviseur' ||
                           (typeof identifier === 'string' && (identifier.toLowerCase().includes('resp') || identifier.toLowerCase().includes('admin')));
 
+    let user;
     if (isResponsable) {
-      setCurrentUser({
-        id: 'u1',
-        nom: profileData.nom || 'Kara',
-        prenom: profileData.prenom || 'Serigne Modou',
+      user = {
+        id: profileData.id || ('u_' + Date.now()),
+        nom: profileData.nom || '',
+        prenom: profileData.prenom || '',
         role: 'Super Admin',
         originalRole: 'responsable',
         hasResponsableAccess: true,
-        email: profileData.email || 'admin@hizbut-tarquillah.sn',
-        matricule: profileData.matricule || 'HT-RESP-001',
-        telephone: profileData.telephone || '+221 77 500 12 34'
-      });
+        email: profileData.email || (typeof identifier === 'string' && identifier.includes('@') ? identifier : ''),
+        matricule: profileData.matricule || `HT-RESP-${String(Date.now()).slice(-4)}`,
+        telephone: profileData.telephone || ''
+      };
+      setCurrentUser(user);
       setActiveTab('dashboard'); // Redirects directly to Daara management dashboard
     } else {
-      setCurrentUser({
-        id: 'm2',
-        nom: profileData.nom || 'Ndiaye',
-        prenom: profileData.prenom || 'Cheikh',
-        email: profileData.email || (typeof identifier === 'string' && identifier.includes('@') ? identifier : 'cheikh.ndiaye@hizbut-tarquillah.sn'),
-        matricule: profileData.matricule || 'HT-MEM-0142',
-        telephone: profileData.telephone || '+221 77 654 32 10',
+      user = {
+        id: profileData.id || ('m_' + Date.now()),
+        nom: profileData.nom || '',
+        prenom: profileData.prenom || '',
+        email: profileData.email || (typeof identifier === 'string' && identifier.includes('@') ? identifier : ''),
+        matricule: profileData.matricule || `HT-MEM-${String(Date.now()).slice(-4)}`,
+        telephone: profileData.telephone || '',
         role: 'Membre',
         originalRole: 'membre',
         hasResponsableAccess: false,
-        kourel_id: 'k1',
+        kourel_id: profileData.kourel_id || (kourels[0]?.id || 'k1'),
         cotisation_statut: 'À jour'
-      });
+      };
+      setCurrentUser(user);
       setActiveTab('accueil');
     }
+
+    try {
+      localStorage.setItem('ht_auth', 'true');
+      localStorage.setItem('ht_current_user', JSON.stringify(user));
+    } catch (e) {}
+
     showToast('Connexion réussie. Bienvenue sur Sama daara !');
   };
 
@@ -353,11 +372,15 @@ export const AppProvider = ({ children }) => {
   const unlockResponsableAccess = (code) => {
     const expectedCode = appSettings?.responsableAccessCode || '994201';
     if (code && code.trim() === expectedCode) {
-      setCurrentUser(prev => ({
-        ...prev,
-        role: 'Super Admin',
-        hasResponsableAccess: true
-      }));
+      setCurrentUser(prev => {
+        const updated = {
+          ...prev,
+          role: 'Super Admin',
+          hasResponsableAccess: true
+        };
+        try { localStorage.setItem('ht_current_user', JSON.stringify(updated)); } catch (e) {}
+        return updated;
+      });
       setActiveTab('dashboard');
       showToast('Accès Responsable déverrouillé avec succès !');
       return { success: true };
@@ -370,6 +393,11 @@ export const AppProvider = ({ children }) => {
 
   const logout = () => {
     setIsAuthenticated(false);
+    setCurrentUser(null);
+    try {
+      localStorage.removeItem('ht_auth');
+      localStorage.removeItem('ht_current_user');
+    } catch (e) {}
     setActiveTab('login');
     showToast('Vous avez été déconnecté.', 'info');
   };
@@ -552,9 +580,9 @@ export const AppProvider = ({ children }) => {
   // Kamil Actions
   const claimJukis = (jukiNumbers, customMembre = null) => {
     if (!jukiNumbers || !Array.isArray(jukiNumbers) || jukiNumbers.length === 0) return;
-    const target = customMembre || currentUser || { id: 'm2', prenom: 'Cheikh Ahmadou', nom: 'NDIAYE' };
-    const membreId = target.id || 'm2';
-    const membreNom = `${target.prenom || ''} ${target.nom || ''}`.trim() || 'Membre';
+    const target = customMembre || currentUser;
+    const membreId = target?.id || null;
+    const membreNom = target ? `${target.prenom || ''} ${target.nom || ''}`.trim() : 'Membre';
 
     setKamilCycle((prev) => {
       const currentAssignations = prev?.assignations || INITIAL_KAMIL_CYCLE.assignations;
@@ -698,10 +726,10 @@ export const AppProvider = ({ children }) => {
 
     const newAssignations = Array.from({ length: 30 }, (_, i) => {
       const juzNum = i + 1;
-      const assignedMembre = activeMembres[i % activeMembres.length];
+      const assignedMembre = activeMembres.length > 0 ? activeMembres[i % activeMembres.length] : null;
       return {
         juz: juzNum,
-        membre_id: assignedMembre ? assignedMembre.id : (membres[0]?.id || 'm1'),
+        membre_id: assignedMembre ? assignedMembre.id : null,
         nom_juz: `Juz' ${juzNum}`,
         statut: 'À faire',
         date_validee: ''

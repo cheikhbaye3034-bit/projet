@@ -29,7 +29,7 @@ export const PointageTable = ({ seance, membersOfKourel }) => {
   let retards = 0;
   let absents = 0;
 
-  membersOfKourel.forEach((m) => {
+  (membersOfKourel || []).forEach((m) => {
     const p = seance.presences?.find((item) => item.membre_id === m.id);
     if (p) {
       if (p.statut === 'Présent') presents++;
@@ -40,7 +40,7 @@ export const PointageTable = ({ seance, membersOfKourel }) => {
 
   const seanceRate = totalMembers > 0 ? Math.round(((presents + retards) / totalMembers) * 100) : 0;
 
-  const filteredMembers = membersOfKourel.filter((m) =>
+  const filteredMembers = (membersOfKourel || []).filter((m) =>
     `${m.prenom} ${m.nom}`.toLowerCase().includes(filterSearch.toLowerCase())
   );
 

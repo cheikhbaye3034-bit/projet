@@ -20,10 +20,10 @@ import { NotificationSettings } from '../../settings/NotificationSettings';
 export const MembreProfilTab = () => {
   const { currentUser, logout, kourels, seances, kamilCycle } = useApp();
 
-  const memberKourel = kourels.find(k => k.id === currentUser?.kourel_id) || kourels[0];
+  const memberKourel = kourels.find(k => k.id === currentUser?.kourel_id);
 
   // Aggregate stats
-  const memberPresences = seances.reduce((acc, seance) => {
+  const memberPresences = (seances || []).reduce((acc, seance) => {
     const p = seance.presences?.find(item => item.membre_id === currentUser?.id);
     if (p) {
       acc.total++;
@@ -34,10 +34,13 @@ export const MembreProfilTab = () => {
     return acc;
   }, { total: 0, presents: 0, retards: 0, absents: 0 });
 
-  const effectiveStats = memberPresences.total > 0 ? memberPresences : { total: 12, presents: 11, retards: 1, absents: 0 };
-  const attendanceRate = Math.round(((effectiveStats.presents + effectiveStats.retards * 0.5) / effectiveStats.total) * 100);
+  const attendanceRate = memberPresences.total > 0 
+    ? Math.round(((memberPresences.presents + memberPresences.retards * 0.5) / memberPresences.total) * 100) 
+    : 0;
 
-  const jukisLus = kamilCycle?.assignations?.filter(a => a.membre_id === currentUser?.id && (a.statut === 'Terminé' || a.statut === 'Validé')).length || 2;
+  const jukisLus = kamilCycle?.assignations?.filter(a => a.membre_id === currentUser?.id && (a.statut === 'Terminé' || a.statut === 'Validé')).length || 0;
+
+  const initials = `${currentUser?.prenom?.[0] || 'M'}${currentUser?.nom?.[0] || ''}`.toUpperCase();
 
   return (
     <div className="space-y-5 sm:space-y-6 animate-fade-in pb-16 select-none max-w-4xl mx-auto">
@@ -50,20 +53,20 @@ export const MembreProfilTab = () => {
         <div className="flex items-center gap-4 text-center sm:text-left">
           {/* Avatar simple */}
           <div className="w-14 h-14 rounded-2xl bg-emerald-800 text-white font-display font-black text-xl flex items-center justify-center shadow-sm flex-shrink-0">
-            {currentUser?.prenom?.[0] || 'C'}{currentUser?.nom?.[0] || 'N'}
+            {initials}
           </div>
 
           <div>
             <div className="flex items-center gap-2 justify-center sm:justify-start">
               <h1 className="font-display font-black text-xl text-slate-900 leading-tight">
-                {currentUser?.prenom} {currentUser?.nom}
+                {currentUser?.prenom || ''} {currentUser?.nom || 'Membre'}
               </h1>
               <span className="px-2.5 py-0.5 rounded-md text-[10px] font-black uppercase bg-emerald-100 text-emerald-900">
-                Actif
+                {currentUser?.statut || 'Actif'}
               </span>
             </div>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Matricule : <span className="font-mono font-bold text-slate-700">{currentUser?.matricule || 'HT-2026-0142'}</span>
+              Matricule : <span className="font-mono font-bold text-slate-700">{currentUser?.matricule || 'Non assigné'}</span>
             </p>
           </div>
         </div>
@@ -95,25 +98,25 @@ export const MembreProfilTab = () => {
           <div className="space-y-3 text-xs">
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
               <span className="text-slate-500 font-medium">Prénom</span>
-              <span className="font-bold text-slate-900">{currentUser?.prenom || 'Cheikh'}</span>
+              <span className="font-bold text-slate-900">{currentUser?.prenom || '-'}</span>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
               <span className="text-slate-500 font-medium">Nom</span>
-              <span className="font-bold text-slate-900">{currentUser?.nom || 'Ndiaye'}</span>
+              <span className="font-bold text-slate-900">{currentUser?.nom || '-'}</span>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
               <span className="text-slate-500 font-medium">Téléphone</span>
               <span className="font-bold text-slate-900 flex items-center gap-1.5">
                 <Phone className="w-3.5 h-3.5 text-emerald-700" />
-                <span>{currentUser?.telephone || '+221 77 654 32 10'}</span>
+                <span>{currentUser?.telephone || 'Non renseigné'}</span>
               </span>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
               <span className="text-slate-500 font-medium">Matricule</span>
-              <span className="font-mono font-bold text-emerald-900">{currentUser?.matricule || 'HT-2026-0142'}</span>
+              <span className="font-mono font-bold text-emerald-900">{currentUser?.matricule || 'Non assigné'}</span>
             </div>
           </div>
         </div>
@@ -130,19 +133,19 @@ export const MembreProfilTab = () => {
           <div className="space-y-3 text-xs">
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
               <span className="text-slate-500 font-medium">Kourel</span>
-              <span className="font-bold text-slate-900">{memberKourel?.nom}</span>
+              <span className="font-bold text-slate-900">{memberKourel?.nom || 'Non assigné'}</span>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
               <span className="text-slate-500 font-medium">Date d'adhésion</span>
-              <span className="font-bold text-slate-900">Août 2021</span>
+              <span className="font-bold text-slate-900">{currentUser?.date_adhesion || 'Non renseignée'}</span>
             </div>
 
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
               <span className="text-slate-500 font-medium">Lieu / Ville</span>
               <span className="font-bold text-slate-900 flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-slate-500" />
-                <span>Touba Mosquée</span>
+                <span>{currentUser?.ville || currentUser?.adresse || 'Non renseigné'}</span>
               </span>
             </div>
 
@@ -150,7 +153,7 @@ export const MembreProfilTab = () => {
               <span className="text-slate-500 font-medium">Statut</span>
               <span className="font-bold text-emerald-700 flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-                <span>Membre en règle</span>
+                <span>{currentUser?.cotisation_statut === 'À jour' ? 'Membre en règle' : (currentUser?.cotisation_statut || 'En attente')}</span>
               </span>
             </div>
           </div>
@@ -178,12 +181,12 @@ export const MembreProfilTab = () => {
 
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-1">
             <span className="text-slate-500 font-semibold text-[11px] block">Séances assistées</span>
-            <span className="font-display font-black text-xl text-slate-900 block">{effectiveStats.presents}</span>
+            <span className="font-display font-black text-xl text-slate-900 block">{memberPresences.presents}</span>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center space-y-1">
             <span className="text-slate-500 font-semibold text-[11px] block">Jukis du Coran lus</span>
-            <span className="font-display font-black text-xl text-slate-900 block">{jukisLus} Jukis</span>
+            <span className="font-display font-black text-xl text-slate-900 block">{jukisLus} Juki{jukisLus > 1 ? 's' : ''}</span>
           </div>
 
         </div>

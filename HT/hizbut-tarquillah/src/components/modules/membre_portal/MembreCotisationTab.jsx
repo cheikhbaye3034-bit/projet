@@ -21,33 +21,38 @@ import { useApp } from '../../../context/AppContext';
 export const MembreCotisationTab = () => {
   const { currentUser, showToast } = useApp();
 
-  // Financial status state
-  const [totalAssigne, setTotalAssigne] = useState(25000);
-  const [totalPaye, setTotalPaye] = useState(20000);
-  const resteAPayer = Math.max(totalAssigne - totalPaye, 0);
-  const progressPercent = Math.round((totalPaye / totalAssigne) * 100);
+  // Financial campaigns initialized dynamically
+  const [campaigns, setCampaigns] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ht_cotisations_campaigns');
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return [];
+  });
 
-  // Campaigns list
-  const [campaigns, setCampaigns] = useState([
-    { id: 'c1', titre: 'Cotisation Mensuelle — Août 2026', montant: 5000, echeance: '2026-08-31', statut: 'Payé', date_paiement: '2026-08-10', methode: 'Wave' },
-    { id: 'c2', titre: 'Participation Grand Magal de Touba', montant: 10000, echeance: '2026-09-15', statut: 'Payé', date_paiement: '2026-08-05', methode: 'Orange Money' },
-    { id: 'c3', titre: 'Rénovation & Équipement Daara Central', montant: 5000, echeance: '2026-08-28', statut: 'Payé', date_paiement: '2026-07-20', methode: 'Wave' },
-    { id: 'c4', titre: 'Cotisation Mensuelle — Septembre 2026', montant: 5000, echeance: '2026-09-30', statut: 'En attente', date_paiement: null, methode: null },
-  ]);
+  // Receipts history initialized dynamically
+  const [receipts, setReceipts] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ht_cotisations_receipts');
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return [];
+  });
 
-  // Receipts history
-  const [receipts, setReceipts] = useState([
-    { id: 'REC-2026-0801', date: '10 Août 2026', montant: 5000, motif: 'Cotisation Mensuelle — Août 2026', methode: 'Wave', reference: 'WV-984214-SN' },
-    { id: 'REC-2026-0792', date: '05 Août 2026', montant: 10000, motif: 'Participation Grand Magal de Touba', methode: 'Orange Money', reference: 'OM-773120-SN' },
-    { id: 'REC-2026-0715', date: '20 Juil 2026', montant: 5000, motif: 'Rénovation & Équipement Daara Central', methode: 'Wave', reference: 'WV-651209-SN' },
-  ]);
+  // Financial calculations
+  const totalAssigne = campaigns.reduce((acc, c) => acc + (Number(c.montant) || 0), 0);
+  const totalPaye = campaigns.filter(c => c.statut === 'Payé').reduce((acc, c) => acc + (Number(c.montant) || 0), 0) + 
+                    receipts.reduce((acc, r) => acc + (Number(r.montant) || 0), 0);
+  const effectivePaye = Math.min(totalPaye, totalAssigne > 0 ? totalAssigne : totalPaye);
+  const resteAPayer = Math.max(totalAssigne - effectivePaye, 0);
+  const progressPercent = totalAssigne > 0 ? Math.round((effectivePaye / totalAssigne) * 100) : 100;
 
   // Payment Modal State
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedMethod, setSelectedMethod] = useState('wave'); // 'wave' | 'orange_money'
   const [paymentAmount, setPaymentAmount] = useState(5000);
-  const [paymentPhone, setPaymentPhone] = useState(currentUser?.telephone || '+221 77 654 32 10');
-  const [paymentMotif, setPaymentMotif] = useState('Cotisation Mensuelle — Septembre 2026');
+  const [paymentPhone, setPaymentPhone] = useState(currentUser?.telephone || '');
+  const [paymentMotif, setPaymentMotif] = useState('Cotisation');
   const [paymentStep, setPaymentStep] = useState('form'); // 'form' | 'processing' | 'success'
 
   // Generated Receipt Modal State
@@ -82,20 +87,28 @@ export const MembreCotisationTab = () => {
         reference: selectedMethod === 'wave' ? `WV-${Math.floor(100000 + Math.random() * 900000)}-SN` : `OM-${Math.floor(100000 + Math.random() * 900000)}-SN`
       };
 
-      setReceipts(prev => [newRecu, ...prev]);
+      setReceipts(prev => {
+        const next = [newRecu, ...prev];
+        try { localStorage.setItem('ht_cotisations_receipts', JSON.stringify(next)); } catch(e){}
+        return next;
+      });
 
       // 3. Mark campaign as paid if matching
-      setCampaigns(prev => prev.map(c => {
-        if (c.titre === paymentMotif) {
-          return { ...c, statut: 'Payé', date_paiement: newRecu.date, methode: newRecu.methode };
-        }
-        return c;
-      }));
+      setCampaigns(prev => {
+        const next = prev.map(c => {
+          if (c.titre === paymentMotif) {
+            return { ...c, statut: 'Payé', date_paiement: newRecu.date, methode: newRecu.methode };
+          }
+          return c;
+        });
+        try { localStorage.setItem('ht_cotisations_campaigns', JSON.stringify(next)); } catch(e){}
+        return next;
+      });
 
       setPaymentStep('success');
       setSelectedReceiptForView(newRecu);
       showToast(`Paiement de ${paymentAmount.toLocaleString()} FCFA reçu avec succès !`);
-    }, 2000);
+    }, 1500);
   };
 
   return (
@@ -172,59 +185,65 @@ export const MembreCotisationTab = () => {
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {campaigns.map((camp) => {
-            const isPaid = camp.statut === 'Payé';
-            return (
-              <div 
-                key={camp.id}
-                className={`pro-card p-5 sm:p-6 border-2 flex flex-col justify-between space-y-4 transition-all ${
-                  isPaid 
-                    ? 'border-emerald-200/80 bg-emerald-50/30' 
-                    : 'border-amber-300/80 bg-amber-50/40 shadow-soft-sm'
-                }`}
-              >
-                <div className="space-y-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${
-                      isPaid 
-                        ? 'bg-emerald-100 text-emerald-800' 
-                        : 'bg-amber-100 text-amber-900 animate-pulse'
-                    }`}>
-                      {isPaid ? 'Régularisé' : 'À régler'}
-                    </span>
-                    <span className="text-xs font-semibold text-slate-400">
-                      Échéance : {camp.echeance}
-                    </span>
-                  </div>
-
-                  <h4 className="font-display font-bold text-base text-slate-900">
-                    {camp.titre}
-                  </h4>
-
-                  <div className="text-xl font-display font-black text-slate-900">
-                    {camp.montant.toLocaleString()} FCFA
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                  {isPaid ? (
-                    <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span>Payé le {camp.date_paiement} via {camp.methode}</span>
+          {campaigns.length > 0 ? (
+            campaigns.map((camp) => {
+              const isPaid = camp.statut === 'Payé';
+              return (
+                <div 
+                  key={camp.id}
+                  className={`pro-card p-5 sm:p-6 border-2 flex flex-col justify-between space-y-4 transition-all ${
+                    isPaid 
+                      ? 'border-emerald-200/80 bg-emerald-50/30' 
+                      : 'border-amber-300/80 bg-amber-50/40 shadow-soft-sm'
+                  }`}
+                >
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                        isPaid 
+                          ? 'bg-emerald-100 text-emerald-800' 
+                          : 'bg-amber-100 text-amber-900 animate-pulse'
+                      }`}>
+                        {isPaid ? 'Régularisé' : 'À régler'}
+                      </span>
+                      <span className="text-xs font-semibold text-slate-400">
+                        Échéance : {camp.echeance}
+                      </span>
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => handleInitiatePayment(camp)}
-                      className="px-4 py-2 bg-gradient-to-r from-emerald-800 to-[#144631] hover:from-[#144631] hover:to-emerald-800 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>Payer {camp.montant.toLocaleString()} F</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+
+                    <h4 className="font-display font-bold text-base text-slate-900">
+                      {camp.titre}
+                    </h4>
+
+                    <div className="text-xl font-display font-black text-slate-900">
+                      {camp.montant.toLocaleString()} FCFA
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                    {isPaid ? (
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-800">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                        <span>Payé le {camp.date_paiement} via {camp.methode}</span>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleInitiatePayment(camp)}
+                        className="px-4 py-2 bg-gradient-to-r from-emerald-800 to-[#144631] hover:from-[#144631] hover:to-emerald-800 active:scale-95 text-white font-bold text-xs rounded-xl shadow transition-all flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <span>Payer {camp.montant.toLocaleString()} F</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })
+          ) : (
+            <div className="col-span-1 md:col-span-2 p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs">
+              Aucune campagne de cotisation active pour le moment.
+            </div>
+          )}
         </div>
       </div>
 
@@ -243,45 +262,51 @@ export const MembreCotisationTab = () => {
         </div>
 
         <div className="space-y-3">
-          {receipts.map((recu) => (
-            <div 
-              key={recu.id}
-              className="p-4 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 border border-slate-200/80 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
-            >
-              <div className="flex items-center gap-3.5">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold flex-shrink-0 ${
-                  recu.methode === 'Wave' ? 'bg-[#1DC3F3]/20 text-[#0095C2]' : 'bg-[#FF6600]/20 text-[#FF6600]'
-                }`}>
-                  <Receipt className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-display font-bold text-sm text-slate-900">{recu.motif}</span>
-                    <span className="text-[10px] font-extrabold px-2 py-0.2 rounded bg-white text-slate-700 border border-slate-200">
-                      {recu.id}
-                    </span>
+          {receipts.length > 0 ? (
+            receipts.map((recu) => (
+              <div 
+                key={recu.id}
+                className="p-4 rounded-2xl bg-slate-50 hover:bg-emerald-50/50 border border-slate-200/80 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 group"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold flex-shrink-0 ${
+                    recu.methode === 'Wave' ? 'bg-[#1DC3F3]/20 text-[#0095C2]' : 'bg-[#FF6600]/20 text-[#FF6600]'
+                  }`}>
+                    <Receipt className="w-5 h-5" />
                   </div>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    {recu.date} • {recu.methode} (Réf: {recu.reference})
-                  </p>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-display font-bold text-sm text-slate-900">{recu.motif}</span>
+                      <span className="text-[10px] font-extrabold px-2 py-0.2 rounded bg-white text-slate-700 border border-slate-200">
+                        {recu.id}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 font-medium mt-0.5">
+                      {recu.date} • {recu.methode} (Réf: {recu.reference})
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 self-end sm:self-center">
+                  <span className="font-display font-black text-sm text-emerald-800">
+                    {recu.montant.toLocaleString()} FCFA
+                  </span>
+
+                  <button
+                    onClick={() => setSelectedReceiptForView(recu)}
+                    className="px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-700 hover:text-white text-slate-700 border border-slate-200 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-soft-xs"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Voir le Reçu</span>
+                  </button>
                 </div>
               </div>
-
-              <div className="flex items-center gap-3 self-end sm:self-center">
-                <span className="font-display font-black text-sm text-emerald-800">
-                  {recu.montant.toLocaleString()} FCFA
-                </span>
-
-                <button
-                  onClick={() => setSelectedReceiptForView(recu)}
-                  className="px-3 py-1.5 rounded-xl bg-white hover:bg-emerald-700 hover:text-white text-slate-700 border border-slate-200 text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-soft-xs"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Voir le Reçu</span>
-                </button>
-              </div>
+            ))
+          ) : (
+            <div className="p-8 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-slate-400 text-xs">
+              Aucun reçu de paiement enregistré. Vos justificatifs s'afficheront ici dès vos premiers versements.
             </div>
-          ))}
+          )}
         </div>
       </div>
 
