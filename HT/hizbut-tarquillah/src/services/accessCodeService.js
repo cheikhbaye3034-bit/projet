@@ -24,147 +24,75 @@ export const sendAccessCode = async ({ email, role, prenom, nom, userId }) => {
   }
 
   try {
-    // 1. Appel de l'Edge Function Supabase 'send-access-code'
+    // 1. Appel sécurisé de l'Edge Function Supabase 'send-access-code'
     const { data, error } = await supabase.functions.invoke('send-access-code', {
       body: {
         email: cleanEmail,
         role: role || 'membre',
-        prenom: prenom || '',
-        nom: nom || '',
+        prenom: prenom ? prenom.trim() : '',
+        nom: nom ? nom.trim() : '',
         user_id: userId || null
       }
     });
 
-    if (!error && data?.success) {
-      // Sauvegarde du code dev pour l'affichage en mode test si Resend API key absente
-      if (data.dev_code) {
-        sessionStorage.setItem(`sama_daara_code_${cleanEmail}`, data.dev_code);
-      }
+    if (error || !data?.success) {
       return {
-        success: true,
-        message: data.message || `Code d'accès envoyé à ${cleanEmail}`,
-        devCode: data.dev_code
+        success: false,
+        error: data?.error || "Impossible d'envoyer le code d'accès. Veuillez réessayer."
       };
-    }
-
-    // 2. Si l'Edge function n'est pas encore déployée ou renvoie une erreur,
-    // on gère un mode résilient sans bloquer l'utilisateur
-    console.warn('Edge Function send-access-code non disponible ou en erreur:', error || data?.error);
-
-    // Tentative directe d'insertion en base si les tables existent
-    const fallbackCode = Math.floor(100000 + Math.random() * 900000).toString();
-    sessionStorage.setItem(`sama_daara_code_${cleanEmail}`, fallbackCode);
-
-    try {
-      await supabase.from('access_codes').insert([
-        {
-          email: cleanEmail,
-          code: fallbackCode,
-          status: 'pending',
-          expires_at: new Date(Date.now() + 15 * 60 * 1000).toISOString()
-        }
-      ]);
-    } catch (dbErr) {
-      console.log('Mode simulation locale du code actif:', dbErr);
     }
 
     return {
       success: true,
-      message: `Code d'accès généré pour ${cleanEmail}`,
-      devCode: fallbackCode
+      message: data.message || `Code d'accès envoyé avec succès à ${cleanEmail}`
     };
 
   } catch (err) {
     console.error('Erreur réseau sendAccessCode:', err);
-    // Règle 5 du cahier des charges : Ne jamais bloquer la création du compte si l'email échoue
-    const localCode = Math.floor(100000 + Math.random() * 900000).toString();
-    sessionStorage.setItem(`sama_daara_code_${cleanEmail}`, localCode);
-
     return {
-      success: true,
-      message: 'Code préparé pour validation (mode résilient).',
-      devCode: localCode,
-      warning: "Impossible d'envoyer le code, vous pouvez continuer avec le code de secours."
+      success: false,
+      error: "Erreur de connexion au serveur d'authentification. Vérifiez votre connexion Internet."
     };
   }
 };
 
 /**
  * Vérifie le code d'accès saisi par l'utilisateur à l'étape 4.
+ * La vérification est effectuée côté base de données de manière cryptographique et anti-bruteforce.
  *
  * @param {Object} params
  * @param {string} params.email
  * @param {string} params.code
- * @param {string} params.role
- * @param {Object} [params.appSettings]
  * @returns {Promise<{ valid: boolean, message: string }>}
  */
-export const verifyAccessCode = async ({ email, code, role, appSettings }) => {
+export const verifyAccessCode = async ({ email, code }) => {
   const cleanEmail = email ? email.trim().toLowerCase() : '';
   const cleanCode = code ? code.trim() : '';
 
-  if (!cleanCode) {
-    return { valid: false, message: "Veuillez saisir votre code d'accès." };
+  if (!cleanCode || cleanCode.length < 6) {
+    return { valid: false, message: "Veuillez saisir les 6 chiffres de votre code d'accès." };
   }
 
-  // 1. Vérification avec les codes maîtres d'administration/démo (toujours prioritaires)
-  const masterCode = role === 'responsable'
-    ? (appSettings?.responsableAccessCode || '994201')
-    : (appSettings?.memberAccessCode || '188828');
-
-  if (cleanCode === masterCode) {
-    return { valid: true, message: 'Code validé avec succès.' };
-  }
-
-  // 2. Vérification avec le code de session temporaire
-  const sessionCode = sessionStorage.getItem(`sama_daara_code_${cleanEmail}`);
-  if (sessionCode && cleanCode === sessionCode) {
-    return { valid: true, message: 'Code validé avec succès.' };
-  }
-
-  // 3. Appel de la fonction RPC Supabase verify_access_code
+  // Vérification exclusive via la fonction RPC sécurisée verify_access_code (anti-bruteforce)
   try {
     const { data, error } = await supabase.rpc('verify_access_code', {
       p_email: cleanEmail,
       p_code: cleanCode
     });
 
-    if (!error && data) {
-      if (data.valid) {
-        sessionStorage.removeItem(`sama_daara_code_${cleanEmail}`);
-        return { valid: true, message: data.message || 'Code d\'accès validé.' };
-      } else {
-        return { valid: false, message: data.message || 'Code incorrect ou expiré.' };
-      }
+    if (error) {
+      console.warn('Erreur RPC verify_access_code:', error);
+      return { valid: false, message: "Erreur lors de la vérification. Veuillez réessayer." };
+    }
+
+    if (data) {
+      return {
+        valid: !!data.valid,
+        message: data.message || (data.valid ? 'Code validé avec succès.' : 'Code incorrect.')
+      };
     }
   } catch (rpcErr) {
-    console.warn('RPC verify_access_code non disponible, tentative de vérification directe:', rpcErr);
-  }
-
-  // 4. Vérification directe en table Supabase si la RPC n'a pas répondu
-  try {
-    const { data: records } = await supabase
-      .from('access_codes')
-      .select('*')
-      .eq('email', cleanEmail)
-      .eq('code', cleanCode)
-      .eq('status', 'pending')
-      .gt('expires_at', new Date().toISOString())
-      .order('created_at', { ascending: false })
-      .limit(1);
-
-    if (records && records.length > 0) {
-      // Marquer le code comme vérifié
-      await supabase
-        .from('access_codes')
-        .update({ status: 'verified', verified_at: new Date().toISOString() })
-        .eq('id', records[0].id);
-
-      sessionStorage.removeItem(`sama_daara_code_${cleanEmail}`);
-      return { valid: true, message: 'Code validé avec succès.' };
-    }
-  } catch (dbErr) {
-    console.error('Erreur vérification DB access_codes:', dbErr);
+    console.error('Exception RPC verify_access_code:', rpcErr);
   }
 
   return {

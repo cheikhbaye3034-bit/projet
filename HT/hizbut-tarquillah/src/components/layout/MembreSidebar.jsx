@@ -37,7 +37,7 @@ export const MembreSidebar = ({ activeMemberTab, setActiveMemberTab }) => {
         <div className="w-16 h-16 sm:w-18 sm:h-18 flex items-center justify-center flex-shrink-0 relative group transition-transform duration-300 hover:scale-105">
           <img 
             src={logoImg} 
-            alt="Sama daara" 
+            alt="Sama Kourel" 
             className="w-full h-full object-contain filter drop-shadow-xs" 
           />
         </div>
@@ -46,17 +46,22 @@ export const MembreSidebar = ({ activeMemberTab, setActiveMemberTab }) => {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <h1 className="font-serif font-black text-lg sm:text-[19px] tracking-wide text-slate-900 truncate drop-shadow-xs">
-              {appSettings?.daaraName || 'Sama daara'}
+              {appSettings?.daaraName || 'Sama Kourel'}
             </h1>
             <span className="bg-gradient-to-r from-amber-500 to-amber-600 text-white text-[9px] font-black tracking-widest px-2 py-0.5 rounded-md shadow-xs uppercase border border-amber-400/40 flex-shrink-0">
               MEMBRE
             </span>
           </div>
 
-          <p className="font-serif italic text-xs font-semibold text-emerald-800 tracking-wide flex items-center gap-1.5 mt-0.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-emerald-300 animate-pulse flex-shrink-0"></span>
-            <span>Espace Personnel</span>
-          </p>
+          <div className="flex items-center justify-between gap-1 mt-0.5">
+            <span className="font-arabic text-base sm:text-[17px] font-bold text-emerald-900 tracking-wider leading-none select-none">
+              سَمَا كُورِيلْ
+            </span>
+            <span className="text-[10px] font-semibold text-slate-500 tracking-wide flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 ring-2 ring-emerald-300 animate-pulse flex-shrink-0"></span>
+              <span>Espace</span>
+            </span>
+          </div>
         </div>
       </div>
 

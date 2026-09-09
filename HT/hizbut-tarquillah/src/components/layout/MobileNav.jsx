@@ -49,15 +49,20 @@ export const MobileNav = ({ isOpen, onClose }) => {
             <div className="w-14 h-14 flex items-center justify-center flex-shrink-0">
               <img src={logoImg} alt="Logo" className="w-full h-full object-contain filter drop-shadow-sm" />
             </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h1 className="font-serif font-black text-base text-white tracking-wide truncate max-w-[130px]">
-                  {appSettings?.daaraName || 'Sama daara'}
-                </h1>
-                <span className="bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">PRO</span>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <h1 className="font-serif font-black text-base text-white tracking-wide truncate max-w-[130px]">
+                    {appSettings?.daaraName || 'Sama Kourel'}
+                  </h1>
+                  <span className="bg-amber-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded uppercase">PRO</span>
+                </div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="font-arabic text-xs font-bold text-amber-350 tracking-wider text-amber-300">
+                    سَمَا كُورِيلْ
+                  </span>
+                  <span className="text-[10px] text-emerald-200/90 font-medium">• Portail</span>
+                </div>
               </div>
-              <p className="font-serif italic text-[11px] text-emerald-200/90 font-medium">Portail de Gestion</p>
-            </div>
           </div>
           <button
             onClick={onClose}

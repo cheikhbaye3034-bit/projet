@@ -31,7 +31,25 @@ export const AppProvider = ({ children }) => {
     } catch (e) {}
     return null;
   });
-  const [activeTab, setActiveTab] = useState('accueil'); // accueil, dashboard, membres, repetition, kamil, info, login
+  const [activeTab, setActiveTabState] = useState('accueil'); // accueil, dashboard, membres, repetition, kamil, info, login
+
+  // Garde de navigation pour protéger les espaces sensibles (Dashboard, Membres)
+  const setActiveTab = (tab) => {
+    const adminTabs = ['dashboard', 'membres'];
+    if (adminTabs.includes(tab)) {
+      if (!isAuthenticated) {
+        showToast('Veuillez vous connecter pour accéder à cet espace.', 'error');
+        setActiveTabState('login');
+        return;
+      }
+      if (!currentUser?.hasResponsableAccess) {
+        showToast('Accès restreint aux seuls responsables de la Daara.', 'error');
+        setActiveTabState('accueil');
+        return;
+      }
+    }
+    setActiveTabState(tab);
+  };
 
   // Loading state for Supabase
   const [isLoading, setIsLoading] = useState(true);
@@ -82,7 +100,7 @@ export const AppProvider = ({ children }) => {
       if (saved) return JSON.parse(saved);
     } catch (e) {}
     return {
-      daaraName: 'Sama daara',
+      daaraName: 'Sama Kourel',
       logoUrl: '',
       memberAccessCode: '188828',
       responsableAccessCode: '994201',
@@ -319,13 +337,14 @@ export const AppProvider = ({ children }) => {
 
   // Auth actions
   const login = (identifier, password, profileData = {}) => {
-    setIsAuthenticated(true);
-    
-    // Check if role is Responsable / Superviseur / Super Admin
-    const isResponsable = profileData.role === 'responsable' || 
-                          profileData.role === 'Super Admin' || 
-                          profileData.role === 'superviseur' ||
-                          (typeof identifier === 'string' && (identifier.toLowerCase().includes('resp') || identifier.toLowerCase().includes('admin')));
+    // Vérification de sécurité minimale sur le mot de passe
+    if (!password || password.length < 6) {
+      showToast('Le mot de passe doit comporter au moins 6 caractères.', 'error');
+      return { success: false, error: 'Mot de passe invalide' };
+    }
+
+    // L'accès Responsable / Admin n'est accordé QUE si la vérification a été formellement validée
+    const isResponsable = profileData.hasResponsableAccess === true;
 
     let user;
     if (isResponsable) {
@@ -340,8 +359,9 @@ export const AppProvider = ({ children }) => {
         matricule: profileData.matricule || `HT-RESP-${String(Date.now()).slice(-4)}`,
         telephone: profileData.telephone || ''
       };
+      setIsAuthenticated(true);
       setCurrentUser(user);
-      setActiveTab('dashboard'); // Redirects directly to Daara management dashboard
+      setActiveTabState('dashboard');
     } else {
       user = {
         id: profileData.id || ('m_' + Date.now()),
@@ -356,8 +376,9 @@ export const AppProvider = ({ children }) => {
         kourel_id: profileData.kourel_id || (kourels[0]?.id || 'k1'),
         cotisation_statut: 'À jour'
       };
+      setIsAuthenticated(true);
       setCurrentUser(user);
-      setActiveTab('accueil');
+      setActiveTabState('accueil');
     }
 
     try {
@@ -365,7 +386,8 @@ export const AppProvider = ({ children }) => {
       localStorage.setItem('ht_current_user', JSON.stringify(user));
     } catch (e) {}
 
-    showToast('Connexion réussie. Bienvenue sur Sama daara !');
+    showToast('Connexion réussie. Bienvenue sur Sama Kourel !');
+    return { success: true };
   };
 
   // Déverrouillage sécurisé de l'accès Responsable pour un membre avec le code secret
@@ -381,7 +403,7 @@ export const AppProvider = ({ children }) => {
         try { localStorage.setItem('ht_current_user', JSON.stringify(updated)); } catch (e) {}
         return updated;
       });
-      setActiveTab('dashboard');
+      setActiveTabState('dashboard');
       showToast('Accès Responsable déverrouillé avec succès !');
       return { success: true };
     }

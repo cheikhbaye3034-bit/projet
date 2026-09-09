@@ -49,7 +49,7 @@ export const NotificationSettings = ({ userId = null, title = "Centre de Notific
             <div>
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 text-[11px] font-bold text-emerald-200 border border-white/10 mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-                <span>Sama Daara Alertes</span>
+                <span>Sama Kourel Alertes</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-display font-extrabold tracking-tight">
                 {title}

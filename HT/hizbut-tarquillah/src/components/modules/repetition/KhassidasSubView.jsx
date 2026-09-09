@@ -40,6 +40,13 @@ export const KhassidasSubView = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Protection anti-déni de service mémoire (taille maximale de 20 Mo)
+    const MAX_FILE_SIZE_MB = 20;
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+      showToast && showToast(`⚠️ Le fichier est trop volumineux (maximum ${MAX_FILE_SIZE_MB} Mo autorisé).`, 'error');
+      return;
+    }
+
     // Extract clean title from filename
     const cleanTitle = file.name
       .replace(/\.[^/.]+$/, '')

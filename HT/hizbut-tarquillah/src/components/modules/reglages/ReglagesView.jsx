@@ -48,10 +48,10 @@ const FieldInput = ({ label, value, onChange, placeholder, type = 'text', classN
 // ─── General Settings Tab ────────────────────────────────────────────────────
 const TabGeneral = ({ appSettings, updateAppSettings, showToast }) => {
   const [formData, setFormData] = useState({
-    daaraName: appSettings?.daaraName || 'Sama daara',
+    daaraName: appSettings?.daaraName || 'Sama Kourel',
     siegeVille: appSettings?.siegeVille || 'Touba / Dakar',
     contactPhone: appSettings?.contactPhone || '+221 77 500 12 34',
-    contactEmail: appSettings?.contactEmail || 'contact@samadaara.sn',
+    contactEmail: appSettings?.contactEmail || 'contact@samakourel.sn',
     slogan: appSettings?.slogan || 'Portail Officiel de Gestion & Dévotion'
   });
 
@@ -64,7 +64,7 @@ const TabGeneral = ({ appSettings, updateAppSettings, showToast }) => {
   const handleSaveAll = (e) => {
     e.preventDefault();
     updateAppSettings(formData);
-    showToast && showToast('✅ Paramètres généraux de Sama daara enregistrés avec succès !');
+    showToast && showToast('✅ Paramètres généraux de Sama Kourel enregistrés avec succès !');
   };
 
   return (
@@ -86,10 +86,10 @@ const TabGeneral = ({ appSettings, updateAppSettings, showToast }) => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FieldInput
-            label="Nom officiel du Daara"
+            label="Nom officiel (Kourel / Daara)"
             value={formData.daaraName}
             onChange={(val) => handleChange('daaraName', val)}
-            placeholder="ex: Sama daara"
+            placeholder="ex: Sama Kourel"
           />
 
           <FieldInput

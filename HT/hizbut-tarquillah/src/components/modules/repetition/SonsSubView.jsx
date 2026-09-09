@@ -38,6 +38,13 @@ export const SonsSubView = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Protection anti-déni de service mémoire (taille maximale de 20 Mo)
+    const MAX_AUDIO_SIZE_MB = 20;
+    if (file.size > MAX_AUDIO_SIZE_MB * 1024 * 1024) {
+      showToast && showToast(`⚠️ Le fichier audio est trop lourd (maximum ${MAX_AUDIO_SIZE_MB} Mo autorisé).`, 'error');
+      return;
+    }
+
     const cleanTitle = file.name
       .replace(/\.[^/.]+$/, '')
       .replace(/[-_]/g, ' ')

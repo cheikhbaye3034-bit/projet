@@ -74,8 +74,7 @@ CREATE POLICY "Users can read their own preferences"
     FOR SELECT
     USING (
         auth.uid()::text = user_id 
-        OR auth.role() = 'service_role' 
-        OR auth.role() = 'anon'
+        OR auth.role() = 'service_role'
     );
 
 DROP POLICY IF EXISTS "Users can update their own preferences" ON public.notification_preferences;
@@ -84,8 +83,11 @@ CREATE POLICY "Users can update their own preferences"
     FOR UPDATE
     USING (
         auth.uid()::text = user_id 
-        OR auth.role() = 'service_role' 
-        OR auth.role() = 'anon'
+        OR auth.role() = 'service_role'
+    )
+    WITH CHECK (
+        auth.uid()::text = user_id 
+        OR auth.role() = 'service_role'
     );
 
 DROP POLICY IF EXISTS "Users can insert their own preferences" ON public.notification_preferences;
@@ -94,8 +96,7 @@ CREATE POLICY "Users can insert their own preferences"
     FOR INSERT
     WITH CHECK (
         auth.uid()::text = user_id 
-        OR auth.role() = 'service_role' 
-        OR auth.role() = 'anon'
+        OR auth.role() = 'service_role'
     );
 
 -- Politiques sur notifications
@@ -106,7 +107,6 @@ CREATE POLICY "Users can read their own notifications"
     USING (
         auth.uid()::text = user_id 
         OR auth.role() = 'service_role'
-        OR auth.role() = 'anon'
     );
 
 DROP POLICY IF EXISTS "Users can update their own notifications read status" ON public.notifications;
@@ -116,17 +116,23 @@ CREATE POLICY "Users can update their own notifications read status"
     USING (
         auth.uid()::text = user_id 
         OR auth.role() = 'service_role'
-        OR auth.role() = 'anon'
+    )
+    WITH CHECK (
+        auth.uid()::text = user_id 
+        OR auth.role() = 'service_role'
     );
 
 DROP POLICY IF EXISTS "Service role can manage all notifications" ON public.notifications;
 CREATE POLICY "Service role can manage all notifications"
     ON public.notifications
     FOR ALL
-    USING (auth.role() = 'service_role' OR auth.role() = 'anon');
+    USING (auth.role() = 'service_role');
 
-GRANT ALL ON public.notification_preferences TO anon, authenticated, service_role;
-GRANT ALL ON public.notifications TO anon, authenticated, service_role;
+-- Droits minimaux accordés
+GRANT SELECT, INSERT, UPDATE ON public.notification_preferences TO authenticated;
+GRANT SELECT, UPDATE ON public.notifications TO authenticated;
+GRANT ALL ON public.notification_preferences TO service_role;
+GRANT ALL ON public.notifications TO service_role;
 
 -- 5. Trigger PostgreSQL : Information épinglée (trigger DB)
 -- Déclenché à l'insertion ou mise à jour d'une actualité avec is_pinned = true
@@ -134,6 +140,7 @@ CREATE OR REPLACE FUNCTION public.handle_pinned_information()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
     v_member RECORD;

@@ -54,13 +54,18 @@ export const MembreMobileNav = ({ isOpen, onClose, activeMemberTab, setActiveMem
               <div>
                 <div className="flex items-center gap-1.5">
                   <h3 className="font-serif font-black text-base text-slate-900 truncate max-w-[130px]">
-                    {appSettings?.daaraName || 'Sama daara'}
+                    {appSettings?.daaraName || 'Sama Kourel'}
                   </h3>
                   <span className="text-[8px] font-black text-amber-900 bg-amber-100 border border-amber-300 px-1.5 py-0.5 rounded uppercase">
                     MEMBRE
                   </span>
                 </div>
-                <p className="font-serif italic text-[11px] text-emerald-800 font-medium">Espace Personnel</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="font-arabic text-xs font-bold text-emerald-900 tracking-wider">
+                    سَمَا كُورِيلْ
+                  </span>
+                  <span className="text-[10px] text-emerald-800 font-medium">• Espace</span>
+                </div>
               </div>
             </div>
 

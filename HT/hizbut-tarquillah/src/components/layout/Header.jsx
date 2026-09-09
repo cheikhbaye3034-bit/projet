@@ -10,17 +10,17 @@ export const Header = ({ onOpenMobileMenu }) => {
   const [showNotifications, setShowNotifications] = useState(false);
 
   const titles = {
-    accueil:    { title: 'Vue d\'Ensemble',               subtitle: 'Bienvenue sur la plateforme Sama daara' },
+    accueil:    { title: 'Vue d\'Ensemble',               subtitle: 'Bienvenue sur la plateforme Sama Kourel' },
     dashboard:  { title: 'Tableau de Bord',               subtitle: 'Statistiques analytiques et indicateurs clés' },
     membres:    { title: 'Annuaire des Membres',          subtitle: 'Répertoire complet, assiduité et affectations' },
     repetition: { title: 'Répétition & Pointage',        subtitle: 'Séances, feuilles d\'émargement et historique' },
     kamil:      { title: 'Suivi Kamil Coran',             subtitle: 'Lecture intégrale du Saint Coran (60 Jukis)' },
-    info:       { title: 'Informations & Annonces',       subtitle: 'Communications officielles du Daara' },
+    info:       { title: 'Informations & Annonces',       subtitle: 'Communications officielles de la Daara' },
     reglages:   { title: 'Réglages & Configuration',      subtitle: 'Administration — Responsables uniquement' },
   };
 
   const currentInfo = titles[activeTab] || titles.accueil;
-  const daaraName   = appSettings?.daaraName || 'Sama daara';
+  const daaraName   = appSettings?.daaraName || 'Sama Kourel';
 
   const formattedDate = new Date().toLocaleDateString('fr-FR', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'

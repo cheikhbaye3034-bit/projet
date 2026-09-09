@@ -52,9 +52,11 @@ export const AccueilView = () => {
             <span className="font-serif text-lg sm:text-xl text-amber-300/90 font-bold tracking-widest font-['Amiri',serif]">
               بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
             </span>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-emerald-200 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-emerald-200 shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-              <span>Portail Officiel • Sama daara Pro</span>
+              <span>Portail Officiel • Sama Kourel Pro</span>
+              <span className="text-emerald-300/70">•</span>
+              <span className="font-arabic text-sm font-bold text-amber-300">سَمَا كُورِيلْ</span>
             </div>
           </div>
 

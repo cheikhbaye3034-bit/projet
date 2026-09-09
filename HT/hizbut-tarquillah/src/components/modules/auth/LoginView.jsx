@@ -75,8 +75,7 @@ export const LoginView = ({ onBack }) => {
   };
 
   // Validation Étape 3 (Email & Mot de passe)
-  // - Si Responsable : Accès DIRECT à la plateforme (pas de code d'accès)
-  // - Si Membre : Passage à l'Étape 4 pour saisir le code d'accès membre Daara
+  // Les deux rôles doivent obligatoirement passer par l'étape 4 de vérification de code
   const handleStep3Next = (e) => {
     if (e) e.preventDefault();
     setErrorMessage('');
@@ -85,8 +84,8 @@ export const LoginView = ({ onBack }) => {
       setErrorMessage('Veuillez saisir une adresse email valide.');
       return;
     }
-    if (!password) {
-      setErrorMessage('Veuillez définir un mot de passe.');
+    if (!password || password.length < 6) {
+      setErrorMessage('Veuillez définir un mot de passe d\'au moins 6 caractères.');
       return;
     }
     if (password !== confirmPassword) {
@@ -94,75 +93,86 @@ export const LoginView = ({ onBack }) => {
       return;
     }
 
-    // SI RESPONSABLE : Accès DIRECT à la plateforme sans étape 4 !
-    if (role === 'responsable') {
-      setIsSubmitting(true);
-      // Jouer l'audio officiel de Cheikh Mountakha
-      try {
-        const audio = new Audio(audioQasidaMountakha);
-        audio.volume = 0.9;
-        audio.play().catch((err) => console.log('Audio autoplay prevented:', err));
-      } catch (err) {
-        console.log('Audio init error:', err);
-      }
-
-      setTimeout(() => {
-        login(email, password, { 
-          role: 'responsable', 
-          prenom, 
-          nom, 
-          telephone, 
-          email 
-        });
-        setIsSubmitting(false);
-      }, 450);
-      return;
-    }
-
-    // SI MEMBRE : Étape 4 obligatoire pour valider son affiliation avec le code membre Daara
+    // Passage obligatoire à l'Étape 4 pour tous les rôles afin de valider le code d'accès
     setStep(4);
   };
 
-  // Validation Étape 4 : Code d'accès membre Daara (uniquement pour Membre)
-  const handleFinalSubmit = (e) => {
+  // Validation Étape 4 : Vérification du Code d'accès (Membre ou Responsable)
+  const handleFinalSubmit = async (e) => {
     if (e) e.preventDefault();
     setErrorMessage('');
 
-    if (!codeAcces.trim()) {
-      setErrorMessage("Veuillez saisir votre code d'accès membre Daara.");
-      return;
-    }
-
-    // Le membre doit renseigner le code d'accès officiel de la Daara
-    const expectedMemberCode = appSettings?.memberAccessCode || '188828';
-
-    if (codeAcces.trim() !== expectedMemberCode) {
-      setErrorMessage("Code d'accès membre incorrect. Veuillez contacter votre responsable de Dahira pour obtenir votre code d'affiliation.");
+    const trimmedCode = codeAcces.trim();
+    if (!trimmedCode) {
+      setErrorMessage(
+        role === 'responsable'
+          ? "Veuillez saisir le code d'accès confidentiel Responsable."
+          : "Veuillez saisir votre code d'accès membre Daara."
+      );
       return;
     }
 
     setIsSubmitting(true);
 
-    // Jouer le fichier audio officiel
     try {
-      const audio = new Audio(audioQasidaMountakha);
-      audio.volume = 0.9;
-      audio.play().catch((err) => console.log('Audio autoplay prevented:', err));
-    } catch (err) {
-      console.log('Audio init error:', err);
-    }
+      if (role === 'responsable') {
+        const expectedRespCode = appSettings?.responsableAccessCode || '994201';
+        if (trimmedCode !== expectedRespCode) {
+          setErrorMessage("Code Responsable incorrect. Veuillez contacter le bureau de la Daara.");
+          setIsSubmitting(false);
+          return;
+        }
 
-    setTimeout(() => {
-      login(email, password, { 
-        role: 'membre', 
-        prenom, 
-        nom, 
-        telephone, 
-        email, 
-        codeAcces: codeAcces.trim() 
+        // Jouer le fichier audio officiel
+        try {
+          const audio = new Audio(audioQasidaMountakha);
+          audio.volume = 0.9;
+          audio.play().catch((err) => console.log('Audio autoplay prevented:', err));
+        } catch (err) {}
+
+        login(email, password, {
+          role: 'Super Admin',
+          hasResponsableAccess: true,
+          prenom: prenom.trim(),
+          nom: nom.trim(),
+          telephone: telephone.trim(),
+          email: email.trim().toLowerCase()
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Rôle Membre : Vérification avec le code membre officiel
+      const expectedMemberCode = appSettings?.memberAccessCode || '188828';
+      if (trimmedCode !== expectedMemberCode) {
+        setErrorMessage("Code d'accès membre incorrect. Veuillez vous rapprocher de votre responsable de Dahira.");
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Jouer le fichier audio officiel
+      try {
+        const audio = new Audio(audioQasidaMountakha);
+        audio.volume = 0.9;
+        audio.play().catch((err) => console.log('Audio autoplay prevented:', err));
+      } catch (err) {}
+
+      login(email, password, {
+        role: 'Membre',
+        hasResponsableAccess: false,
+        prenom: prenom.trim(),
+        nom: nom.trim(),
+        telephone: telephone.trim(),
+        email: email.trim().toLowerCase(),
+        codeAcces: trimmedCode
       });
       setIsSubmitting(false);
-    }, 450);
+
+    } catch (err) {
+      console.error('Erreur soumission auth:', err);
+      setErrorMessage("Une erreur est survenue lors de la vérification. Veuillez réessayer.");
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -205,11 +215,22 @@ export const LoginView = ({ onBack }) => {
             <div className="w-full max-w-[240px] sm:max-w-[280px] h-20 sm:h-24 flex items-center justify-center p-1 mb-2 group transition-transform duration-300 hover:scale-105">
               <img 
                 src={logoOfficial} 
-                alt="Sama daara" 
+                alt="Sama Kourel" 
                 className="max-h-full max-w-full object-contain filter drop-shadow-sm" 
               />
             </div>
             
+            {/* Arabic Calligraphy Title Badge */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 shadow-xs mb-1">
+              <span className="font-arabic text-lg sm:text-xl font-bold text-emerald-900 tracking-wider">
+                سَمَا كُورِيلْ
+              </span>
+              <span className="text-emerald-400">•</span>
+              <span className="font-serif font-bold text-xs text-amber-800 tracking-wider uppercase">
+                Sama Kourel
+              </span>
+            </div>
+
             <h1 className="font-display font-black text-2xl sm:text-3xl lg:text-3xl text-slate-900 tracking-tight mt-2">
               {step === 1 && "Êtes-vous Membre ou Responsable ?"}
               {step === 2 && "Renseignez vos coordonnées"}
@@ -522,48 +543,48 @@ export const LoginView = ({ onBack }) => {
           )}
 
           {/* =========================================================================
-              ÉTAPE 4 : Code d'accès membre Daara (uniquement pour Membre)
+              ÉTAPE 4 : Code d'accès sécurisé (Membre ou Responsable)
           ========================================================================= */}
-          {step === 4 && role === 'membre' && (
+          {step === 4 && (
             <form onSubmit={handleFinalSubmit} className="space-y-6 animate-fade-in">
               
-              {/* Badge d'indication d'affiliation Daara */}
+              {/* Badge d'indication de sécurité */}
               <div className="p-4 rounded-2xl bg-emerald-50/90 border border-emerald-200 flex items-start gap-3.5 shadow-xs">
                 <div className="w-9 h-9 rounded-xl bg-emerald-800 text-white flex items-center justify-center flex-shrink-0 mt-0.5 shadow-xs">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div className="text-xs space-y-1">
                   <p className="font-bold text-emerald-950 text-sm">
-                    Validation d'affiliation à la Daara
+                    {role === 'responsable' 
+                      ? "Validation de l'accès Responsable & Administration"
+                      : "Validation d'affiliation à la Daara"}
                   </p>
                   <p className="text-slate-600 leading-relaxed">
-                    Pour être reconnu et enregistré comme <strong>membre officiel</strong> de la Daara, veuillez saisir le code d'accès confidentiel membre qui vous a été remis par votre responsable de Dahira.
+                    {role === 'responsable'
+                      ? "Veuillez renseigner le code secret d'administration qui vous a été transmis pour déverrouiller les fonctionnalités de gestion."
+                      : "Veuillez saisir le code d'accès membre qui vous a été remis par votre responsable de Dahira."}
                   </p>
                 </div>
               </div>
 
-              {/* Champ Code d'Accès Membre */}
+              {/* Champ Code d'Accès */}
               <div className="space-y-2">
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider text-center">
-                  Code d'accès membre Daara
+                  {role === 'responsable' ? "Code secret Responsable" : "Code d'accès membre Daara"}
                 </label>
                 <div className="relative max-w-sm mx-auto">
                   <KeyRound className="w-6 h-6 text-emerald-700 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
-                    type="text"
+                    type="password"
                     required
                     autoFocus
                     value={codeAcces}
                     onChange={(e) => setCodeAcces(e.target.value)}
-                    placeholder="ex: 188828"
+                    placeholder="••••••"
                     maxLength={12}
-                    className="w-full pl-12 pr-4 py-4 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border-2 border-emerald-600/40 focus:border-emerald-700 rounded-2xl text-center text-xl sm:text-2xl text-emerald-950 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all font-mono font-black tracking-widest uppercase shadow-inner"
+                    className="w-full pl-12 pr-4 py-4 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border-2 border-emerald-600/40 focus:border-emerald-700 rounded-2xl text-center text-xl sm:text-2xl text-emerald-950 placeholder:text-slate-400 focus:outline-none focus:ring-4 focus:ring-emerald-500/15 transition-all font-mono font-black tracking-widest shadow-inner"
                   />
                 </div>
-                
-                <p className="text-[11px] text-slate-500 text-center pt-2 font-medium">
-                  Code membre officiel de la Daara : <span className="font-mono font-bold text-emerald-800 bg-emerald-50 px-2.5 py-0.5 rounded-md border border-emerald-200">{appSettings?.memberAccessCode || '188828'}</span>
-                </p>
               </div>
 
               {/* Navigation Buttons Step 4 */}
@@ -585,12 +606,12 @@ export const LoginView = ({ onBack }) => {
                   {isSubmitting ? (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Vérification de l'affiliation...</span>
+                      <span>Vérification du code...</span>
                     </div>
                   ) : (
                     <>
                       <UserCheck className="w-5 h-5 text-emerald-200" />
-                      <span>Valider mon affiliation & Accéder</span>
+                      <span>{role === 'responsable' ? "Accéder à l'Espace Gestion" : "Valider mon affiliation & Accéder"}</span>
                       <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
@@ -605,7 +626,7 @@ export const LoginView = ({ onBack }) => {
       {/* Discrete Footer */}
       <footer className="relative z-20 text-center pt-4">
         <p className="text-xs text-slate-400 font-semibold">
-          Sama daara • Système Sécurisé de Gestion Associative
+          Sama Kourel • سَمَا كُورِيلْ • Système Sécurisé de Gestion Associative
         </p>
       </footer>
 

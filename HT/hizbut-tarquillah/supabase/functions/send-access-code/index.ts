@@ -1,6 +1,6 @@
 // Supabase Edge Function: send-access-code
 // Runtime: Deno
-// Envoi du code d'accès à 6 chiffres par email via l'API Resend
+// Envoi sécurisé du code d'accès à 6 chiffres par email via l'API Resend
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.8";
@@ -19,41 +19,84 @@ interface RequestPayload {
   nom?: string;
 }
 
+// Rate limiter en mémoire par adresse email (max 3 envois par fenêtre de 5 minutes)
+const rateLimitMap = new Map<string, { count: number; firstRequest: number }>();
+const RATE_LIMIT_WINDOW_MS = 5 * 60 * 1000; // 5 minutes
+const MAX_REQUESTS_PER_WINDOW = 3;
+
 serve(async (req: Request) => {
   // 1. Gestion de la requête préliminaire CORS OPTIONS
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
-  try {
-    const { email, user_id, role, prenom, nom }: RequestPayload = await req.json();
+  // Refus explicite des méthodes non autorisées
+  if (req.method !== "POST") {
+    return new Response(
+      JSON.stringify({ error: "Méthode non autorisée. Seul POST est accepté." }),
+      { status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
 
-    if (!email || !email.includes("@")) {
+  try {
+    const body: RequestPayload = await req.json();
+    const { email, user_id, role, prenom, nom } = body;
+
+    // Validation stricte du format email
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!email || typeof email !== "string" || !emailRegex.test(email.trim()) || email.length > 120) {
       return new Response(
-        JSON.stringify({ error: "Une adresse email valide est requise." }),
+        JSON.stringify({ error: "Une adresse email valide et conforme est requise." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
     const cleanEmail = email.trim().toLowerCase();
-    const displayName = [prenom, nom].filter(Boolean).join(" ") || "Cher membre";
 
-    // 2. Initialisation du client Supabase avec Service Role Key
+    // 2. Application du Rate Limiting
+    const now = Date.now();
+    const clientLimit = rateLimitMap.get(cleanEmail);
+
+    if (clientLimit) {
+      if (now - clientLimit.firstRequest < RATE_LIMIT_WINDOW_MS) {
+        if (clientLimit.count >= MAX_REQUESTS_PER_WINDOW) {
+          const waitSeconds = Math.ceil((RATE_LIMIT_WINDOW_MS - (now - clientLimit.firstRequest)) / 1000);
+          return new Response(
+            JSON.stringify({ 
+              error: `Trop de demandes d'envoi. Veuillez patienter ${waitSeconds} secondes avant de réessayer.` 
+            }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        clientLimit.count += 1;
+      } else {
+        rateLimitMap.set(cleanEmail, { count: 1, firstRequest: now });
+      }
+    } else {
+      rateLimitMap.set(cleanEmail, { count: 1, firstRequest: now });
+    }
+
+    // Assainissement des champs de contact
+    const safePrenom = typeof prenom === "string" ? prenom.trim().slice(0, 50) : "";
+    const safeNom = typeof nom === "string" ? nom.trim().slice(0, 50) : "";
+    const displayName = [safePrenom, safeNom].filter(Boolean).join(" ") || "Cher membre";
+
+    // 3. Initialisation du client Supabase avec Service Role Key
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // 3. Génération d'un code aléatoire à 6 chiffres
+    // 4. Génération d'un code aléatoire à 6 chiffres
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // 4. Invalidation des anciens codes 'pending' pour cette adresse email
+    // 5. Invalidation des anciens codes 'pending' pour cette adresse email
     await supabase
       .from("access_codes")
       .update({ status: "expired" })
       .eq("email", cleanEmail)
       .eq("status", "pending");
 
-    // 5. Insertion du nouveau code dans access_codes (expiration à 15 minutes)
+    // 6. Insertion du nouveau code dans access_codes (expiration à 15 minutes)
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
     const { error: dbError } = await supabase.from("access_codes").insert([
       {
@@ -62,6 +105,7 @@ serve(async (req: Request) => {
         code,
         status: "pending",
         expires_at: expiresAt,
+        attempts: 0,
       },
     ]);
 
@@ -73,31 +117,28 @@ serve(async (req: Request) => {
       );
     }
 
-    // 6. Préparation de l'envoi via Resend
+    // 7. Vérification de la configuration Resend
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    const senderEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Sama Daara <onboarding@resend.dev>";
+    const senderEmail = Deno.env.get("RESEND_FROM_EMAIL") || "Sama Kourel <onboarding@resend.dev>";
 
     if (!resendApiKey) {
-      console.warn("ATTENTION: Clé RESEND_API_KEY absente des variables d'environnement.");
-      // Retourne le code pour permettre le test local si la clé n'est pas encore saisie
+      console.warn("ATTENTION: Clé RESEND_API_KEY absente des secrets Supabase.");
       return new Response(
         JSON.stringify({ 
-          success: true, 
-          warning: "Mode test : RESEND_API_KEY non configurée dans Supabase secrets.",
-          dev_code: code 
+          error: "Le service d'envoi d'emails est en cours de finalisation technique. Veuillez contacter l'administrateur." 
         }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // 7. Template HTML de l'email aux couleurs Sama Daara (#1F5E43)
+    // 8. Template HTML de l'email aux couleurs Sama Kourel (#1F5E43)
     const emailHtml = `
       <!DOCTYPE html>
       <html lang="fr">
       <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Votre code d'accès Sama Daara</title>
+        <title>Votre code d'accès Sama Kourel</title>
       </head>
       <body style="margin: 0; padding: 0; background-color: #f4f7f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
         <table border="0" cellpadding="0" cellspacing="0" width="100%" style="table-layout: fixed; background-color: #f4f7f5; padding: 40px 16px;">
@@ -108,11 +149,11 @@ serve(async (req: Request) => {
                 <!-- En-tête vert émeraude -->
                 <tr>
                   <td style="background: linear-gradient(135deg, #1F5E43 0%, #164632 100%); padding: 36px 32px; text-align: center;">
-                    <div style="display: inline-block; width: 56px; height: 56px; background-color: rgba(255,255,255,0.15); border-radius: 16px; line-height: 56px; font-size: 28px; margin-bottom: 12px;">
-                      ✨
+                    <div style="font-size: 26px; font-weight: bold; color: #fde68a; margin-bottom: 6px; font-family: 'Amiri', Georgia, serif; letter-spacing: 1px;">
+                      سَمَا كُورِيلْ
                     </div>
                     <h1 style="color: #ffffff; font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.5px;">
-                      Sama Daara
+                      Sama Kourel
                     </h1>
                     <p style="color: #d1fae5; font-size: 13px; margin: 6px 0 0 0; font-weight: 500;">
                       Système de Gestion Associative & Dahira
@@ -127,7 +168,7 @@ serve(async (req: Request) => {
                       Assalamu aleykum, ${displayName}
                     </h2>
                     <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-bottom: 24px;">
-                      Voici votre code d'accès de sécurité pour valider votre connexion à la plateforme <strong>Sama Daara</strong> :
+                      Voici votre code d'accès de sécurité pour valider votre connexion à la plateforme <strong>Sama Kourel</strong> :
                     </p>
 
                     <!-- Boîte du Code à 6 chiffres -->
@@ -149,7 +190,7 @@ serve(async (req: Request) => {
 
                     <!-- Alerte sécurité -->
                     <div style="background-color: #f8fafc; border-left: 4px solid #f59e0b; padding: 12px 16px; border-radius: 8px; font-size: 12px; color: #64748b; line-height: 1.5;">
-                      <strong>Rappel de sécurité :</strong> Ne partagez jamais ce code avec une tierce personne. L'équipe Sama Daara ne vous le demandera jamais par message.
+                      <strong>Rappel de sécurité :</strong> Ne partagez jamais ce code avec une tierce personne. L'équipe Sama Kourel ne vous le demandera jamais par message.
                     </div>
                   </td>
                 </tr>
@@ -158,10 +199,10 @@ serve(async (req: Request) => {
                 <tr>
                   <td style="background-color: #f8fafc; padding: 20px 32px; border-top: 1px solid #e2e8f0; text-align: center;">
                     <p style="color: #94a3b8; font-size: 11px; margin: 0 0 4px 0;">
-                      Cet email a été envoyé automatiquement par le service d'authentification Sama Daara.
+                      Cet email a été envoyé automatiquement par le service d'authentification Sama Kourel.
                     </p>
                     <p style="color: #cbd5e1; font-size: 10px; margin: 0;">
-                      © ${new Date().getFullYear()} Sama Daara • Tous droits réservés
+                      © ${new Date().getFullYear()} Sama Kourel • سَمَا كُورِيلْ • Tous droits réservés
                     </p>
                   </td>
                 </tr>
@@ -184,18 +225,16 @@ serve(async (req: Request) => {
       body: JSON.stringify({
         from: senderEmail,
         to: [cleanEmail],
-        subject: "Votre code d'accès Sama Daara",
+        subject: "Votre code d'accès Sama Kourel",
         html: emailHtml,
       }),
     });
 
     if (!resendResponse.ok) {
-      const errorDetails = await resendResponse.text();
-      console.error("Erreur API Resend:", resendResponse.status, errorDetails);
+      console.error("Erreur API Resend:", resendResponse.status);
       return new Response(
         JSON.stringify({ 
-          error: "Impossible d'envoyer le code, réessayez dans quelques instants.",
-          details: errorDetails 
+          error: "Impossible d'envoyer le code pour le moment. Veuillez réessayer dans quelques instants."
         }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -215,7 +254,7 @@ serve(async (req: Request) => {
   } catch (err: any) {
     console.error("Erreur générale Edge Function:", err);
     return new Response(
-      JSON.stringify({ error: err?.message || "Erreur interne du serveur." }),
+      JSON.stringify({ error: "Une erreur interne est survenue. Veuillez réessayer plus tard." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

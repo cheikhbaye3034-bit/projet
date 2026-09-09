@@ -193,7 +193,7 @@ export const MembreProfilTab = () => {
       </div>
 
       {/* =========================================================================
-          BLOC 4 : MES NOTIFICATIONS & ALERTES SAMA DAARA
+          BLOC 4 : MES NOTIFICATIONS & ALERTES SAMA KOUREL
       ========================================================================= */}
       <NotificationSettings userId={currentUser?.id} title="Mes Préférences de Notifications" />
 

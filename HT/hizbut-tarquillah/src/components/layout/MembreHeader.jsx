@@ -96,7 +96,7 @@ export const MembreHeader = ({ onOpenMobileMenu, activeMemberTab, setActiveMembe
               {getPageTitle()}
             </h2>
             <p className="text-[11px] text-slate-500 font-semibold hidden sm:block">
-              {appSettings?.daaraName || 'Sama daara'} • Portail Numérique des Membres
+              {appSettings?.daaraName || 'Sama Kourel'} • Portail Numérique des Membres
             </p>
           </div>
         </div>
