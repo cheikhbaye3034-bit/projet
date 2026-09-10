@@ -3,142 +3,489 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daara Hizbut-Tarqiyyah — Portail Officiel</title>
-  
-  <!-- Redirection immédiate vers le serveur d'application local -->
-  <meta http-equiv="refresh" content="0; url=http://localhost:3000/">
+  <title>Accès Téléphone & PC — Sama Daara (Hizbut-Tarqiyyah)</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&display=swap" rel="stylesheet">
-
-  <script>
-    // Redirection automatique instantanée vers le serveur Vite actif
-    window.location.href = "http://localhost:3000/";
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
+    :root {
+      --primary: #10B981;
+      --primary-dark: #064E3B;
+      --primary-light: #34D399;
+      --gold: #F59E0B;
+      --gold-light: #FDE68A;
+      --bg-dark: #04160E;
+      --bg-card: rgba(10, 38, 26, 0.75);
+      --border: rgba(52, 211, 153, 0.25);
+      --text: #F0FDF4;
+      --text-muted: #9CA3AF;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
+
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: radial-gradient(circle at top, #0A261A 0%, #061A12 100%);
-      color: #FFFFFF;
+      background: radial-gradient(circle at 50% 0%, #0D3826 0%, var(--bg-dark) 75%);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 24px 16px;
+      line-height: 1.5;
     }
-    .card {
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 28px;
-      padding: 36px 28px;
-      max-width: 460px;
+
+    .container {
       width: 100%;
+      max-width: 520px;
+      background: var(--bg-card);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--border);
+      border-radius: 32px;
+      padding: 36px 28px;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 40px rgba(16, 185, 129, 0.12);
       text-align: center;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
     }
+
+    .container::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, rgba(16, 185, 129, 0.08) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
     .badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      background: rgba(45, 134, 96, 0.25);
-      border: 1px solid rgba(45, 134, 96, 0.4);
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
       border-radius: 9999px;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 800;
-      color: #6EE7B7;
+      color: var(--primary-light);
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 20px;
+      letter-spacing: 0.06em;
+      margin-bottom: 18px;
     }
+
     .dot {
-      width: 8px;
-      height: 8px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
-      background-color: #10B981;
-      animation: pulse 1.5s infinite;
+      background-color: var(--primary);
+      box-shadow: 0 0 10px var(--primary);
+      animation: pulse 1.8s infinite;
     }
+
     @keyframes pulse {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
+      50% { opacity: 0.4; transform: scale(0.8); }
     }
+
     h1 {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 900;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       letter-spacing: -0.02em;
+      color: #FFFFFF;
     }
-    p {
+
+    .subtitle {
       color: #A7F3D0;
       font-size: 14px;
-      line-height: 1.5;
+      font-weight: 500;
       margin-bottom: 24px;
     }
-    .btn {
-      display: inline-flex;
+
+    /* Cadre QR Code */
+    .qr-card {
+      background: #FFFFFF;
+      border-radius: 24px;
+      padding: 18px;
+      display: inline-block;
+      margin-bottom: 24px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), 0 0 25px rgba(16, 185, 129, 0.2);
+      border: 4px solid var(--primary);
+      transition: transform 0.25s ease;
+    }
+
+    .qr-card:hover {
+      transform: scale(1.02);
+    }
+
+    .qr-image {
+      width: 220px;
+      height: 220px;
+      display: block;
+      border-radius: 12px;
+    }
+
+    .qr-instruction {
+      font-size: 13px;
+      font-weight: 700;
+      color: #064E3B;
+      margin-top: 10px;
+      display: flex;
       align-items: center;
       justify-content: center;
+      gap: 6px;
+    }
+
+    /* Boite URL Téléphone */
+    .url-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      text-align: left;
+    }
+
+    .url-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 700;
+    }
+
+    .url-value-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .url-link {
+      font-size: 16px;
+      font-weight: 800;
+      color: #6EE7B7;
+      text-decoration: none;
+      word-break: break-all;
+      transition: color 0.2s;
+    }
+
+    .url-link:hover {
+      color: #A7F3D0;
+      text-decoration: underline;
+    }
+
+    .copy-btn {
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #A7F3D0;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover {
+      background: var(--primary);
+      color: #FFFFFF;
+      transform: translateY(-1px);
+    }
+
+    .copy-btn.copied {
+      background: #059669;
+      color: #FFFFFF;
+    }
+
+    /* Boutons Principaux */
+    .buttons-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .btn-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
       width: 100%;
-      padding: 14px 20px;
+      padding: 15px 20px;
       background: linear-gradient(135deg, #10B981 0%, #059669 100%);
       color: #FFFFFF;
       text-decoration: none;
       font-weight: 800;
-      font-size: 14px;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+      font-size: 15px;
+      border-radius: 18px;
+      box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.45);
       transition: all 0.2s ease;
-      cursor: pointer;
     }
-    .btn:hover {
+
+    .btn-main:hover {
       transform: translateY(-2px);
-      box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.5);
+      box-shadow: 0 15px 32px -5px rgba(16, 185, 129, 0.6);
     }
-    .links-grid {
-      margin-top: 20px;
-      padding-top: 18px;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+    .btn-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 12px 18px;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #E5E7EB;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 13px;
+      border-radius: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Étapes d'utilisation */
+    .steps-box {
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 18px;
+      text-align: left;
+      font-size: 12px;
+      color: #D1D5DB;
+      margin-bottom: 18px;
+    }
+
+    .steps-box h3 {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--gold-light);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .steps-list {
+      list-style: none;
       display: flex;
       flex-direction: column;
       gap: 8px;
+    }
+
+    .steps-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .step-number {
+      background: rgba(16, 185, 129, 0.25);
+      color: var(--primary-light);
+      font-weight: 800;
+      font-size: 11px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Option IP manuelle si changement */
+    .ip-changer {
       font-size: 12px;
-      color: #9CA3AF;
+      color: var(--text-muted);
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
-    .links-grid a {
-      color: #6EE7B7;
-      text-decoration: none;
-      font-weight: 600;
+
+    .ip-input {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFF;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-family: inherit;
+      width: 140px;
+      text-align: center;
     }
-    .links-grid a:hover {
-      text-decoration: underline;
+
+    .ip-input:focus {
+      outline: none;
+      border-color: var(--primary);
     }
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="container">
     <div class="badge">
       <span class="dot"></span>
-      <span>Serveur Actif</span>
+      <span>Serveur Disponible sur Réseau</span>
     </div>
-    <h1>Sama daara</h1>
-    <p>Redirection automatique vers l'application...</p>
-    
-    <a href="http://localhost:3000/" class="btn">
-      Ouvrir l'application (http://localhost:3000/)
-    </a>
 
-    <div class="links-grid">
-      <div>Sur téléphone (même Wi-Fi) : <a href="http://10.51.126.110:3000/" target="_blank">http://10.51.126.110:3000/</a></div>
+    <h1>Sama Daara</h1>
+    <p class="subtitle">Ouvrez la plateforme sur votre téléphone en 1 seconde</p>
+
+    <!-- Zone QR Code -->
+    <div class="qr-card">
+      <img id="qrCodeImg" class="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=http://10.71.231.110:3000/&color=064E3B" alt="Code QR d'accès Téléphone">
+      <div class="qr-instruction">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+          <circle cx="12" cy="13" r="4"></circle>
+        </svg>
+        Scannez avec l'appareil photo de votre téléphone
+      </div>
+    </div>
+
+    <!-- Adresse directe -->
+    <div class="url-box">
+      <div class="url-header">
+        <span>Lien direct pour votre téléphone</span>
+        <span>Port 3000</span>
+      </div>
+      <div class="url-value-row">
+        <a id="phoneUrlLink" href="http://10.71.231.110:3000/" target="_blank" class="url-link">http://10.71.231.110:3000/</a>
+        <button id="copyBtn" class="copy-btn" onclick="copyLink()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+          </svg>
+          <span id="copyText">Copier</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Boutons d'action -->
+    <div class="buttons-group">
+      <a id="openPhoneBtn" href="http://10.71.231.110:3000/" class="btn-main">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+          <line x1="12" y1="18" x2="12.01" y2="18"></line>
+        </svg>
+        Ouvrir le site (Lien Réseau)
+      </a>
+
+      <a href="http://localhost:3000/" class="btn-secondary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        Ouvrir sur cet ordinateur (localhost:3000)
+      </a>
+    </div>
+
+    <!-- Instructions étapes -->
+    <div class="steps-box">
+      <h3>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        Guide rapide pour connecter votre téléphone :
+      </h3>
+      <ul class="steps-list">
+        <li>
+          <span class="step-number">1</span>
+          <span>Connectez votre <strong>téléphone au même réseau Wi-Fi</strong> que cet ordinateur.</span>
+        </li>
+        <li>
+          <span class="step-number">2</span>
+          <span>Ouvrez <strong>l'appareil photo</strong> de votre téléphone et pointez-le sur le code QR ci-dessus.</span>
+        </li>
+        <li>
+          <span class="step-number">3</span>
+          <span>Touchez la notification qui apparaît : <strong>Sama Daara s'ouvre instantanément !</strong></span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Ajustement si IP change -->
+    <div class="ip-changer">
+      <span>Adresse IP locale :</span>
+      <input type="text" id="customIpInput" class="ip-input" value="10.71.231.110" oninput="updateCustomIp(this.value)">
     </div>
   </div>
+
+  <script>
+    let currentIp = "10.71.231.110";
+    const currentPort = "3000";
+
+    function updateCustomIp(newIp) {
+      currentIp = newIp.trim();
+      const targetUrl = `http://${currentIp}:${currentPort}/`;
+      
+      // Mettre à jour le lien affiché
+      const phoneLink = document.getElementById('phoneUrlLink');
+      phoneLink.href = targetUrl;
+      phoneLink.innerText = targetUrl;
+
+      // Mettre à jour le bouton principal
+      document.getElementById('openPhoneBtn').href = targetUrl;
+
+      // Mettre à jour le code QR
+      const qrImg = document.getElementById('qrCodeImg');
+      qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(targetUrl)}&color=064E3B`;
+    }
+
+    function copyLink() {
+      const url = document.getElementById('phoneUrlLink').href;
+      navigator.clipboard.writeText(url).then(() => {
+        const btn = document.getElementById('copyBtn');
+        const text = document.getElementById('copyText');
+        btn.classList.add('copied');
+        text.innerText = "Copié !";
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          text.innerText = "Copier";
+        }, 2200);
+      }).catch(() => {
+        prompt("Copiez ce lien pour votre téléphone :", url);
+      });
+    }
+
+    // Détection automatique : Si ouvert directement sur le téléphone via un partage de fichier
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if (isMobile && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' && window.location.hostname !== '') {
+      // Si la page est déjà servie depuis l'IP de l'ordinateur, on synchronise automatiquement l'IP
+      document.getElementById('customIpInput').value = window.location.hostname;
+      updateCustomIp(window.location.hostname);
+    }
+  </script>
 </body>
 </html>

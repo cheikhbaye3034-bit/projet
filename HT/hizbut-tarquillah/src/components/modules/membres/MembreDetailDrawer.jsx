@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   ArrowLeft, 
   User, 
@@ -14,12 +14,19 @@ import {
   Award,
   Layers,
   Sparkles,
-  Hash
+  Hash,
+  Pencil,
+  X,
+  Save
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
 export const MembreDetailDrawer = ({ membreId, onClose }) => {
-  const { membres, kourels, kamilCycle, seances, deleteMembre } = useApp();
+  const { membres, kourels, kamilCycle, seances, deleteMembre, editMembre } = useApp();
+
+  // État pour le formulaire de modification
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState({});
 
   if (!membreId) return null;
 
@@ -58,6 +65,24 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
       deleteMembre(membre.id);
       onClose();
     }
+  };
+
+  const handleOpenEdit = () => {
+    setEditForm({
+      prenom: membre.prenom || '',
+      nom: membre.nom || '',
+      telephone: membre.telephone || '',
+      adresse: membre.adresse || '',
+      profession: membre.profession || '',
+      statut: membre.statut || 'Actif',
+      kourel_id: membre.kourel_id || '',
+    });
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = () => {
+    editMembre(membre.id, editForm);
+    setIsEditing(false);
   };
 
   return (
@@ -119,15 +144,126 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
           </div>
         </div>
 
-        {/* Action Button: Supprimer */}
-        <button
-          onClick={handleDelete}
-          className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 self-end md:self-center shadow-xs"
-        >
-          <Trash2 className="w-4 h-4" />
-          <span>Supprimer ce membre</span>
-        </button>
+        {/* Action Buttons: Modifier & Supprimer */}
+        <div className="flex items-center gap-2.5 self-end md:self-center">
+          <button
+            onClick={handleOpenEdit}
+            className="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 shadow-xs"
+          >
+            <Pencil className="w-4 h-4" />
+            <span>Modifier</span>
+          </button>
+          <button
+            onClick={handleDelete}
+            className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 shadow-xs"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Supprimer</span>
+          </button>
+        </div>
       </div>
+
+      {/* ═══════════ MODAL DE MODIFICATION ═══════════ */}
+      {isEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setIsEditing(false)}>
+          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            
+            {/* Header */}
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h2 className="font-display font-bold text-base sm:text-lg text-slate-900 flex items-center gap-2">
+                <Pencil className="w-4 h-4 text-emerald-700" />
+                Modifier les informations
+              </h2>
+              <button onClick={() => setIsEditing(false)} className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer">
+                <X className="w-4 h-4 text-slate-600" />
+              </button>
+            </div>
+
+            {/* Formulaire */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Prénom</label>
+                <input
+                  type="text" value={editForm.prenom || ''}
+                  onChange={(e) => setEditForm({...editForm, prenom: e.target.value})}
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Nom</label>
+                <input
+                  type="text" value={editForm.nom || ''}
+                  onChange={(e) => setEditForm({...editForm, nom: e.target.value})}
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Téléphone</label>
+                <input
+                  type="tel" value={editForm.telephone || ''}
+                  onChange={(e) => setEditForm({...editForm, telephone: e.target.value})}
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Profession</label>
+                <input
+                  type="text" value={editForm.profession || ''}
+                  onChange={(e) => setEditForm({...editForm, profession: e.target.value})}
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                />
+              </div>
+              <div className="space-y-1.5 sm:col-span-2">
+                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Adresse</label>
+                <input
+                  type="text" value={editForm.adresse || ''}
+                  onChange={(e) => setEditForm({...editForm, adresse: e.target.value})}
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Kourel</label>
+                <select
+                  value={editForm.kourel_id || ''}
+                  onChange={(e) => setEditForm({...editForm, kourel_id: e.target.value})}
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                >
+                  <option value="">— Aucun —</option>
+                  {kourels.map(k => <option key={k.id} value={k.id}>{k.nom}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Statut</label>
+                <select
+                  value={editForm.statut || 'Actif'}
+                  onChange={(e) => setEditForm({...editForm, statut: e.target.value})}
+                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+                >
+                  <option value="Actif">Actif</option>
+                  <option value="Inactif">Inactif</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="px-5 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md"
+              >
+                <Save className="w-4 h-4" />
+                Enregistrer les modifications
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Grid of Clean Detail Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

@@ -455,6 +455,19 @@ export const AppProvider = ({ children }) => {
     }
   };
 
+  const editMembre = async (membreId, updatedData) => {
+    setMembres((prev) =>
+      prev.map((m) => m.id === membreId ? { ...m, ...updatedData } : m)
+    );
+    showToast(`Informations de ${updatedData.prenom || ''} ${updatedData.nom || ''} mises à jour avec succès !`);
+
+    try {
+      await supabase.from('membres').update(updatedData).eq('id', membreId);
+    } catch (e) {
+      console.error('Erreur Supabase editMembre:', e);
+    }
+  };
+
   // ─── Cotisation Management Actions ─────────────────────────────────────────
   const toggleMembreCotisation = (membreId) => {
     setMembres((prev) =>
@@ -1046,6 +1059,7 @@ export const AppProvider = ({ children }) => {
         unlockResponsableAccess,
         addMembre,
         deleteMembre,
+        editMembre,
         addSeance,
         updatePointage,
         bulkUpdatePointage,

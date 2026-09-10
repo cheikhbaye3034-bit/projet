@@ -75,7 +75,8 @@ export const LoginView = ({ onBack }) => {
   };
 
   // Validation Étape 3 (Email & Mot de passe)
-  // Les deux rôles doivent obligatoirement passer par l'étape 4 de vérification de code
+  // Pour un responsable : inscription directe sans aucun code d'accès requis
+  // Pour un membre : passage à l'étape 4 pour valider l'affiliation Daara
   const handleStep3Next = (e) => {
     if (e) e.preventDefault();
     setErrorMessage('');
@@ -93,36 +94,10 @@ export const LoginView = ({ onBack }) => {
       return;
     }
 
-    // Passage obligatoire à l'Étape 4 pour tous les rôles afin de valider le code d'accès
-    setStep(4);
-  };
-
-  // Validation Étape 4 : Vérification du Code d'accès (Membre ou Responsable)
-  const handleFinalSubmit = async (e) => {
-    if (e) e.preventDefault();
-    setErrorMessage('');
-
-    const trimmedCode = codeAcces.trim();
-    if (!trimmedCode) {
-      setErrorMessage(
-        role === 'responsable'
-          ? "Veuillez saisir le code d'accès confidentiel Responsable."
-          : "Veuillez saisir votre code d'accès membre Daara."
-      );
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      if (role === 'responsable') {
-        const expectedRespCode = appSettings?.responsableAccessCode || '994201';
-        if (trimmedCode !== expectedRespCode) {
-          setErrorMessage("Code Responsable incorrect. Veuillez contacter le bureau de la Daara.");
-          setIsSubmitting(false);
-          return;
-        }
-
+    // Si la personne s'inscrit comme Responsable : aucun code d'accès requis !
+    if (role === 'responsable') {
+      setIsSubmitting(true);
+      try {
         // Jouer le fichier audio officiel
         try {
           const audio = new Audio(audioQasidaMountakha);
@@ -138,10 +113,33 @@ export const LoginView = ({ onBack }) => {
           telephone: telephone.trim(),
           email: email.trim().toLowerCase()
         });
+      } catch (err) {
+        console.error('Erreur inscription responsable:', err);
+        setErrorMessage("Une erreur est survenue lors de l'accès. Veuillez réessayer.");
+      } finally {
         setIsSubmitting(false);
-        return;
       }
+      return;
+    }
 
+    // Pour le rôle Membre uniquement : passage à l'Étape 4 pour valider le code d'accès Daara
+    setStep(4);
+  };
+
+  // Validation Étape 4 : Vérification du Code d'accès Membre
+  const handleFinalSubmit = async (e) => {
+    if (e) e.preventDefault();
+    setErrorMessage('');
+
+    const trimmedCode = codeAcces.trim();
+    if (!trimmedCode) {
+      setErrorMessage("Veuillez saisir votre code d'accès membre Daara.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
       // Rôle Membre : Vérification avec le code membre officiel
       const expectedMemberCode = appSettings?.memberAccessCode || '188828';
       if (trimmedCode !== expectedMemberCode) {
@@ -543,7 +541,7 @@ export const LoginView = ({ onBack }) => {
           )}
 
           {/* =========================================================================
-              ÉTAPE 4 : Code d'accès sécurisé (Membre ou Responsable)
+              ÉTAPE 4 : Code d'accès sécurisé (Uniquement pour Membre)
           ========================================================================= */}
           {step === 4 && (
             <form onSubmit={handleFinalSubmit} className="space-y-6 animate-fade-in">
@@ -555,14 +553,10 @@ export const LoginView = ({ onBack }) => {
                 </div>
                 <div className="text-xs space-y-1">
                   <p className="font-bold text-emerald-950 text-sm">
-                    {role === 'responsable' 
-                      ? "Validation de l'accès Responsable & Administration"
-                      : "Validation d'affiliation à la Daara"}
+                    Validation d'affiliation à la Daara
                   </p>
                   <p className="text-slate-600 leading-relaxed">
-                    {role === 'responsable'
-                      ? "Veuillez renseigner le code secret d'administration qui vous a été transmis pour déverrouiller les fonctionnalités de gestion."
-                      : "Veuillez saisir le code d'accès membre qui vous a été remis par votre responsable de Dahira."}
+                    Veuillez saisir le code d'accès membre qui vous a été remis par votre responsable de Dahira.
                   </p>
                 </div>
               </div>
@@ -570,7 +564,7 @@ export const LoginView = ({ onBack }) => {
               {/* Champ Code d'Accès */}
               <div className="space-y-2">
                 <label className="block text-xs font-black text-slate-700 uppercase tracking-wider text-center">
-                  {role === 'responsable' ? "Code secret Responsable" : "Code d'accès membre Daara"}
+                  Code d'accès membre Daara
                 </label>
                 <div className="relative max-w-sm mx-auto">
                   <KeyRound className="w-6 h-6 text-emerald-700 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -611,7 +605,7 @@ export const LoginView = ({ onBack }) => {
                   ) : (
                     <>
                       <UserCheck className="w-5 h-5 text-emerald-200" />
-                      <span>{role === 'responsable' ? "Accéder à l'Espace Gestion" : "Valider mon affiliation & Accéder"}</span>
+                      <span>Valider mon affiliation & Accéder</span>
                       <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
                     </>
                   )}
