@@ -47,16 +47,20 @@ export const AccueilView = () => {
         {/* Hero Content */}
         <div className="relative z-10 p-6 sm:p-10 lg:p-12 text-white max-w-4xl space-y-6">
 
-          {/* Top Bismillah & Badge */}
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="font-serif text-lg sm:text-xl text-amber-300/90 font-bold tracking-widest font-['Amiri',serif]">
+          {/* Top Bismillah & Badge Sama Kourel */}
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3.5 pt-0.5">
+            <span className="font-arabic text-lg sm:text-2xl text-amber-300/95 font-bold tracking-wider font-['Amiri',serif] drop-shadow-sm">
               بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
             </span>
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-emerald-200 shadow-sm">
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-black/30 backdrop-blur-md border border-amber-400/50 text-amber-300 shadow-md">
               <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
-              <span>Portail Officiel • Sama Kourel Pro</span>
-              <span className="text-emerald-300/70">•</span>
-              <span className="font-arabic text-sm font-bold text-amber-300">سَمَا كُورِيلْ</span>
+              <span className="font-calligraphy text-base sm:text-lg font-bold tracking-wider font-['Aref_Ruqaa','Amiri',serif] text-amber-300 drop-shadow-sm">
+                Sama Kourel
+              </span>
+              <span className="text-amber-400/60">•</span>
+              <span className="font-arabic text-base sm:text-lg font-bold text-emerald-200 drop-shadow-sm font-['Amiri',serif]">
+                سَمَا كُورِيلْ
+              </span>
             </div>
           </div>
 

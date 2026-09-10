@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Settings, Building2, KeyRound, Users, Layers, Briefcase,
-  Shield, Sun, Moon, Plus, Trash2, Edit3, Check, X,
+  Shield, Plus, Trash2, Edit3, Check, X,
   Copy, RefreshCw, Eye, EyeOff, ChevronRight, Upload,
   UserCog, Crown, Save, Phone, Mail, Calendar, Lock, Bell
 } from 'lucide-react';
@@ -54,8 +54,6 @@ const TabGeneral = ({ appSettings, updateAppSettings, showToast }) => {
     contactEmail: appSettings?.contactEmail || 'contact@samakourel.sn',
     slogan: appSettings?.slogan || 'Portail Officiel de Gestion & Dévotion'
   });
-
-  const isDark = appSettings?.theme === 'dark';
 
   const handleChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -134,63 +132,6 @@ const TabGeneral = ({ appSettings, updateAppSettings, showToast }) => {
           </button>
         </div>
       </form>
-
-      {/* Theme Toggle */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-        <h3 className="text-sm font-black text-slate-800 border-b border-slate-100 pb-3 mb-4">Thème d'affichage</h3>
-        <div className="grid grid-cols-2 gap-4">
-          {/* Light Mode */}
-          <button
-            type="button"
-            onClick={() => {
-              updateAppSettings({ theme: 'light' });
-              showToast && showToast('☀️ Mode Clair activé !');
-            }}
-            className={`relative p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 cursor-pointer ${
-              !isDark ? 'border-emerald-600 bg-emerald-50/60 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-slate-50'
-            }`}
-          >
-            <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 shadow-sm flex items-center justify-center">
-              <Sun className={`w-6 h-6 ${!isDark ? 'text-amber-500' : 'text-slate-400'}`} />
-            </div>
-            <div className="text-center">
-              <p className={`text-xs font-bold ${!isDark ? 'text-emerald-900' : 'text-slate-600'}`}>Mode Clair</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">Fond blanc, texte sombre</p>
-            </div>
-            {!isDark && (
-              <span className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center">
-                <Check className="w-3 h-3 text-white" />
-              </span>
-            )}
-          </button>
-
-          {/* Dark Mode */}
-          <button
-            type="button"
-            onClick={() => {
-              updateAppSettings({ theme: 'dark' });
-              showToast && showToast('🌙 Mode Sombre activé !');
-            }}
-            className={`relative p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-3 cursor-pointer ${
-              isDark ? 'border-emerald-600 bg-emerald-50/60 shadow-sm' : 'border-slate-200 hover:border-slate-300 bg-slate-50'
-            }`}
-          >
-            <div className="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 shadow-sm flex items-center justify-center">
-              <Moon className={`w-6 h-6 ${isDark ? 'text-amber-400' : 'text-slate-500'}`} />
-            </div>
-            <div className="text-center">
-              <p className={`text-xs font-bold ${isDark ? 'text-emerald-900' : 'text-slate-600'}`}>Mode Sombre</p>
-              <p className="text-[10px] text-slate-400 mt-0.5">Fond sombre, texte clair</p>
-            </div>
-            {isDark && (
-              <span className="absolute top-2.5 right-2.5 w-5 h-5 rounded-full bg-emerald-600 flex items-center justify-center">
-                <Check className="w-3 h-3 text-white" />
-              </span>
-            )}
-          </button>
-        </div>
-        <p className="text-[11px] text-slate-400 mt-3">Le thème est sauvegardé automatiquement et appliqué immédiatement à l'ensemble de la plateforme.</p>
-      </div>
     </div>
   );
 };
