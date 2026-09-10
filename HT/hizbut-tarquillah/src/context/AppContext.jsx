@@ -12,7 +12,6 @@ import {
   PAST_KAMIL_CYCLES,
   INITIAL_INFORMATIONS
 } from '../mock/mockData';
-import { DEFAULT_KOUREL_SCHEDULES } from '../utils/repetitionUtils';
 
 const AppContext = createContext();
 
@@ -92,15 +91,6 @@ export const AppProvider = ({ children }) => {
       if (saved) return JSON.parse(saved);
     } catch (e) { }
     return [];
-  });
-
-  // Plannings et horaires des répétitions par Kourel
-  const [kourelSchedules, setKourelSchedules] = useState(() => {
-    try {
-      const saved = localStorage.getItem('ht_kourel_schedules');
-      if (saved) return JSON.parse(saved);
-    } catch (e) { }
-    return DEFAULT_KOUREL_SCHEDULES;
   });
 
   // App Settings & Customization
@@ -198,42 +188,6 @@ export const AppProvider = ({ children }) => {
       await supabase.from('kourels').update(data).eq('id', id);
     } catch (e) {
       console.error('Erreur Supabase updateKourel:', e);
-    }
-  };
-
-  const updateKourelSchedule = async (kourelId, scheduleData) => {
-    setKourelSchedules((prev) => {
-      const updated = {
-        ...prev,
-        [kourelId]: scheduleData
-      };
-      try {
-        localStorage.setItem('ht_kourel_schedules', JSON.stringify(updated));
-      } catch (e) { }
-      return updated;
-    });
-
-    const joursText = scheduleData.jours?.join(', ') || '';
-    const hText = `${scheduleData.heure_debut || '20:00'} - ${scheduleData.heure_fin || '22:00'}`;
-    const repJourSummary = `${joursText} de ${hText}`;
-
-    setKourels((prev) =>
-      prev.map((k) =>
-        k.id === kourelId
-          ? { ...k, repetition_jour: repJourSummary, repetition_horaires: scheduleData }
-          : k
-      )
-    );
-
-    showToast('Horaires de répétition enregistrés avec succès !');
-
-    try {
-      await supabase
-        .from('kourels')
-        .update({ repetition_jour: repJourSummary })
-        .eq('id', kourelId);
-    } catch (e) {
-      console.error('Erreur Supabase updateKourelSchedule:', e);
     }
   };
 
@@ -498,6 +452,20 @@ export const AppProvider = ({ children }) => {
       await supabase.from('membres').delete().eq('id', membreId);
     } catch (e) {
       console.error('Erreur Supabase deleteMembre:', e);
+    }
+  };
+
+  const editMembre = async (membreId, updatedData) => {
+    setMembres((prev) =>
+      prev.map((m) => m.id === membreId ? { ...m, ...updatedData } : m)
+    );
+    const target = membres.find(m => m.id === membreId);
+    showToast(`Membre ${updatedData.prenom || target?.prenom || ''} ${updatedData.nom || target?.nom || ''} modifié avec succès !`);
+
+    try {
+      await supabase.from('membres').update(updatedData).eq('id', membreId);
+    } catch (e) {
+      console.error('Erreur Supabase editMembre:', e);
     }
   };
 
@@ -1092,6 +1060,7 @@ export const AppProvider = ({ children }) => {
         unlockResponsableAccess,
         addMembre,
         deleteMembre,
+        editMembre,
         addSeance,
         updatePointage,
         bulkUpdatePointage,
@@ -1116,8 +1085,6 @@ export const AppProvider = ({ children }) => {
         addKourel,
         updateKourel,
         deleteKourel,
-        kourelSchedules,
-        updateKourelSchedule,
         addSecteur,
         deleteSecteur,
         responsables,

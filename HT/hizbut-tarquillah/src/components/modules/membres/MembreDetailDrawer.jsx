@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ArrowLeft,
   User,
@@ -14,12 +14,18 @@ import {
   Award,
   Layers,
   Sparkles,
-  Hash
+  Hash,
+  Edit,
+  X,
+  Save
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
 export const MembreDetailDrawer = ({ membreId, onClose }) => {
-  const { membres, kourels, kamilCycle, seances, deleteMembre } = useApp();
+  const { membres, kourels, kamilCycle, seances, deleteMembre, editMembre } = useApp();
+
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [formData, setFormData] = useState(null);
 
   if (!membreId) return null;
 
@@ -27,6 +33,26 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
   if (!membre) return null;
 
   const kourel = kourels.find((k) => k.id === membre.kourel_id);
+
+  const openEditModal = () => {
+    setFormData({
+      prenom: membre.prenom || '',
+      nom: membre.nom || '',
+      telephone: membre.telephone || '',
+      profession: membre.profession || '',
+      adresse: membre.adresse || '',
+      kourel_id: membre.kourel_id || (kourels[0]?.id || ''),
+      statut: membre.statut || 'Actif'
+    });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = (e) => {
+    e.preventDefault();
+    if (!formData.prenom.trim() || !formData.nom.trim()) return;
+    editMembre(membre.id, formData);
+    setIsEditModalOpen(false);
+  };
 
   // Kamil Juki assignment for this member
   const juzAssigned = kamilCycle?.assignations?.find((a) => a.membre_id === membreId);
@@ -118,14 +144,24 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
           </div>
         </div>
 
-        {/* Action Button: Supprimer */}
-        <button
-          onClick={handleDelete}
-          className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 self-end md:self-center shadow-xs"
-        >
-          <Trash2 className="w-4 h-4" />
-          <span>Supprimer ce membre</span>
-        </button>
+        {/* Action Buttons: Modifier & Supprimer */}
+        <div className="flex items-center gap-2.5 self-end md:self-center">
+          <button
+            onClick={openEditModal}
+            className="px-4 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 shadow-sm"
+          >
+            <Edit className="w-4 h-4" />
+            <span>Modifier</span>
+          </button>
+
+          <button
+            onClick={handleDelete}
+            className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 shadow-xs"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>Supprimer</span>
+          </button>
+        </div>
       </div>
 
       {/* Grid of Clean Detail Cards */}
@@ -264,6 +300,158 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
         </div>
 
       </div>
+
+      {/* MODAL DE MODIFICATION DU MEMBRE */}
+      {isEditModalOpen && formData && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 z-[500] animate-fade-in">
+          <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden border border-slate-200 shadow-2xl">
+            {/* Modal Header */}
+            <div className="p-5 bg-gradient-to-r from-emerald-950 via-[#144631] to-[#0A261A] text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-800 text-white flex items-center justify-center font-bold shadow-md border border-emerald-600/40">
+                  <Edit className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-display font-black text-lg text-white">
+                    Modifier les Informations
+                  </h3>
+                  <p className="text-xs text-emerald-200 font-medium">
+                    Fiche de {membre.prenom} {membre.nom}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditModalOpen(false)}
+                className="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 text-white flex items-center justify-center transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSaveEdit} className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Prénom <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.prenom}
+                    onChange={(e) => setFormData({ ...formData, prenom: e.target.value })}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Nom <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={formData.nom}
+                    onChange={(e) => setFormData({ ...formData, nom: e.target.value })}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600 uppercase"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Téléphone
+                  </label>
+                  <input
+                    type="tel"
+                    value={formData.telephone}
+                    onChange={(e) => setFormData({ ...formData, telephone: e.target.value })}
+                    placeholder="+221 77 000 00 00"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Profession
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.profession}
+                    onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
+                    placeholder="ex: Enseignant, Commerçant..."
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-emerald-600"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700 block">
+                  Adresse de résidence
+                </label>
+                <input
+                  type="text"
+                  value={formData.adresse}
+                  onChange={(e) => setFormData({ ...formData, adresse: e.target.value })}
+                  placeholder="ex: Touba Mosquée, Quartier Darou Minam"
+                  className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:border-emerald-600"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Kourel d'appartenance
+                  </label>
+                  <select
+                    value={formData.kourel_id}
+                    onChange={(e) => setFormData({ ...formData, kourel_id: e.target.value })}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+                  >
+                    {kourels.map((k) => (
+                      <option key={k.id} value={k.id}>
+                        {k.nom}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700 block">
+                    Statut du membre
+                  </label>
+                  <select
+                    value={formData.statut}
+                    onChange={(e) => setFormData({ ...formData, statut: e.target.value })}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:outline-none focus:border-emerald-600"
+                  >
+                    <option value="Actif">Actif</option>
+                    <option value="Inactif">Inactif</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Form Buttons */}
+              <div className="flex justify-end gap-2.5 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-md flex items-center gap-2 cursor-pointer active:scale-95 transition-all"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>Enregistrer les modifications</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
     </div>
   );
