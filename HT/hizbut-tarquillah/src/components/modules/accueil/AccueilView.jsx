@@ -1,13 +1,13 @@
 import React from 'react';
-import { 
-  Users, 
-  Mic, 
-  BookOpen, 
-  Calendar, 
-  Sparkles, 
-  ArrowRight, 
-  ShieldCheck, 
-  TrendingUp, 
+import {
+  Users,
+  Mic,
+  BookOpen,
+  Calendar,
+  Sparkles,
+  ArrowRight,
+  ShieldCheck,
+  TrendingUp,
   CheckCircle2,
   Bell,
   Clock,
@@ -38,7 +38,7 @@ export const AccueilView = () => {
       {/* Hero SaaS Banner */}
       <div className="relative rounded-3xl overflow-hidden shadow-soft-xl border border-emerald-900/10">
         {/* Background Overlay */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 scale-100 hover:scale-105"
           style={{ backgroundImage: `url(${bgHero})` }}
         />
@@ -46,15 +46,18 @@ export const AccueilView = () => {
 
         {/* Hero Content */}
         <div className="relative z-10 p-6 sm:p-10 lg:p-12 text-white max-w-4xl space-y-6">
-          
-          {/* Top Bismillah & Sama Kourel */}
-          <div className="flex flex-wrap items-center gap-4">
+
+          {/* Top Bismillah & Badge */}
+          <div className="flex flex-wrap items-center gap-3">
             <span className="font-serif text-lg sm:text-xl text-amber-300/90 font-bold tracking-widest font-['Amiri',serif]">
-              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+              بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
             </span>
-            <span className="font-['Amiri',serif] text-2xl sm:text-3xl font-bold text-amber-200 tracking-wide drop-shadow-[0_2px_8px_rgba(245,158,11,0.35)]" style={{ fontStyle: 'italic' }}>
-              Sama Kourel
-            </span>
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-xs font-bold text-emerald-200 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <span>Portail Officiel • Sama Kourel Pro</span>
+              <span className="text-emerald-300/70">•</span>
+              <span className="font-arabic text-sm font-bold text-amber-300">سَمَا كُورِيلْ</span>
+            </div>
           </div>
 
           {/* Majestic Title */}
@@ -128,9 +131,9 @@ export const AccueilView = () => {
       </div>
 
       {/* Modern KPI Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {/* Total Membres */}
-        <div 
+        <div
           onClick={() => setActiveTab('membres')}
           className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
         >
@@ -153,7 +156,7 @@ export const AccueilView = () => {
         </div>
 
         {/* Kourels / Répétitions */}
-        <div 
+        <div
           onClick={() => setActiveTab('repetition')}
           className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
         >
@@ -175,7 +178,7 @@ export const AccueilView = () => {
         </div>
 
         {/* Cycle Kamil */}
-        <div 
+        <div
           onClick={() => setActiveTab('kamil')}
           className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
         >
@@ -197,7 +200,7 @@ export const AccueilView = () => {
         </div>
 
         {/* Cotisations */}
-        <div 
+        <div
           onClick={() => setActiveTab('membres')}
           className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
         >
@@ -233,7 +236,7 @@ export const AccueilView = () => {
                 </h3>
                 <p className="text-xs text-slate-500 mt-0.5">Affectation des membres et encadrement pédagogique</p>
               </div>
-              <button 
+              <button
                 onClick={() => setActiveTab('repetition')}
                 className="text-xs font-bold text-emerald-800 hover:text-emerald-900 flex items-center gap-1 bg-emerald-50 hover:bg-emerald-100/80 px-3 py-1.5 rounded-xl transition-colors"
               >
@@ -246,7 +249,7 @@ export const AccueilView = () => {
               {kourels.map((k) => {
                 const countMembers = membres.filter(m => m.kourel_id === k.id).length;
                 return (
-                  <div 
+                  <div
                     key={k.id}
                     onClick={() => setActiveTab('repetition')}
                     className="p-4 bg-slate-50/70 hover:bg-emerald-50/50 rounded-2xl border border-slate-200/80 hover:border-emerald-300 transition-all cursor-pointer space-y-2 group shadow-soft-xs"
@@ -275,8 +278,59 @@ export const AccueilView = () => {
             </div>
           </div>
 
+          {/* Kamil Cycle Progress Modern Widget */}
+          <div className="rounded-3xl p-6 bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 text-white shadow-soft-xl space-y-5 border border-emerald-800/30">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center">
+                  <BookOpen className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-sm text-white">Suivi du Kamil #{kamilCycle.numero_cycle}</h3>
+                  <p className="text-[11px] text-slate-300">Récitation intégrale du Saint Coran (30 Jukis)</p>
+                </div>
+              </div>
+              <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-bold border border-emerald-400/30">
+                {kamilCycle.statut}
+              </span>
+            </div>
 
+            {/* Progress metrics */}
+            <div className="space-y-2.5 pt-1">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-slate-300">Avancement des lectures</span>
+                <span className="text-amber-400">
+                  {totalJukisLus} / 30 Jukis complétés ({kamilCompletionPercent}%)
+                </span>
+              </div>
+              <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/10">
+                <div
+                  className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 rounded-full transition-all duration-700"
+                  style={{ width: `${Math.max(kamilCompletionPercent, 5)}%` }}
+                />
+              </div>
+            </div>
 
+            <div className="pt-2 flex items-center justify-between border-t border-white/10 text-xs">
+              <div className="flex items-center gap-4 text-slate-300 text-[11px]">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  {totalJukisLus} Lus
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                  {totalJukisAttribues} En cours
+                </span>
+              </div>
+              <button
+                onClick={() => setActiveTab('kamil')}
+                className="px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 active:scale-95"
+              >
+                <span>Accéder à la Grille</span>
+                <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Right Column (1 Col): Announcement & Recent Sessions */}
@@ -299,7 +353,7 @@ export const AccueilView = () => {
               </p>
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold">
                 <span className="text-[11px] text-slate-400 font-semibold">{pinnedInfo.auteur}</span>
-                <button 
+                <button
                   onClick={() => setActiveTab('info')}
                   className="text-emerald-800 hover:text-emerald-900 hover:underline flex items-center gap-1"
                 >
@@ -317,7 +371,7 @@ export const AccueilView = () => {
                 <Clock className="w-4 h-4 text-emerald-700" />
                 <span>Répétitions Récentes</span>
               </h4>
-              <button 
+              <button
                 onClick={() => setActiveTab('repetition')}
                 className="text-xs text-emerald-800 font-bold hover:underline"
               >
@@ -327,7 +381,7 @@ export const AccueilView = () => {
 
             <div className="space-y-2.5">
               {recentSeances.map((s) => (
-                <div 
+                <div
                   key={s.id}
                   onClick={() => setActiveTab('repetition')}
                   className="p-3 bg-slate-50/80 hover:bg-emerald-50/60 rounded-xl border border-slate-200/80 transition-all cursor-pointer flex items-center justify-between text-xs group"
@@ -340,11 +394,10 @@ export const AccueilView = () => {
                       {s.heure_debut} - {s.heure_fin} • {s.superviseur}
                     </div>
                   </div>
-                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-black ${
-                    s.statut === 'Terminée' 
-                      ? 'bg-emerald-100/80 text-emerald-800' 
+                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-black ${s.statut === 'Terminée'
+                      ? 'bg-emerald-100/80 text-emerald-800'
                       : 'bg-amber-100 text-amber-800'
-                  }`}>
+                    }`}>
                     {s.statut}
                   </span>
                 </div>

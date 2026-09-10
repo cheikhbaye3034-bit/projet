@@ -1,32 +1,25 @@
-import React, { useState } from 'react';
-import { 
-  ArrowLeft, 
-  User, 
-  Phone, 
-  MapPin, 
-  Briefcase, 
-  Calendar, 
-  BookOpen, 
-  CheckCircle2, 
-  Clock, 
-  ShieldCheck, 
+import React from 'react';
+import {
+  ArrowLeft,
+  User,
+  Phone,
+  MapPin,
+  Briefcase,
+  Calendar,
+  BookOpen,
+  CheckCircle2,
+  Clock,
+  ShieldCheck,
   Trash2,
   Award,
   Layers,
   Sparkles,
-  Hash,
-  Pencil,
-  X,
-  Save
+  Hash
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
 export const MembreDetailDrawer = ({ membreId, onClose }) => {
-  const { membres, kourels, kamilCycle, seances, deleteMembre, editMembre } = useApp();
-
-  // État pour le formulaire de modification
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({});
+  const { membres, kourels, kamilCycle, seances, deleteMembre } = useApp();
 
   if (!membreId) return null;
 
@@ -67,27 +60,9 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
     }
   };
 
-  const handleOpenEdit = () => {
-    setEditForm({
-      prenom: membre.prenom || '',
-      nom: membre.nom || '',
-      telephone: membre.telephone || '',
-      adresse: membre.adresse || '',
-      profession: membre.profession || '',
-      statut: membre.statut || 'Actif',
-      kourel_id: membre.kourel_id || '',
-    });
-    setIsEditing(true);
-  };
-
-  const handleSaveEdit = () => {
-    editMembre(membre.id, editForm);
-    setIsEditing(false);
-  };
-
   return (
     <div className="space-y-6 animate-fade-in select-none">
-      
+
       {/* Top Action Bar: Back button */}
       <div className="flex items-center justify-between gap-4">
         <button
@@ -105,7 +80,7 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
 
       {/* Main Header Profile Card (100% Direct on Page, No Modal, No Dark Stain) */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-soft flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        
+
         <div className="flex items-center gap-4 sm:gap-5">
           {/* Avatar Initials */}
           <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-emerald-800 text-white font-display font-black text-2xl sm:text-3xl flex items-center justify-center shadow-md flex-shrink-0">
@@ -117,13 +92,12 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
               <h1 className="font-display font-black text-xl sm:text-2xl lg:text-3xl text-slate-900 leading-tight">
                 {membre.prenom} {membre.nom}
               </h1>
-              
+
               <span
-                className={`px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase rounded-md flex items-center gap-1 ${
-                  membre.statut === 'Actif'
+                className={`px-2.5 py-0.5 text-[10px] sm:text-xs font-black uppercase rounded-md flex items-center gap-1 ${membre.statut === 'Actif'
                     ? 'bg-emerald-100 text-emerald-900 border border-emerald-200'
                     : 'bg-rose-100 text-rose-900 border border-rose-200'
-                }`}
+                  }`}
               >
                 <span className={`w-1.5 h-1.5 rounded-full ${membre.statut === 'Actif' ? 'bg-emerald-600' : 'bg-rose-600'}`} />
                 <span>{membre.statut || 'Actif'}</span>
@@ -144,130 +118,19 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
           </div>
         </div>
 
-        {/* Action Buttons: Modifier & Supprimer */}
-        <div className="flex items-center gap-2.5 self-end md:self-center">
-          <button
-            onClick={handleOpenEdit}
-            className="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 shadow-xs"
-          >
-            <Pencil className="w-4 h-4" />
-            <span>Modifier</span>
-          </button>
-          <button
-            onClick={handleDelete}
-            className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 shadow-xs"
-          >
-            <Trash2 className="w-4 h-4" />
-            <span>Supprimer</span>
-          </button>
-        </div>
+        {/* Action Button: Supprimer */}
+        <button
+          onClick={handleDelete}
+          className="px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer active:scale-95 self-end md:self-center shadow-xs"
+        >
+          <Trash2 className="w-4 h-4" />
+          <span>Supprimer ce membre</span>
+        </button>
       </div>
-
-      {/* ═══════════ MODAL DE MODIFICATION ═══════════ */}
-      {isEditing && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in" onClick={() => setIsEditing(false)}>
-          <div className="bg-white rounded-3xl w-full max-w-lg p-6 sm:p-8 shadow-2xl border border-slate-200 space-y-5 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            
-            {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h2 className="font-display font-bold text-base sm:text-lg text-slate-900 flex items-center gap-2">
-                <Pencil className="w-4 h-4 text-emerald-700" />
-                Modifier les informations
-              </h2>
-              <button onClick={() => setIsEditing(false)} className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors cursor-pointer">
-                <X className="w-4 h-4 text-slate-600" />
-              </button>
-            </div>
-
-            {/* Formulaire */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Prénom</label>
-                <input
-                  type="text" value={editForm.prenom || ''}
-                  onChange={(e) => setEditForm({...editForm, prenom: e.target.value})}
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Nom</label>
-                <input
-                  type="text" value={editForm.nom || ''}
-                  onChange={(e) => setEditForm({...editForm, nom: e.target.value})}
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Téléphone</label>
-                <input
-                  type="tel" value={editForm.telephone || ''}
-                  onChange={(e) => setEditForm({...editForm, telephone: e.target.value})}
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Profession</label>
-                <input
-                  type="text" value={editForm.profession || ''}
-                  onChange={(e) => setEditForm({...editForm, profession: e.target.value})}
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                />
-              </div>
-              <div className="space-y-1.5 sm:col-span-2">
-                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Adresse</label>
-                <input
-                  type="text" value={editForm.adresse || ''}
-                  onChange={(e) => setEditForm({...editForm, adresse: e.target.value})}
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Kourel</label>
-                <select
-                  value={editForm.kourel_id || ''}
-                  onChange={(e) => setEditForm({...editForm, kourel_id: e.target.value})}
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                >
-                  <option value="">— Aucun —</option>
-                  {kourels.map(k => <option key={k.id} value={k.id}>{k.nom}</option>)}
-                </select>
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[11px] font-black text-slate-600 uppercase tracking-wider">Statut</label>
-                <select
-                  value={editForm.statut || 'Actif'}
-                  onChange={(e) => setEditForm({...editForm, statut: e.target.value})}
-                  className="w-full px-3.5 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-                >
-                  <option value="Actif">Actif</option>
-                  <option value="Inactif">Inactif</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
-              <button
-                onClick={() => setIsEditing(false)}
-                className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
-              >
-                Annuler
-              </button>
-              <button
-                onClick={handleSaveEdit}
-                className="px-5 py-2.5 bg-emerald-800 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-md"
-              >
-                <Save className="w-4 h-4" />
-                Enregistrer les modifications
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Grid of Clean Detail Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        
+
         {/* CARD 1 : INFORMATIONS PERSONNELLES */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-soft space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-slate-100">
@@ -373,11 +236,10 @@ export const MembreDetailDrawer = ({ membreId, onClose }) => {
                   <span className="px-2.5 py-1 bg-emerald-800 text-white rounded-lg text-xs font-black">
                     Juki N° {juzAssigned.juz}
                   </span>
-                  <span className={`px-2.5 py-0.5 rounded-md text-[11px] font-black uppercase ${
-                    juzAssigned.statut === 'Terminé' 
-                      ? 'bg-emerald-200 text-emerald-950' 
+                  <span className={`px-2.5 py-0.5 rounded-md text-[11px] font-black uppercase ${juzAssigned.statut === 'Terminé'
+                      ? 'bg-emerald-200 text-emerald-950'
                       : 'bg-amber-200 text-amber-950'
-                  }`}>
+                    }`}>
                     {juzAssigned.statut}
                   </span>
                 </div>

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { Mic, Play, Pause, Calendar, Users, CheckCircle2, Clock, FileText, AudioWaveform } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Mic, Play, Pause, Calendar, Users, CheckCircle2, Clock, FileText, AudioWaveform, Upload, FolderOpen } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
 
 export const EnregistrementsSubView = () => {
-  const { seances, khassidas, kourels } = useApp();
+  const { seances, khassidas, kourels, addSeance, showToast } = useApp();
   const [playingRecordingId, setPlayingRecordingId] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
+  const audioFileInputRef = useRef(null);
 
   // Filter seances that have been completed or have an audio recording
   const recordedSeances = seances.filter((s) => s.statut === 'Terminée' || s.recording_url);
@@ -19,8 +20,65 @@ export const EnregistrementsSubView = () => {
     }
   };
 
+  // Ouvrir directement le gestionnaire de fichiers
+  const handleTriggerFileInput = () => {
+    if (audioFileInputRef.current) {
+      audioFileInputRef.current.value = '';
+      audioFileInputRef.current.click();
+    }
+  };
+
+  // Traiter le fichier audio sélectionné
+  const handleAudioFileSelected = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Limite de taille : 50 Mo
+    const MAX_SIZE_MB = 50;
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      showToast && showToast(`⚠️ Le fichier est trop lourd (maximum ${MAX_SIZE_MB} Mo).`, 'error');
+      return;
+    }
+
+    const cleanTitle = file.name
+      .replace(/\.[^/.]+$/, '')
+      .replace(/[-_]/g, ' ')
+      .trim();
+
+    const formattedDate = new Date().toLocaleDateString('fr-FR', {
+      year: 'numeric', month: '2-digit', day: '2-digit'
+    });
+    const currentTime = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+    const newSeance = {
+      date: formattedDate,
+      heure_debut: currentTime,
+      heure_fin: currentTime,
+      kourel_id: kourels[0]?.id || 'k1',
+      khassida_id: khassidas[0]?.id || 'kh1',
+      superviseur: 'Enregistrement importé',
+      statut: 'Terminée',
+      notes: `📁 Fichier importé : ${file.name} (${(file.size / (1024 * 1024)).toFixed(1)} Mo)`,
+      recording_url: URL.createObjectURL(file),
+      presences: []
+    };
+
+    addSeance && addSeance(newSeance);
+    showToast && showToast(`🎙️ Enregistrement "${cleanTitle}" importé avec succès depuis votre appareil !`);
+  };
+
   return (
     <div className="space-y-6 animate-fade-in">
+
+      {/* Input fichier caché — ouvre le gestionnaire de fichiers au clic */}
+      <input
+        type="file"
+        ref={audioFileInputRef}
+        onChange={handleAudioFileSelected}
+        accept="audio/*,.mp3,.m4a,.wav,.ogg,.aac,.flac,.wma"
+        className="hidden"
+      />
+
       {/* Header Banner */}
       <div className="bg-white rounded-3xl p-6 border border-ht-line shadow-soft flex items-center justify-between">
         <div>
@@ -37,6 +95,27 @@ export const EnregistrementsSubView = () => {
         <div className="w-12 h-12 rounded-2xl bg-ht-mist text-ht-emerald flex items-center justify-center font-bold border border-ht-mint">
           <Mic className="w-6 h-6 text-ht-emerald" />
         </div>
+      </div>
+
+      {/* ── Bouton Ajouter un Enregistrement ── */}
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={handleTriggerFileInput}
+          className="group px-5 py-3 bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-600 active:scale-95 text-white text-xs font-bold rounded-2xl shadow-lg hover:shadow-xl flex items-center gap-2.5 cursor-pointer transition-all duration-200"
+          title="Sélectionner un fichier audio depuis votre appareil"
+        >
+          <div className="w-8 h-8 rounded-xl bg-white/15 flex items-center justify-center group-hover:bg-white/25 transition-colors">
+            <FolderOpen className="w-4 h-4" />
+          </div>
+          <div className="text-left">
+            <span className="block">Ajouter un Enregistrement</span>
+            <span className="block text-[10px] font-medium text-emerald-200 opacity-80">
+              Importer depuis votre appareil
+            </span>
+          </div>
+          <Upload className="w-4 h-4 ml-1 opacity-70 group-hover:opacity-100 transition-opacity" />
+        </button>
       </div>
 
       {/* Grid of Recorded Sessions */}

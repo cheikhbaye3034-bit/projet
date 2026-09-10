@@ -25,9 +25,15 @@ const MainLayout = () => {
     return (
       <>
         {authScreen === 'landing' ? (
-          <LandingView onStartLogin={() => setAuthScreen('login')} />
+          <LandingView 
+            onStartLogin={(mode = 'login') => setAuthScreen(mode === 'register' ? 'register' : 'login')}
+            onStartRegister={() => setAuthScreen('register')}
+          />
         ) : (
-          <LoginView onBack={() => setAuthScreen('landing')} />
+          <LoginView 
+            initialMode={authScreen === 'register' ? 'register' : 'login'}
+            onBack={() => setAuthScreen('landing')} 
+          />
         )}
         <Toast />
       </>

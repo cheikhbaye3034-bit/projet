@@ -12,6 +12,7 @@ import {
   PAST_KAMIL_CYCLES,
   INITIAL_INFORMATIONS
 } from '../mock/mockData';
+import { DEFAULT_KOUREL_SCHEDULES } from '../utils/repetitionUtils';
 
 const AppContext = createContext();
 
@@ -28,7 +29,7 @@ export const AppProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem('ht_current_user');
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch (e) { }
     return null;
   });
   const [activeTab, setActiveTabState] = useState('accueil'); // accueil, dashboard, membres, repetition, kamil, info, login
@@ -69,7 +70,7 @@ export const AppProvider = ({ children }) => {
         const parsed = JSON.parse(saved);
         if (parsed && Array.isArray(parsed.assignations)) return parsed;
       }
-    } catch (e) {}
+    } catch (e) { }
     return INITIAL_KAMIL_CYCLE;
   });
   const [pastKamilCycles] = useState(PAST_KAMIL_CYCLES);
@@ -80,7 +81,7 @@ export const AppProvider = ({ children }) => {
       if (kamilCycle) {
         localStorage.setItem('ht_kamil_cycle', JSON.stringify(kamilCycle));
       }
-    } catch (e) {}
+    } catch (e) { }
   }, [kamilCycle]);
   const [informations, setInformations] = useState(INITIAL_INFORMATIONS);
 
@@ -89,16 +90,25 @@ export const AppProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem('ht_absence_requests');
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch (e) { }
     return [];
   });
-  
+
+  // Plannings et horaires des répétitions par Kourel
+  const [kourelSchedules, setKourelSchedules] = useState(() => {
+    try {
+      const saved = localStorage.getItem('ht_kourel_schedules');
+      if (saved) return JSON.parse(saved);
+    } catch (e) { }
+    return DEFAULT_KOUREL_SCHEDULES;
+  });
+
   // App Settings & Customization
   const [appSettings, setAppSettings] = useState(() => {
     try {
       const saved = localStorage.getItem('ht_app_settings');
       if (saved) return JSON.parse(saved);
-    } catch (e) {}
+    } catch (e) { }
     return {
       daaraName: 'Sama Kourel',
       logoUrl: '',
@@ -117,13 +127,13 @@ export const AppProvider = ({ children }) => {
       const saved = localStorage.getItem('ht_responsables');
       if (saved) {
         const parsed = JSON.parse(saved);
-        return parsed.filter(r => 
-          r.email !== 'admin.modou@hizbut-tarquillah.sn' && 
-          r.email !== 'abdoulaye.diop@hizbut-tarquillah.sn' && 
+        return parsed.filter(r =>
+          r.email !== 'admin.modou@hizbut-tarquillah.sn' &&
+          r.email !== 'abdoulaye.diop@hizbut-tarquillah.sn' &&
           r.email !== 'moustapha.fall@hizbut-tarquillah.sn'
         );
       }
-    } catch (e) {}
+    } catch (e) { }
     return [];
   });
 
@@ -155,7 +165,7 @@ export const AppProvider = ({ children }) => {
       const updated = { ...prev, ...newSettings };
       try {
         localStorage.setItem('ht_app_settings', JSON.stringify(updated));
-      } catch (e) {}
+      } catch (e) { }
       return updated;
     });
     showToast('Réglages sauvegardés avec succès !');
@@ -188,6 +198,42 @@ export const AppProvider = ({ children }) => {
       await supabase.from('kourels').update(data).eq('id', id);
     } catch (e) {
       console.error('Erreur Supabase updateKourel:', e);
+    }
+  };
+
+  const updateKourelSchedule = async (kourelId, scheduleData) => {
+    setKourelSchedules((prev) => {
+      const updated = {
+        ...prev,
+        [kourelId]: scheduleData
+      };
+      try {
+        localStorage.setItem('ht_kourel_schedules', JSON.stringify(updated));
+      } catch (e) { }
+      return updated;
+    });
+
+    const joursText = scheduleData.jours?.join(', ') || '';
+    const hText = `${scheduleData.heure_debut || '20:00'} - ${scheduleData.heure_fin || '22:00'}`;
+    const repJourSummary = `${joursText} de ${hText}`;
+
+    setKourels((prev) =>
+      prev.map((k) =>
+        k.id === kourelId
+          ? { ...k, repetition_jour: repJourSummary, repetition_horaires: scheduleData }
+          : k
+      )
+    );
+
+    showToast('Horaires de répétition enregistrés avec succès !');
+
+    try {
+      await supabase
+        .from('kourels')
+        .update({ repetition_jour: repJourSummary })
+        .eq('id', kourelId);
+    } catch (e) {
+      console.error('Erreur Supabase updateKourelSchedule:', e);
     }
   };
 
@@ -244,7 +290,7 @@ export const AppProvider = ({ children }) => {
     };
     setResponsables((prev) => {
       const updated = [...prev, newResp];
-      try { localStorage.setItem('ht_responsables', JSON.stringify(updated)); } catch (e) {}
+      try { localStorage.setItem('ht_responsables', JSON.stringify(updated)); } catch (e) { }
       return updated;
     });
     showToast(`Responsable ${newResp.prenom} ${newResp.nom} ajouté avec succès !`);
@@ -253,7 +299,7 @@ export const AppProvider = ({ children }) => {
   const deleteResponsable = (id) => {
     setResponsables((prev) => {
       const updated = prev.filter(r => r.id !== id);
-      try { localStorage.setItem('ht_responsables', JSON.stringify(updated)); } catch (e) {}
+      try { localStorage.setItem('ht_responsables', JSON.stringify(updated)); } catch (e) { }
       return updated;
     });
     showToast('Responsable supprimé.', 'info');
@@ -319,7 +365,7 @@ export const AppProvider = ({ children }) => {
           const cycleAssignations = (dbAssignations || [])
             .filter((a) => a.cycle_id === activeCycle.id)
             .sort((a, b) => a.juz - b.juz);
-          
+
           setKamilCycle({
             ...activeCycle,
             assignations: cycleAssignations.length > 0 ? cycleAssignations : INITIAL_KAMIL_CYCLE.assignations
@@ -384,7 +430,7 @@ export const AppProvider = ({ children }) => {
     try {
       localStorage.setItem('ht_auth', 'true');
       localStorage.setItem('ht_current_user', JSON.stringify(user));
-    } catch (e) {}
+    } catch (e) { }
 
     showToast('Connexion réussie. Bienvenue sur Sama Kourel !');
     return { success: true };
@@ -400,16 +446,16 @@ export const AppProvider = ({ children }) => {
           role: 'Super Admin',
           hasResponsableAccess: true
         };
-        try { localStorage.setItem('ht_current_user', JSON.stringify(updated)); } catch (e) {}
+        try { localStorage.setItem('ht_current_user', JSON.stringify(updated)); } catch (e) { }
         return updated;
       });
       setActiveTabState('dashboard');
       showToast('Accès Responsable déverrouillé avec succès !');
       return { success: true };
     }
-    return { 
-      success: false, 
-      message: "Code d'accès responsable incorrect. Veuillez contacter l'administration de la Daara." 
+    return {
+      success: false,
+      message: "Code d'accès responsable incorrect. Veuillez contacter l'administration de la Daara."
     };
   };
 
@@ -419,7 +465,7 @@ export const AppProvider = ({ children }) => {
     try {
       localStorage.removeItem('ht_auth');
       localStorage.removeItem('ht_current_user');
-    } catch (e) {}
+    } catch (e) { }
     setActiveTab('login');
     showToast('Vous avez été déconnecté.', 'info');
   };
@@ -452,19 +498,6 @@ export const AppProvider = ({ children }) => {
       await supabase.from('membres').delete().eq('id', membreId);
     } catch (e) {
       console.error('Erreur Supabase deleteMembre:', e);
-    }
-  };
-
-  const editMembre = async (membreId, updatedData) => {
-    setMembres((prev) =>
-      prev.map((m) => m.id === membreId ? { ...m, ...updatedData } : m)
-    );
-    showToast(`Informations de ${updatedData.prenom || ''} ${updatedData.nom || ''} mises à jour avec succès !`);
-
-    try {
-      await supabase.from('membres').update(updatedData).eq('id', membreId);
-    } catch (e) {
-      console.error('Erreur Supabase editMembre:', e);
     }
   };
 
@@ -522,16 +555,16 @@ export const AppProvider = ({ children }) => {
 
   const updatePointage = async (seanceId, membreId, newStatut, heureArrivee = '') => {
     let finalHeureArrivee = '';
-    
+
     setSeances((prevSeances) =>
       prevSeances.map((s) => {
         if (s.id !== seanceId) return s;
 
         const existingPresenceIndex = s.presences.findIndex((p) => p.membre_id === membreId);
         let updatedPresences = [...s.presences];
-        
-        finalHeureArrivee = newStatut === 'En retard' 
-          ? (heureArrivee || new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })) 
+
+        finalHeureArrivee = newStatut === 'En retard'
+          ? (heureArrivee || new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }))
           : (newStatut === 'Présent' ? s.heure_debut : '');
 
         if (existingPresenceIndex >= 0) {
@@ -639,7 +672,7 @@ export const AppProvider = ({ children }) => {
       };
       try {
         localStorage.setItem('ht_kamil_cycle', JSON.stringify(updatedCycle));
-      } catch (e) {}
+      } catch (e) { }
       return updatedCycle;
     });
 
@@ -666,7 +699,7 @@ export const AppProvider = ({ children }) => {
       };
       try {
         localStorage.setItem('ht_kamil_cycle', JSON.stringify(updatedCycle));
-      } catch (e) {}
+      } catch (e) { }
       return updatedCycle;
     });
 
@@ -689,7 +722,7 @@ export const AppProvider = ({ children }) => {
       };
       try {
         localStorage.setItem('ht_kamil_cycle', JSON.stringify(updated));
-      } catch (e) {}
+      } catch (e) { }
       return updated;
     });
     showToast(`Juki ${juzNumber} marqué comme "${newStatut}"`);
@@ -717,17 +750,17 @@ export const AppProvider = ({ children }) => {
         ...prev,
         assignations: prev.assignations.map((item) => {
           if (item.juz !== juzNumber) return item;
-          return { 
-            ...item, 
+          return {
+            ...item,
             membre_id: membreId || null,
             membre_nom: name || null,
-            statut: newStatut 
+            statut: newStatut
           };
         })
       };
       try {
         localStorage.setItem('ht_kamil_cycle', JSON.stringify(updated));
-      } catch (e) {}
+      } catch (e) { }
       return updated;
     });
 
@@ -787,7 +820,7 @@ export const AppProvider = ({ children }) => {
     try {
       const { assignations, ...cycleFields } = newCycle;
       await supabase.from('kamil_cycles').insert([cycleFields]);
-      
+
       const dbAssignations = assignations.map(a => ({
         cycle_id: newCycleId,
         juz: a.juz,
@@ -1013,7 +1046,7 @@ export const AppProvider = ({ children }) => {
     };
     setAbsenceRequests(prev => {
       const updated = [newRequest, ...prev];
-      try { localStorage.setItem('ht_absence_requests', JSON.stringify(updated)); } catch (e) {}
+      try { localStorage.setItem('ht_absence_requests', JSON.stringify(updated)); } catch (e) { }
       return updated;
     });
     showToast('✅ Votre demande d\'absence a été soumise avec succès.');
@@ -1022,7 +1055,7 @@ export const AppProvider = ({ children }) => {
   const updateAbsenceRequest = (id, updates) => {
     setAbsenceRequests(prev => {
       const updated = prev.map(r => r.id === id ? { ...r, ...updates } : r);
-      try { localStorage.setItem('ht_absence_requests', JSON.stringify(updated)); } catch (e) {}
+      try { localStorage.setItem('ht_absence_requests', JSON.stringify(updated)); } catch (e) { }
       return updated;
     });
   };
@@ -1059,7 +1092,6 @@ export const AppProvider = ({ children }) => {
         unlockResponsableAccess,
         addMembre,
         deleteMembre,
-        editMembre,
         addSeance,
         updatePointage,
         bulkUpdatePointage,
@@ -1084,6 +1116,8 @@ export const AppProvider = ({ children }) => {
         addKourel,
         updateKourel,
         deleteKourel,
+        kourelSchedules,
+        updateKourelSchedule,
         addSecteur,
         deleteSecteur,
         responsables,

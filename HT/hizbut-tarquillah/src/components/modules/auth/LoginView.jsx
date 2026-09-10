@@ -21,9 +21,17 @@ import { useApp } from '../../../context/AppContext';
 import logoOfficial from '../../../assets/images/logo_ht_official.png';
 import audioQasidaMountakha from '../../../assets/audio/cheikh_mountakha_qasida.m4a';
 
-export const LoginView = ({ onBack }) => {
-  const { login, appSettings } = useApp();
+export const LoginView = ({ onBack, initialMode = 'login' }) => {
+  const { login, appSettings, membres, responsables } = useApp();
   
+  // 'login' (Connexion directe pour compte existant) | 'register' (Création de compte multi-étapes)
+  const [authMode, setAuthMode] = useState(initialMode || 'login');
+
+  // Direct Login states (pour ceux qui ont déjà un compte)
+  const [directIdentifier, setDirectIdentifier] = useState('');
+  const [directPassword, setDirectPassword] = useState('');
+  const [showDirectPassword, setShowDirectPassword] = useState(false);
+
   // Multi-step state: 1, 2, 3 (et 4 uniquement pour Membre)
   const [step, setStep] = useState(1);
   
@@ -48,6 +56,136 @@ export const LoginView = ({ onBack }) => {
   // UI & Feedback states
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Helper pour mémoriser les comptes créés
+  const saveUserLocally = (userData) => {
+    try {
+      const existing = JSON.parse(localStorage.getItem('ht_registered_users') || '[]');
+      const filtered = existing.filter(u => 
+        (userData.email && u.email !== userData.email) ||
+        (userData.telephone && u.telephone !== userData.telephone)
+      );
+      filtered.push(userData);
+      localStorage.setItem('ht_registered_users', JSON.stringify(filtered));
+    } catch (e) { }
+  };
+
+  // Connexion directe pour les personnes ayant déjà un compte
+  const handleDirectLogin = async (e) => {
+    if (e) e.preventDefault();
+    setErrorMessage('');
+
+    const cleanId = directIdentifier.trim();
+    if (!cleanId) {
+      setErrorMessage('Veuillez saisir votre email ou numéro de téléphone.');
+      return;
+    }
+    if (!directPassword || directPassword.length < 6) {
+      setErrorMessage('Le mot de passe doit comporter au moins 6 caractères.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const cleanLower = cleanId.toLowerCase();
+      const cleanPhone = cleanId.replace(/[^0-9+]/g, '');
+
+      // 1. Chercher dans les comptes déjà enregistrés localement
+      let localAccounts = [];
+      try {
+        localAccounts = JSON.parse(localStorage.getItem('ht_registered_users') || '[]');
+      } catch (err) {}
+
+      const foundLocal = localAccounts.find(u => 
+        (u.email && u.email.toLowerCase() === cleanLower) ||
+        (u.telephone && u.telephone.replace(/[^0-9+]/g, '') === cleanPhone)
+      );
+
+      if (foundLocal) {
+        try {
+          const audio = new Audio(audioQasidaMountakha);
+          audio.volume = 0.9;
+          audio.play().catch(() => {});
+        } catch (e) {}
+
+        login(cleanId, directPassword, foundLocal);
+        return;
+      }
+
+      // 2. Chercher dans les responsables de la plateforme
+      const foundResp = (responsables || []).find(r => 
+        (r.email && r.email.toLowerCase() === cleanLower) ||
+        (r.telephone && r.telephone.replace(/[^0-9+]/g, '') === cleanPhone)
+      );
+
+      if (foundResp) {
+        try {
+          const audio = new Audio(audioQasidaMountakha);
+          audio.volume = 0.9;
+          audio.play().catch(() => {});
+        } catch (e) {}
+
+        login(cleanId, directPassword, {
+          ...foundResp,
+          role: 'Super Admin',
+          hasResponsableAccess: true
+        });
+        return;
+      }
+
+      // 3. Chercher dans les membres de la Daara
+      const foundMembre = (membres || []).find(m => 
+        (m.email && m.email.toLowerCase() === cleanLower) ||
+        (m.telephone && m.telephone.replace(/[^0-9+]/g, '') === cleanPhone)
+      );
+
+      if (foundMembre) {
+        try {
+          const audio = new Audio(audioQasidaMountakha);
+          audio.volume = 0.9;
+          audio.play().catch(() => {});
+        } catch (e) {}
+
+        login(cleanId, directPassword, {
+          ...foundMembre,
+          role: 'Membre',
+          hasResponsableAccess: false
+        });
+        return;
+      }
+
+      // 4. Dernier utilisateur actif
+      let lastUser = null;
+      try {
+        lastUser = JSON.parse(localStorage.getItem('ht_current_user') || 'null');
+      } catch (e) {}
+
+      if (lastUser && (
+        (lastUser.email && lastUser.email.toLowerCase() === cleanLower) ||
+        (lastUser.telephone && lastUser.telephone.replace(/[^0-9+]/g, '') === cleanPhone)
+      )) {
+        login(cleanId, directPassword, lastUser);
+        return;
+      }
+
+      // 5. Connexion Membre directe
+      login(cleanId, directPassword, {
+        prenom: cleanId.includes('@') ? cleanId.split('@')[0] : 'Membre',
+        nom: '',
+        email: cleanId.includes('@') ? cleanId : '',
+        telephone: !cleanId.includes('@') ? cleanId : '',
+        role: 'Membre',
+        hasResponsableAccess: false
+      });
+
+    } catch (err) {
+      console.error('Erreur connexion directe:', err);
+      setErrorMessage('Une erreur est survenue lors de la connexion. Veuillez vérifier vos identifiants.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Advance to Step 2
   const handleStep1Next = () => {
@@ -105,14 +243,16 @@ export const LoginView = ({ onBack }) => {
           audio.play().catch((err) => console.log('Audio autoplay prevented:', err));
         } catch (err) {}
 
-        login(email, password, {
+        const respData = {
           role: 'Super Admin',
           hasResponsableAccess: true,
           prenom: prenom.trim(),
           nom: nom.trim(),
           telephone: telephone.trim(),
           email: email.trim().toLowerCase()
-        });
+        };
+        saveUserLocally(respData);
+        login(email, password, respData);
       } catch (err) {
         console.error('Erreur inscription responsable:', err);
         setErrorMessage("Une erreur est survenue lors de l'accès. Veuillez réessayer.");
@@ -155,7 +295,7 @@ export const LoginView = ({ onBack }) => {
         audio.play().catch((err) => console.log('Audio autoplay prevented:', err));
       } catch (err) {}
 
-      login(email, password, {
+      const membreData = {
         role: 'Membre',
         hasResponsableAccess: false,
         prenom: prenom.trim(),
@@ -163,7 +303,9 @@ export const LoginView = ({ onBack }) => {
         telephone: telephone.trim(),
         email: email.trim().toLowerCase(),
         codeAcces: trimmedCode
-      });
+      };
+      saveUserLocally(membreData);
+      login(email, password, membreData);
       setIsSubmitting(false);
 
     } catch (err) {
@@ -193,15 +335,21 @@ export const LoginView = ({ onBack }) => {
           </button>
         ) : <div />}
 
-        {/* Progress Indicator (3 étapes pour Responsable, 4 étapes pour Membre) */}
-        <div className="flex items-center gap-1.5" title={`Étape ${step} sur ${role === 'responsable' ? 3 : 4}`}>
-          <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 1 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
-          <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 2 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
-          <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 3 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
-          {role === 'membre' && (
-            <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 4 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
-          )}
-        </div>
+        {/* Progress Indicator ou Badge Mode Connexion */}
+        {authMode === 'register' ? (
+          <div className="flex items-center gap-1.5" title={`Étape ${step} sur ${role === 'responsable' ? 3 : 4}`}>
+            <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 1 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
+            <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 2 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
+            <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 3 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
+            {role === 'membre' && (
+              <div className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${step === 4 ? 'bg-emerald-700 w-6' : 'bg-slate-300'}`} />
+            )}
+          </div>
+        ) : (
+          <span className="text-[11px] font-black uppercase tracking-wider px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 border border-emerald-200">
+            Espace Connexion
+          </span>
+        )}
       </header>
 
       {/* Center Main Card */}
@@ -230,11 +378,21 @@ export const LoginView = ({ onBack }) => {
             </div>
 
             <h1 className="font-display font-black text-2xl sm:text-3xl lg:text-3xl text-slate-900 tracking-tight mt-2">
-              {step === 1 && "Êtes-vous Membre ou Responsable ?"}
-              {step === 2 && "Renseignez vos coordonnées"}
-              {step === 3 && (role === 'responsable' ? "Connexion Espace Responsable" : "Renseignez votre Email et Mot de passe")}
-              {step === 4 && "Validation de votre affiliation Membre"}
+              {authMode === 'login'
+                ? "Connexion à votre Compte"
+                : (step === 1 ? "Êtes-vous Membre ou Responsable ?" :
+                   step === 2 ? "Renseignez vos coordonnées" :
+                   step === 3 ? (role === 'responsable' ? "Inscription Espace Responsable" : "Renseignez votre Email et Mot de passe") :
+                   "Validation de votre affiliation Membre"
+                  )
+              }
             </h1>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
+              {authMode === 'login'
+                ? "Saisissez vos identifiants pour accéder directement à votre espace"
+                : "Rejoignez la plateforme officielle Sama Kourel"
+              }
+            </p>
           </div>
 
           {/* Error Banner */}
@@ -246,9 +404,89 @@ export const LoginView = ({ onBack }) => {
           )}
 
           {/* =========================================================================
-              ÉTAPE 1 : Êtes-vous Membre ou Responsable ?
+              MODE CONNEXION DIRECTE (POUR CEUX QUI ONT DÉJÀ UN COMPTE)
           ========================================================================= */}
-          {step === 1 && (
+          {authMode === 'login' && (
+            <form onSubmit={handleDirectLogin} className="space-y-5 animate-fade-in text-left">
+              {/* Identifiant : Email ou Téléphone */}
+              <div className="space-y-2">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider">
+                  Email ou Numéro de Téléphone
+                </label>
+                <div className="relative">
+                  <User className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    required
+                    autoFocus
+                    value={directIdentifier}
+                    onChange={(e) => setDirectIdentifier(e.target.value)}
+                    placeholder="ex: modou.fall@gmail.com ou 77 123 45 67"
+                    className="w-full pl-12 pr-4 py-3.5 sm:py-4 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-2xl text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
+                  />
+                </div>
+              </div>
+
+              {/* Mot de passe */}
+              <div className="space-y-2">
+                <label className="block text-xs font-black text-slate-700 uppercase tracking-wider">
+                  Mot de passe
+                </label>
+                <div className="relative">
+                  <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showDirectPassword ? "text" : "password"}
+                    required
+                    value={directPassword}
+                    onChange={(e) => setDirectPassword(e.target.value)}
+                    placeholder="Votre mot de passe secret"
+                    className="w-full pl-12 pr-12 py-3.5 sm:py-4 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 rounded-2xl text-sm sm:text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-600 focus:ring-4 focus:ring-emerald-500/10 transition-all font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowDirectPassword(!showDirectPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+                  >
+                    {showDirectPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+              </div>
+
+              {/* Bouton Se Connecter */}
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full mt-6 py-4 sm:py-4.5 px-8 bg-gradient-to-r from-emerald-800 via-emerald-700 to-emerald-800 hover:from-emerald-900 hover:to-emerald-800 text-white font-display font-bold text-sm sm:text-base rounded-2xl shadow-[0_12px_28px_-5px_rgba(22,91,60,0.35)] hover:shadow-[0_16px_34px_-5px_rgba(22,91,60,0.45)] transition-all duration-200 flex items-center justify-center gap-2 group active:scale-[0.98] cursor-pointer disabled:opacity-50"
+              >
+                <Lock className="w-4 h-4 text-emerald-200" />
+                <span>{isSubmitting ? "Connexion en cours..." : "Se connecter"}</span>
+                <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
+              </button>
+
+              {/* Basculer vers inscription */}
+              <div className="pt-4 border-t border-slate-100 text-center">
+                <p className="text-xs sm:text-sm text-slate-600">
+                  Vous n'avez pas encore de compte ?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setErrorMessage('');
+                      setAuthMode('register');
+                      setStep(1);
+                    }}
+                    className="font-bold text-emerald-800 hover:text-emerald-950 underline cursor-pointer ml-1"
+                  >
+                    Créer un compte / Rejoindre
+                  </button>
+                </p>
+              </div>
+            </form>
+          )}
+
+          {/* =========================================================================
+              MODE INSCRIPTION / NOUVEAU COMPTE
+          ========================================================================= */}
+          {authMode === 'register' && step === 1 && (
             <div className="space-y-5 animate-fade-in">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
@@ -329,6 +567,23 @@ export const LoginView = ({ onBack }) => {
                 <span>Continuer</span>
                 <ArrowRight className="w-4 h-4 text-emerald-200 group-hover:translate-x-1 transition-transform" />
               </button>
+
+              {/* Basculer vers connexion pour compte existant */}
+              <div className="pt-4 border-t border-slate-100 text-center">
+                <p className="text-xs sm:text-sm text-slate-600">
+                  Vous avez déjà un compte ?{' '}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setErrorMessage('');
+                      setAuthMode('login');
+                    }}
+                    className="font-bold text-emerald-800 hover:text-emerald-950 underline cursor-pointer ml-1"
+                  >
+                    Se connecter directement
+                  </button>
+                </p>
+              </div>
             </div>
           )}
 

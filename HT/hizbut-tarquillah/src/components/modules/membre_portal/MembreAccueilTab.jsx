@@ -15,6 +15,7 @@ import {
   Image as ImageIcon
 } from 'lucide-react';
 import { useApp } from '../../../context/AppContext';
+import { getProchaineRepetition } from '../../../utils/repetitionUtils';
 import accueilHeroDahira from '../../../assets/images/accueil_hero_dahira.png';
 import accueilCitationBamba from '../../../assets/images/accueil_citation_bamba.jpg';
 import slideCalifeMountakha from '../../../assets/images/slide_calife_mountakha.jpg';
@@ -22,11 +23,11 @@ import slideKourelRecitation from '../../../assets/images/slide_kourel_recitatio
 import slideRepetitionStudio from '../../../assets/images/slide_repetition_studio.png';
 
 export const MembreAccueilTab = ({ onNavigateTab }) => {
-  const { currentUser, seances, kamilCycle, informations, kourels } = useApp();
+  const { currentUser, seances, kamilCycle, informations, kourels, kourelSchedules } = useApp();
 
-  const memberKourel = kourels.find(k => k.id === currentUser?.kourel_id);
+  const memberKourel = kourels.find(k => k.id === currentUser?.kourel_id) || kourels[0];
 
-  // Filter personal attendance statistics
+  // Statistiques de présence personnelles
   const memberPresences = (seances || []).reduce((acc, seance) => {
     const p = seance.presences?.find(item => item.membre_id === currentUser?.id);
     if (p) {
@@ -42,19 +43,8 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
     ? Math.round(((memberPresences.presents + memberPresences.retards * 0.5) / memberPresences.total) * 100) 
     : 0;
 
-  // Next upcoming session
-  const upcomingSeance = (seances || []).find(s => 
-    (!currentUser?.kourel_id || s.kourel_id === currentUser.kourel_id) && 
-    (s.statut === 'Planifiée' || s.statut === 'En cours')
-  ) || null;
-
-  // Remaining days to next seance
-  const remainingDaysToSeance = (() => {
-    if (!upcomingSeance?.date) return null;
-    const diffTime = new Date(upcomingSeance.date) - new Date();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return Math.max(0, diffDays);
-  })();
+  // Calcul dynamique et réel de la prochaine répétition du Kourel
+  const prochaineRepetition = getProchaineRepetition(memberKourel, kourelSchedules, seances);
 
   // Pinned announcement
   const pinnedInfos = informations ? informations.filter(i => i.epingle) : [];
@@ -152,12 +142,15 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
               <span className="text-[11px] sm:text-xs uppercase tracking-[0.2em] font-extrabold text-emerald-200/90 block">
                 PROCHAINE RÉPÉTITION
               </span>
-              <h2 className="font-display font-black text-3xl sm:text-4xl text-white tracking-tight leading-none pt-1">
-                {upcomingSeance?.titre || memberKourel?.nom || 'Prochaine séance'}
+              <h2 className="font-display font-black text-2xl sm:text-4xl text-white tracking-tight leading-none pt-1">
+                {prochaineRepetition?.titre || memberKourel?.nom || 'Prochaine séance'}
               </h2>
-              <p className="text-sm sm:text-base font-semibold text-emerald-200 pt-1">
-                {upcomingSeance ? `à ${upcomingSeance.heure_debut || '20:30'}` : 'Aucune répétition planifiée'}
-              </p>
+              <div className="text-sm sm:text-base font-semibold text-emerald-200 pt-1 flex flex-wrap items-center gap-2">
+                <span>{prochaineRepetition.dayLabel} à {prochaineRepetition.heure_debut}</span>
+                {prochaineRepetition.lieu && (
+                  <span className="text-xs text-emerald-300/80 font-normal">• {prochaineRepetition.lieu}</span>
+                )}
+              </div>
             </div>
 
             {/* Circular Progress Countdown Ring */}
@@ -180,7 +173,7 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
                   className="stroke-white"
                   strokeWidth="7"
                   strokeDasharray="264"
-                  strokeDashoffset={remainingDaysToSeance !== null ? "75" : "264"}
+                  strokeDashoffset={prochaineRepetition.strokeOffset}
                   strokeLinecap="round"
                   fill="none"
                 />
@@ -188,10 +181,10 @@ export const MembreAccueilTab = ({ onNavigateTab }) => {
               
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center leading-tight">
                 <span className="font-display font-black text-lg sm:text-xl text-white tracking-tight">
-                  {remainingDaysToSeance !== null ? `${remainingDaysToSeance} Jr${remainingDaysToSeance > 1 ? 's' : ''}` : '--'}
+                  {prochaineRepetition.countdownValue}
                 </span>
                 <span className="text-[9px] sm:text-[10px] text-emerald-200 font-semibold mt-0.5">
-                  {remainingDaysToSeance !== null ? 'restants' : 'En attente'}
+                  {prochaineRepetition.countdownUnit}
                 </span>
               </div>
             </div>

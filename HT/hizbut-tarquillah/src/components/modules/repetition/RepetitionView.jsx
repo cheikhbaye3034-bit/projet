@@ -8,10 +8,11 @@ import { PointageTable } from './PointageTable';
 import { AbsencesSubView } from './AbsencesSubView';
 import { NouvelleSeanceModal } from './NouvelleSeanceModal';
 import { ResumeSeancesModal } from './ResumeSeancesModal';
+import { HorairesRepetitionModal } from './HorairesRepetitionModal';
 import heroMicBg from '../../../assets/images/repetition_hero_mic.jpg';
 
 export const RepetitionView = () => {
-  const { kourels, seances, khassidas, membres, absenceRequests } = useApp();
+  const { kourels, seances, khassidas, membres, absenceRequests, kourelSchedules } = useApp();
 
   // Active sub-section state: 'khassidas' | 'sons' | 'enregistrements' | 'pointage' | 'absences'
   const [activeSubTab, setActiveSubTab] = useState('khassidas');
@@ -22,6 +23,7 @@ export const RepetitionView = () => {
   // Modals state
   const [isNewSeanceModalOpen, setIsNewSeanceModalOpen] = useState(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = useState(false);
+  const [isHorairesModalOpen, setIsHorairesModalOpen] = useState(false);
 
   // Filter seances for selected kourel
   const kourelSeances = seances ? seances.filter((s) => s.kourel_id === selectedKourelId) : [];
@@ -66,6 +68,15 @@ export const RepetitionView = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setIsHorairesModalOpen(true)}
+              className="px-4 py-2.5 bg-amber-500/25 hover:bg-amber-500/35 text-amber-200 font-bold text-xs rounded-xl border border-amber-400/40 flex items-center gap-2 transition-all active:scale-95 cursor-pointer backdrop-blur-md shadow-sm"
+              title="Configurer les jours et heures de répétition en fonction du Kourel"
+            >
+              <Clock className="w-4 h-4 text-amber-300" />
+              <span>Jours & Heures Kourels</span>
+            </button>
+
             <button
               onClick={() => setIsResumeModalOpen(true)}
               className="px-4 py-2.5 bg-white/15 hover:bg-white/25 text-white font-bold text-xs rounded-xl border border-white/20 flex items-center gap-2 transition-all active:scale-95 cursor-pointer backdrop-blur-md"
@@ -148,6 +159,15 @@ export const RepetitionView = () => {
               {/* Action Buttons */}
               <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
                 <button
+                  onClick={() => setIsHorairesModalOpen(true)}
+                  className="flex-1 sm:flex-none px-3.5 py-2.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 font-bold text-xs rounded-xl flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
+                  title="Modifier les jours et heures de répétition de ce Kourel"
+                >
+                  <Clock className="w-3.5 h-3.5 text-amber-700" />
+                  <span>Horaires Kourel</span>
+                </button>
+
+                <button
                   onClick={() => setIsResumeModalOpen(true)}
                   className="flex-1 sm:flex-none px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs rounded-xl border border-slate-200 flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer"
                 >
@@ -205,6 +225,26 @@ export const RepetitionView = () => {
                 </div>
               )}
             </div>
+
+            {/* Schedule summary pill for the selected kourel */}
+            {selectedKourel && (
+              <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs bg-slate-50/80 p-2.5 rounded-xl border border-slate-200/80">
+                <div className="flex items-center gap-2 text-slate-700">
+                  <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse shrink-0"></span>
+                  <span className="font-bold text-emerald-950">Programme habituel :</span>
+                  <span className="text-slate-600 font-medium">
+                    {kourelSchedules?.[selectedKourelId]?.jours?.join(' & ') || 'Mercredi & Samedi'} à {kourelSchedules?.[selectedKourelId]?.heure_debut || '20:00'} ({kourelSchedules?.[selectedKourelId]?.lieu || 'Siège Dahira Touba'})
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsHorairesModalOpen(true)}
+                  className="text-xs font-bold text-emerald-800 hover:text-emerald-950 underline flex items-center gap-1 cursor-pointer ml-auto"
+                >
+                  <span>Modifier les horaires</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Pointage Table */}
@@ -234,6 +274,12 @@ export const RepetitionView = () => {
       <ResumeSeancesModal
         isOpen={isResumeModalOpen}
         onClose={() => setIsResumeModalOpen(false)}
+        defaultKourelId={selectedKourelId}
+      />
+
+      <HorairesRepetitionModal
+        isOpen={isHorairesModalOpen}
+        onClose={() => setIsHorairesModalOpen(false)}
         defaultKourelId={selectedKourelId}
       />
     </div>

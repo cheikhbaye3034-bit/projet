@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import officialBg from '../../../assets/images/welcome_official_bg.png';
 
-export const LandingView = ({ onStartLogin }) => {
+export const LandingView = ({ onStartLogin, onStartRegister }) => {
   const [activeFeature, setActiveFeature] = useState(0);
 
   const features = [
@@ -117,12 +117,15 @@ export const LandingView = ({ onStartLogin }) => {
               <circle cx="150" cy="15" r="3" fill="#6EE7B7" />
             </svg>
 
-            <svg className="w-6 h-6 sm:w-8 sm:h-8 text-[#34D399]/70 animate-pulse" viewBox="0 0 100 100" fill="currentColor">
-              {/* 8-Pointed Star (Rub el Hizb) */}
-              <polygon points="50,5 63,37 95,50 63,63 50,95 37,63 5,50 37,37" fill="currentColor" fillOpacity="0.4" stroke="#6EE7B7" strokeWidth="2" />
-              <polygon points="50,15 60,40 85,50 60,60 50,85 40,60 15,50 40,40" fill="none" stroke="#A7F3D0" strokeWidth="1.5" />
-              <circle cx="50" cy="50" r="8" fill="#10B981" fillOpacity="0.8" />
-            </svg>
+            <button
+              type="button"
+              onClick={() => onStartLogin && onStartLogin('login')}
+              className="pointer-events-auto px-4 py-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white font-bold text-xs border border-white/40 backdrop-blur-md flex items-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95"
+              title="Se connecter avec un compte existant"
+            >
+              <Lock className="w-3.5 h-3.5 text-amber-300" />
+              <span>Connexion</span>
+            </button>
           </div>
 
         </div>
@@ -194,19 +197,29 @@ export const LandingView = ({ onStartLogin }) => {
           })}
         </div>
 
-        {/* Main Call To Action Button */}
-        <div className="pt-2 w-full max-w-sm flex flex-col items-center space-y-2.5">
+        {/* Main Call To Action Buttons */}
+        <div className="pt-2 w-full max-w-sm sm:max-w-md flex flex-col items-center space-y-3">
           <button
-            onClick={onStartLogin}
+            onClick={() => onStartRegister ? onStartRegister() : (onStartLogin && onStartLogin('register'))}
             className="w-full py-3.5 sm:py-4 px-8 bg-gradient-to-r from-[#D49E34] via-[#E5B246] to-[#D49E34] hover:from-[#E5B246] hover:to-[#D49E34] active:scale-[0.98] text-white font-display font-bold text-sm sm:text-base rounded-full shadow-[0_12px_28px_-5px_rgba(212,158,52,0.5)] hover:shadow-[0_16px_34px_-5px_rgba(212,158,52,0.65)] transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer group"
           >
             <span>Accéder à la plateforme</span>
             <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
           </button>
 
-          <p className="text-[11px] sm:text-xs text-slate-600 font-semibold flex items-center gap-1.5">
+          {/* Bouton de connexion directe pour ceux qui ont déjà un compte */}
+          <button
+            type="button"
+            onClick={() => onStartLogin && onStartLogin('login')}
+            className="w-full py-3 px-6 bg-white hover:bg-emerald-50 text-[#144631] font-display font-bold text-xs sm:text-sm rounded-full border-2 border-[#144631]/25 hover:border-[#144631] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer active:scale-95 shadow-sm"
+          >
+            <Lock className="w-4 h-4 text-emerald-800" />
+            <span>Vous avez déjà un compte ? Se connecter</span>
+          </button>
+
+          <p className="text-[11px] sm:text-xs text-slate-600 font-semibold flex items-center gap-1.5 pt-0.5">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" />
-            <span>Accès sécurisé pour Superviseurs & Administrateurs</span>
+            <span>Accès sécurisé pour Superviseurs, Membres & Administrateurs</span>
           </p>
         </div>
 
