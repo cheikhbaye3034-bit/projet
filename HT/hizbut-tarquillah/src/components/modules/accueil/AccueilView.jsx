@@ -277,60 +277,6 @@ export const AccueilView = () => {
               })}
             </div>
           </div>
-
-          {/* Kamil Cycle Progress Modern Widget */}
-          <div className="rounded-3xl p-6 bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-900 text-white shadow-soft-xl space-y-5 border border-emerald-800/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center">
-                  <BookOpen className="w-5 h-5 text-amber-400" />
-                </div>
-                <div>
-                  <h3 className="font-display font-bold text-sm text-white">Suivi du Kamil #{kamilCycle.numero_cycle}</h3>
-                  <p className="text-[11px] text-slate-300">Récitation intégrale du Saint Coran (30 Jukis)</p>
-                </div>
-              </div>
-              <span className="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs font-bold border border-emerald-400/30">
-                {kamilCycle.statut}
-              </span>
-            </div>
-
-            {/* Progress metrics */}
-            <div className="space-y-2.5 pt-1">
-              <div className="flex items-center justify-between text-xs font-bold">
-                <span className="text-slate-300">Avancement des lectures</span>
-                <span className="text-amber-400">
-                  {totalJukisLus} / 30 Jukis complétés ({kamilCompletionPercent}%)
-                </span>
-              </div>
-              <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/10">
-                <div
-                  className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-amber-400 rounded-full transition-all duration-700"
-                  style={{ width: `${Math.max(kamilCompletionPercent, 5)}%` }}
-                />
-              </div>
-            </div>
-
-            <div className="pt-2 flex items-center justify-between border-t border-white/10 text-xs">
-              <div className="flex items-center gap-4 text-slate-300 text-[11px]">
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                  {totalJukisLus} Lus
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-400"></span>
-                  {totalJukisAttribues} En cours
-                </span>
-              </div>
-              <button
-                onClick={() => setActiveTab('kamil')}
-                className="px-3.5 py-1.5 bg-white/15 hover:bg-white/25 text-xs font-bold rounded-xl transition-all flex items-center gap-1.5 active:scale-95"
-              >
-                <span>Accéder à la Grille</span>
-                <ArrowRight className="w-3 h-3" />
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Right Column (1 Col): Announcement & Recent Sessions */}
