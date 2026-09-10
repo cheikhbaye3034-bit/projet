@@ -91,30 +91,30 @@ export const KamilView = () => {
         </div>
       </div>
 
-      {/* 4 Professional Clickable KPI Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      {/* 4 Professional Clickable KPI Stat Cards (2x2 sur mobile, 4 colonnes sur desktop) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         {/* Stat Card 1: Parties terminées */}
         <div
           onClick={() => setSelectedDetailTab('termines')}
-          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          className="pro-card p-3.5 sm:p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
           title="Cliquer pour ouvrir le détail complet des Jukis terminés"
         >
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold border border-emerald-200/80 group-hover:scale-105 transition-transform">
-              <CheckCircle2 className="w-5 h-5 text-emerald-700" />
+          <div className="flex items-center justify-between gap-1">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold border border-emerald-200/80 group-hover:scale-105 transition-transform flex-shrink-0">
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-700" />
             </div>
-            <span className="px-2 py-0.5 bg-emerald-100/70 text-emerald-800 text-[10px] font-black rounded-full flex items-center gap-1">
-              <Eye className="w-3 h-3" />
+            <span className="px-1.5 sm:px-2 py-0.5 bg-emerald-100/70 text-emerald-800 text-[9px] sm:text-[10px] font-black rounded-full flex items-center gap-1">
+              <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               <span>Détails</span>
             </span>
           </div>
-          <div className="mt-4">
-            <div className="font-display font-black text-2xl text-slate-900 group-hover:text-emerald-800 transition-colors">
+          <div className="mt-3 sm:mt-4">
+            <div className="font-display font-black text-xl sm:text-2xl text-slate-900 group-hover:text-emerald-800 transition-colors">
               {termines}/30
             </div>
-            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
-              <span>Jukis validés</span>
-              <span className="text-[10px] text-emerald-700 font-bold underline">Voir liste ➔</span>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span className="truncate">Jukis validés</span>
+              <span className="text-[9px] sm:text-[10px] text-emerald-700 font-bold underline flex-shrink-0">Liste ➔</span>
             </div>
           </div>
         </div>
@@ -122,25 +122,25 @@ export const KamilView = () => {
         {/* Stat Card 2: Membres impliqués */}
         <div
           onClick={() => setSelectedDetailTab('membres')}
-          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          className="pro-card p-3.5 sm:p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
           title="Cliquer pour ouvrir la liste complète des lecteurs et affectations"
         >
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center font-bold border border-blue-200/80 group-hover:scale-105 transition-transform">
-              <Users className="w-5 h-5 text-blue-700" />
+          <div className="flex items-center justify-between gap-1">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-blue-800 flex items-center justify-center font-bold border border-blue-200/80 group-hover:scale-105 transition-transform flex-shrink-0">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-700" />
             </div>
-            <span className="px-2 py-0.5 bg-blue-100/70 text-blue-800 text-[10px] font-black rounded-full flex items-center gap-1">
-              <Eye className="w-3 h-3" />
+            <span className="px-1.5 sm:px-2 py-0.5 bg-blue-100/70 text-blue-800 text-[9px] sm:text-[10px] font-black rounded-full flex items-center gap-1">
+              <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               <span>Membres</span>
             </span>
           </div>
-          <div className="mt-4">
-            <div className="font-display font-black text-2xl text-slate-900 group-hover:text-blue-800 transition-colors">
+          <div className="mt-3 sm:mt-4">
+            <div className="font-display font-black text-xl sm:text-2xl text-slate-900 group-hover:text-blue-800 transition-colors">
               {membersInvolvedCount || 10}
             </div>
-            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
-              <span>Lecteurs actifs</span>
-              <span className="text-[10px] text-blue-700 font-bold underline">Affectations ➔</span>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span className="truncate">Lecteurs</span>
+              <span className="text-[9px] sm:text-[10px] text-blue-700 font-bold underline flex-shrink-0">Affect. ➔</span>
             </div>
           </div>
         </div>
@@ -148,25 +148,25 @@ export const KamilView = () => {
         {/* Stat Card 3: Parties en cours */}
         <div
           onClick={() => setSelectedDetailTab('encours')}
-          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          className="pro-card p-3.5 sm:p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
           title="Cliquer pour voir tous les Jukis restants"
         >
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center font-bold border border-amber-200/80 group-hover:scale-105 transition-transform">
-              <Clock className="w-5 h-5 text-amber-700" />
+          <div className="flex items-center justify-between gap-1">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 text-amber-800 flex items-center justify-center font-bold border border-amber-200/80 group-hover:scale-105 transition-transform flex-shrink-0">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-700" />
             </div>
-            <span className="px-2 py-0.5 bg-amber-100/70 text-amber-800 text-[10px] font-black rounded-full flex items-center gap-1">
-              <Eye className="w-3 h-3" />
+            <span className="px-1.5 sm:px-2 py-0.5 bg-amber-100/70 text-amber-800 text-[9px] sm:text-[10px] font-black rounded-full flex items-center gap-1">
+              <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
               <span>Restants</span>
             </span>
           </div>
-          <div className="mt-4">
-            <div className="font-display font-black text-2xl text-slate-900 group-hover:text-amber-800 transition-colors">
+          <div className="mt-3 sm:mt-4">
+            <div className="font-display font-black text-xl sm:text-2xl text-slate-900 group-hover:text-amber-800 transition-colors">
               {enCours + aFaire}/30
             </div>
-            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
-              <span>Restants ({daysRemaining}j)</span>
-              <span className="text-[10px] text-amber-700 font-bold underline">Voir tout ➔</span>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span className="truncate">Reste ({daysRemaining}j)</span>
+              <span className="text-[9px] sm:text-[10px] text-amber-700 font-bold underline flex-shrink-0">Voir ➔</span>
             </div>
           </div>
         </div>
@@ -174,25 +174,25 @@ export const KamilView = () => {
         {/* Stat Card 4: Cycles terminés */}
         <div
           onClick={() => setSelectedDetailTab('cycles')}
-          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          className="pro-card p-3.5 sm:p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
           title="Cliquer pour voir l'historique complet des cycles"
         >
-          <div className="flex items-center justify-between">
-            <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-800 flex items-center justify-center font-bold border border-purple-200/80 group-hover:scale-105 transition-transform">
-              <BookOpen className="w-5 h-5 text-purple-700" />
+          <div className="flex items-center justify-between gap-1">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-purple-50 text-purple-800 flex items-center justify-center font-bold border border-purple-200/80 group-hover:scale-105 transition-transform flex-shrink-0">
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-purple-700" />
             </div>
-            <span className="px-2 py-0.5 bg-purple-100/70 text-purple-800 text-[10px] font-black rounded-full flex items-center gap-1">
-              <Eye className="w-3 h-3" />
-              <span>Historique</span>
+            <span className="px-1.5 sm:px-2 py-0.5 bg-purple-100/70 text-purple-800 text-[9px] sm:text-[10px] font-black rounded-full flex items-center gap-1">
+              <Eye className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+              <span>Cycles</span>
             </span>
           </div>
-          <div className="mt-4">
-            <div className="font-display font-black text-2xl text-slate-900 group-hover:text-purple-800 transition-colors">
+          <div className="mt-3 sm:mt-4">
+            <div className="font-display font-black text-xl sm:text-2xl text-slate-900 group-hover:text-purple-800 transition-colors">
               {(pastKamilCycles?.length || 0) + (kamilCycle?.numero_cycle ? kamilCycle.numero_cycle - 1 : 41)}
             </div>
-            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
-              <span>Cycles complétés</span>
-              <span className="text-[10px] text-purple-700 font-bold underline">Archives ➔</span>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span className="truncate">Complétés</span>
+              <span className="text-[9px] sm:text-[10px] text-purple-700 font-bold underline flex-shrink-0">Arch. ➔</span>
             </div>
           </div>
         </div>
