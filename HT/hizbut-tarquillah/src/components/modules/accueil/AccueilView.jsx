@@ -130,27 +130,27 @@ export const AccueilView = () => {
         </div>
       </div>
 
-      {/* Modern KPI Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      {/* Modern KPI Stats Cards (2x2 sur mobile, 4 colonnes sur grand écran) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
         {/* Total Membres */}
         <div
           onClick={() => setActiveTab('membres')}
-          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          className="pro-card p-3.5 sm:p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold group-hover:scale-105 transition-transform border border-emerald-200/60 shadow-soft-xs">
-              <Users className="w-5 h-5 text-emerald-700" />
+          <div className="flex items-center justify-between gap-1">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-emerald-50 text-emerald-800 flex items-center justify-center font-bold group-hover:scale-105 transition-transform border border-emerald-200/60 shadow-soft-xs flex-shrink-0">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-700" />
             </div>
-            <span className="text-[11px] font-black text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded-full flex items-center gap-1">
-              <TrendingUp className="w-3 h-3 text-emerald-600" />
-              {totalMembresActifs} Actifs
+            <span className="text-[10px] sm:text-[11px] font-black text-emerald-800 bg-emerald-100/70 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full flex items-center gap-1">
+              <TrendingUp className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-emerald-600" />
+              <span>{totalMembresActifs} Actifs</span>
             </span>
           </div>
-          <div className="mt-4">
-            <div className="font-display font-black text-2xl text-slate-900 tracking-tight">{membres.length}</div>
-            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
-              <span>Membres enregistrés</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-700 transition-colors" />
+          <div className="mt-3 sm:mt-4">
+            <div className="font-display font-black text-xl sm:text-2xl text-slate-900 tracking-tight">{membres.length}</div>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span className="truncate">Membres</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-emerald-700 transition-colors flex-shrink-0" />
             </div>
           </div>
         </div>
@@ -158,21 +158,21 @@ export const AccueilView = () => {
         {/* Kourels / Répétitions */}
         <div
           onClick={() => setActiveTab('repetition')}
-          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          className="pro-card p-3.5 sm:p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-800 flex items-center justify-center font-bold group-hover:scale-105 transition-transform border border-amber-200/60 shadow-soft-xs">
-              <Mic className="w-5 h-5 text-amber-700" />
+          <div className="flex items-center justify-between gap-1">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-amber-50 text-amber-800 flex items-center justify-center font-bold group-hover:scale-105 transition-transform border border-amber-200/60 shadow-soft-xs flex-shrink-0">
+              <Mic className="w-4 h-4 sm:w-5 sm:h-5 text-amber-700" />
             </div>
-            <span className="text-[11px] font-black text-amber-800 bg-amber-100/70 px-2.5 py-1 rounded-full">
+            <span className="text-[10px] sm:text-[11px] font-black text-amber-800 bg-amber-100/70 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
               {kourels.length} Sections
             </span>
           </div>
-          <div className="mt-4">
-            <div className="font-display font-black text-2xl text-slate-900 tracking-tight">{seances.length}</div>
-            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
-              <span>Séances de répétition</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-700 transition-colors" />
+          <div className="mt-3 sm:mt-4">
+            <div className="font-display font-black text-xl sm:text-2xl text-slate-900 tracking-tight">{seances.length}</div>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span className="truncate">Séances rép.</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-700 transition-colors flex-shrink-0" />
             </div>
           </div>
         </div>
@@ -180,21 +180,21 @@ export const AccueilView = () => {
         {/* Cycle Kamil */}
         <div
           onClick={() => setActiveTab('kamil')}
-          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          className="pro-card p-3.5 sm:p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-800 flex items-center justify-center font-bold group-hover:scale-105 transition-transform border border-blue-200/60 shadow-soft-xs">
-              <BookOpen className="w-5 h-5 text-blue-700" />
+          <div className="flex items-center justify-between gap-1">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-blue-50 text-blue-800 flex items-center justify-center font-bold group-hover:scale-105 transition-transform border border-blue-200/60 shadow-soft-xs flex-shrink-0">
+              <BookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-blue-700" />
             </div>
-            <span className="text-[11px] font-black text-blue-800 bg-blue-100/70 px-2.5 py-1 rounded-full">
-              {kamilCompletionPercent}% Complété
+            <span className="text-[10px] sm:text-[11px] font-black text-blue-800 bg-blue-100/70 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
+              {kamilCompletionPercent}% Lu
             </span>
           </div>
-          <div className="mt-4">
-            <div className="font-display font-black text-2xl text-slate-900 tracking-tight">Cycle #{kamilCycle.numero_cycle}</div>
-            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
-              <span>60 Jukis Coraniques</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-700 transition-colors" />
+          <div className="mt-3 sm:mt-4">
+            <div className="font-display font-black text-xl sm:text-2xl text-slate-900 tracking-tight">#{kamilCycle.numero_cycle}</div>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span className="truncate">60 Jukis</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-700 transition-colors flex-shrink-0" />
             </div>
           </div>
         </div>
@@ -202,21 +202,21 @@ export const AccueilView = () => {
         {/* Cotisations */}
         <div
           onClick={() => setActiveTab('membres')}
-          className="pro-card p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
+          className="pro-card p-3.5 sm:p-5 pro-card-hover cursor-pointer group flex flex-col justify-between"
         >
-          <div className="flex items-center justify-between">
-            <div className="w-11 h-11 rounded-2xl bg-purple-50 text-purple-800 flex items-center justify-center font-bold group-hover:scale-105 transition-transform border border-purple-200/60 shadow-soft-xs">
-              <ShieldCheck className="w-5 h-5 text-purple-700" />
+          <div className="flex items-center justify-between gap-1">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-purple-50 text-purple-800 flex items-center justify-center font-bold group-hover:scale-105 transition-transform border border-purple-200/60 shadow-soft-xs flex-shrink-0">
+              <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-purple-700" />
             </div>
-            <span className="text-[11px] font-black text-purple-800 bg-purple-100/70 px-2.5 py-1 rounded-full">
-              {Math.round((totalCotisationsEnRegle / (membres.length || 1)) * 100)}% En règle
+            <span className="text-[10px] sm:text-[11px] font-black text-purple-800 bg-purple-100/70 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full">
+              {Math.round((totalCotisationsEnRegle / (membres.length || 1)) * 100)}%
             </span>
           </div>
-          <div className="mt-4">
-            <div className="font-display font-black text-2xl text-slate-900 tracking-tight">{totalCotisationsEnRegle} / {membres.length}</div>
-            <div className="text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
-              <span>Cotisations régulières</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-700 transition-colors" />
+          <div className="mt-3 sm:mt-4">
+            <div className="font-display font-black text-xl sm:text-2xl text-slate-900 tracking-tight">{totalCotisationsEnRegle}/{membres.length}</div>
+            <div className="text-[11px] sm:text-xs text-slate-500 font-semibold mt-0.5 flex items-center justify-between">
+              <span className="truncate">Cotisations</span>
+              <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-purple-700 transition-colors flex-shrink-0" />
             </div>
           </div>
         </div>
